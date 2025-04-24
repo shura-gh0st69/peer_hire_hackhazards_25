@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
-import api from "../lib/api";
+import api from "@/lib/api";
 
 type UserRole = "client" | "freelancer";
 
@@ -10,15 +10,24 @@ interface User {
     role: UserRole;
     avatar?: string;
     walletAddress?: string;
+    profile?: {
+        skills?: string[];
+        bio?: string;
+        hourlyRate?: number;
+        location?: string;
+        companySize?: string;
+        industry?: string;
+        companyLocation?: string;
+    };
 }
 
 interface AuthContextType {
     user: User | null;
     isAuthenticated: boolean;
     isLoading: boolean;
-    currentRole: UserRole; // Added for app-wide role state
+    currentRole: UserRole;
     login: (email: string, password: string) => Promise<void>;
-    signUp: (email: string, password: string, role: UserRole, name: string) => Promise<void>;
+    signUp: (email: string, password: string, role: UserRole, name: string, profile?: any) => Promise<void>;
     logout: () => void;
     connectWallet: (address: string) => void;
     updateUserRole: (role: UserRole) => void;
@@ -48,7 +57,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return savedUser ? JSON.parse(savedUser) : null;
     });
     
-    // Initialize currentRole from localStorage or user role or default to client
     const [currentRole, setCurrentRole] = useState<UserRole>(() => {
         const savedRole = localStorage.getItem("preferredRole") as UserRole;
         if (savedRole && (savedRole === "client" || savedRole === "freelancer")) {
@@ -67,8 +75,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 try {
                     const response = await api.get("/auth/me");
                     setUser(response.data.user);
-                    // If user role differs from current app role, keep the app role
-                    // This allows toggling views regardless of user's actual role
                 } catch (error) {
                     localStorage.removeItem("authToken");
                     localStorage.removeItem("user");
@@ -89,7 +95,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
     }, [user]);
 
-    // Add effect to update localStorage when currentRole changes
     useEffect(() => {
         localStorage.setItem("preferredRole", currentRole);
     }, [currentRole]);
@@ -97,16 +102,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const login = async (email: string, password: string) => {
         setIsLoading(true);
         try {
-            // Check for demo users first
             const demoClient = demoUsers.client;
             const demoFreelancer = demoUsers.freelancer;
             
             if ((email === demoClient.email && password === demoClient.password) ||
                 (email === demoFreelancer.email && password === demoFreelancer.password)) {
-                
                 const demoUser = email === demoClient.email ? demoClient : demoFreelancer;
-                
-                // Simulate API response for demo users
                 const mockToken = "demo_token_" + Math.random().toString(36).substring(7);
                 localStorage.setItem("authToken", mockToken);
                 setUser({
@@ -120,36 +121,49 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 return;
             }
 
-            // Normal login flow for non-demo users
             const response = await api.post("/auth/login", { email, password });
-            const { user: userData, token } = response.data;
+            const { token, user: userData } = response.data;
             localStorage.setItem("authToken", token);
             setUser(userData);
+            setCurrentRole(userData.role);
         } catch (error: any) {
-            throw new Error(error.response?.data?.message || "Login failed");
+            console.error("Login error:", error);
+            throw new Error(error.response?.data?.error || "Login failed");
         } finally {
             setIsLoading(false);
         }
     };
 
-    const signUp = async (email: string, password: string, role: UserRole, name: string) => {
+    const signUp = async (email: string, password: string, role: UserRole, name: string, profile?: any) => {
         setIsLoading(true);
         try {
-            const response = await api.post("/auth/register", {
+            // Check if we're in demo mode
+            if (email === import.meta.env.VITE_DEMO_CLIENT_EMAIL ||
+                email === import.meta.env.VITE_DEMO_FREELANCER_EMAIL) {
+                // Handle demo user logic if present
+                return;
+            }
+            
+            const response = await api.post("/auth/signup", {
                 email,
                 password,
-                role,
                 name,
-                avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`
+                role,
+                profile
             });
-            const { user: userData, token } = response.data;
+            
+            const { token, user: userData } = response.data;
             localStorage.setItem("authToken", token);
             setUser(userData);
-            
-            // For sign up, set currentRole to match the role they signed up with
             setCurrentRole(role);
         } catch (error: any) {
-            throw new Error(error.response?.data?.message || "Registration failed");
+            console.error("Signup error:", error.response?.data || error.message);
+            throw new Error(
+                error.response?.data?.error || 
+                (error.response?.data?.details && JSON.stringify(error.response.data.details)) || 
+                error.message || 
+                "Signup failed"
+            );
         } finally {
             setIsLoading(false);
         }
@@ -162,7 +176,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             localStorage.removeItem("authToken");
             localStorage.removeItem("user");
             setUser(null);
-            // Keep the currentRole after logout
         }
     };
 
@@ -178,17 +191,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     };
 
     const updateUserRole = async (role: UserRole) => {
-        // Always update the app-wide role state
         setCurrentRole(role);
         
-        // If user is authenticated, also update their account role
         if (user) {
             try {
                 const response = await api.patch("/users/role", { role });
                 setUser(response.data.user);
             } catch (error: any) {
                 console.error("Failed to update user role:", error);
-                // Even if API fails, keep the local role state updated
             }
         }
     };

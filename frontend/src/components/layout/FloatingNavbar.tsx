@@ -1,9 +1,27 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { BriefcaseIcon, UserIcon, HomeIcon, FileTextIcon, CreditCardIcon, Menu, X, PlusCircle } from "lucide-react";
+import { 
+  BriefcaseIcon, 
+  UserIcon, 
+  HomeIcon, 
+  FileTextIcon, 
+  CreditCardIcon, 
+  Menu, 
+  X, 
+  PlusCircle, 
+  MessageSquare,
+  UsersIcon,
+  Wallet,
+  LayoutDashboard,
+  FileText,
+  Info,
+  HelpCircle,
+  Phone
+} from "lucide-react";
 import { BaseIcon } from "../icons";
 import { useAuth } from "../../context/AuthContext";
 import { Button } from "../ui/button";
+import { cn } from "@/lib/utils";
 
 // Dummy notifications data
 const exampleNotifications = [
@@ -47,26 +65,35 @@ export default function FloatingNavbar({ userType }: FloatingNavbarProps) {
   const isLoggedIn = !!user;
   const currentRole = userType || user?.role || 'client';
 
-  // Primary nav links for non-logged in users
+  // Navigation links for unauthenticated users
   const publicNavLinks = [
     { to: "/", label: "Home", icon: HomeIcon },
-    { to: "/jobs", label: "Browse Jobs", icon: BriefcaseIcon },
-    { to: "/how-it-works", label: "How it Works", icon: FileTextIcon },
+    { to: "/how-it-works", label: "How It Works", icon: FileTextIcon },
+    { to: "/pricing", label: "Pricing", icon: CreditCardIcon },
+    { to: "/about", label: "About", icon: Info },
+    { to: "/blog", label: "Blog", icon: FileText },
+    { to: "/contact", label: "Contact", icon: Phone }
   ];
 
-  // Role-specific nav links for authenticated users
-  const authenticatedNavLinks = currentRole === 'client'
-    ? [
-      { to: "/dashboard", label: "Dashboard", icon: BriefcaseIcon },
-      { to: "/post-job", label: "Post Job", icon: PlusCircle },
-      { to: "/contracts", label: "Contracts", icon: FileTextIcon },
-    ]
-    : [
-      { to: "/dashboard", label: "Dashboard", icon: BriefcaseIcon },
-      { to: "/jobs", label: "Find Jobs", icon: BriefcaseIcon },
-      { to: "/contracts", label: "Contracts", icon: FileTextIcon },
-      { to: "/portfolio", label: "Portfolio", icon: FileTextIcon },
-    ];
+  // Navigation links for authenticated clients
+  const clientNavLinks = [
+    { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { to: "/post-job", label: "Post Job", icon: PlusCircle },
+    { to: "/jobs", label: "Find Freelancers", icon: UsersIcon },
+    { to: "/projects", label: "Projects", icon: BriefcaseIcon },
+    { to: "/messages", label: "Messages", icon: MessageSquare },
+    { to: "/payments", label: "Payments", icon: CreditCardIcon }
+  ];
+
+  // Navigation links for authenticated freelancers
+  const freelancerNavLinks = [
+    { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { to: "/jobs", label: "Find Gigs", icon: BriefcaseIcon },
+    { to: "/portfolio", label: "Portfolio", icon: FileTextIcon },
+    { to: "/proposals", label: "Proposals", icon: FileText },
+    { to: "/projects", label: "Projects", icon: BriefcaseIcon },
+    { to: "/messages", label: "Messages", icon: MessageSquare }
+  ];
 
   const handleLogout = async () => {
     try {
@@ -77,17 +104,22 @@ export default function FloatingNavbar({ userType }: FloatingNavbarProps) {
     }
   };
 
-  // Navigation links to display
-  const navLinks = isLoggedIn ? authenticatedNavLinks : publicNavLinks;
+  // Select the appropriate navigation links based on authentication status and role
+  const navLinks = isLoggedIn 
+    ? currentRole === 'client' 
+      ? clientNavLinks 
+      : freelancerNavLinks
+    : publicNavLinks;
 
   // Close dropdown when clicking outside
-  React.useEffect(() => {
+  useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (!(e.target as HTMLElement).closest("#notification-dropdown") &&
         !(e.target as HTMLElement).closest("#bell-button")) {
         setDropdown(false);
       }
     }
+    
     if (dropdown) document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, [dropdown]);
@@ -110,16 +142,17 @@ export default function FloatingNavbar({ userType }: FloatingNavbarProps) {
       </div>
 
       {/* Main Navigation Links */}
-      <div className="hidden md:flex  items-center gap-2 overflow-x-auto hide-scrollbar">
+      <div className="hidden md:flex items-center gap-2 overflow-x-auto hide-scrollbar">
         {navLinks.map((nav) => (
           <Link
             key={nav.to}
             to={nav.to}
-            className={`relative px-3 py-1.5 rounded-lg font-medium text-gray-700 hover:text-primary hover:bg-primary/10 transition-colors flex items-center whitespace-nowrap ${
-              location.pathname === nav.to ? "bg-primary/10 text-primary" : ""
-            }`}
+            className={cn(
+              "relative px-3 py-1.5 rounded-lg font-medium text-gray-700 hover:text-primary hover:bg-primary/10 transition-colors flex items-center whitespace-nowrap",
+              location.pathname === nav.to && "bg-primary/10 text-primary"
+            )}
           >
-            {nav.icon && <nav.icon className="w-4 h-4 mr-1" />}
+            {nav.icon && <nav.icon className="w-4 h-4 mr-1.5" />}
             {nav.label}
           </Link>
         ))}
@@ -145,7 +178,7 @@ export default function FloatingNavbar({ userType }: FloatingNavbarProps) {
               Log in
             </Button>
           </Link>
-          <Link to="/auth/freelancer-signup">
+          <Link to="/auth/signup">
             <Button variant="default" size="sm" className="font-medium hover:text-white hover:bg-accent">
               Sign up
             </Button>
@@ -172,27 +205,49 @@ export default function FloatingNavbar({ userType }: FloatingNavbarProps) {
       {mobileMenuOpen && (
         <div className="md:hidden fixed top-[60px] left-0 right-0 w-full bg-white shadow-lg border-t border-gray-100 z-[100] animate-in slide-in-from-top">
           <div className="flex flex-col p-4 space-y-2 max-w-screen-md mx-auto">
-            {[...navLinks].map((nav) => (
+            {navLinks.map((nav) => (
               <Link
                 key={nav.to}
                 to={nav.to}
-                className={`px-4 py-2 rounded-lg font-medium text-gray-700 hover:text-primary hover:bg-primary/10 transition-colors flex items-center ${
-                  location.pathname === nav.to ? "bg-primary/10 text-primary" : ""
-                }`}
+                className={cn(
+                  "px-4 py-2 rounded-lg font-medium text-gray-700 hover:text-primary hover:bg-primary/10 transition-colors flex items-center",
+                  location.pathname === nav.to && "bg-primary/10 text-primary"
+                )}
                 onClick={() => setMobileMenuOpen(false)}
               >
                 {nav.icon && <nav.icon className="w-5 h-5 mr-2" />}
                 {nav.label}
               </Link>
             ))}
-            {!isLoggedIn && (
+            
+            {/* Mobile authentication links */}
+            {!isLoggedIn ? (
               <div className="flex flex-col pt-2 gap-2 border-t border-gray-100 mt-2">
-                <Link to="/auth/login" className="w-full">
+                <Link to="/auth/login" className="w-full" onClick={() => setMobileMenuOpen(false)}>
                   <Button variant="outline" className="w-full justify-center">Log in</Button>
                 </Link>
-                <Link to="/auth/freelancer-signup" className="w-full">
+                <Link to="/auth/signup" className="w-full" onClick={() => setMobileMenuOpen(false)}>
                   <Button variant="default" className="w-full justify-center">Sign up</Button>
                 </Link>
+              </div>
+            ) : (
+              <div className="flex flex-col pt-2 gap-2 border-t border-gray-100 mt-2">
+                <Link to="/profile" className="w-full" onClick={() => setMobileMenuOpen(false)}>
+                  <Button variant="outline" className="w-full justify-start">
+                    <UserIcon className="w-4 h-4 mr-2" />
+                    Profile
+                  </Button>
+                </Link>
+                <Button 
+                  variant="default" 
+                  className="w-full justify-center"
+                  onClick={() => {
+                    handleLogout();
+                    setMobileMenuOpen(false);
+                  }}
+                >
+                  Logout
+                </Button>
               </div>
             )}
           </div>

@@ -1,6 +1,11 @@
 import { Context, Next } from 'hono';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/User';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+const jwtSecret = process.env.JWT_SECRET!;
 
 // Interface for decoded JWT token
 interface DecodedToken {
@@ -18,10 +23,7 @@ export const auth = async (c: Context, next: Next) => {
     }
 
     const token = authHeader.split(' ')[1];
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET || 'your_jwt_secret'
-    ) as DecodedToken;
+    const decoded = jwt.verify(token, jwtSecret) as DecodedToken;
 
     const user = await User.findById(decoded.id).select('-password');
     if (!user) {

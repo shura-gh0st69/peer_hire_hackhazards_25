@@ -69,11 +69,12 @@ const App = () => (
             <Route path="/enterprise" element={<Enterprise />} />
             <Route path="/jobs" element={<JobListing />} />
             
-            {/* Auth Pages */}
+            {/* Auth Pages - Updated for flexibility */}
             <Route path="/auth">
               <Route path="login" element={<AuthPage type="login" />} />
-              <Route path="freelancer-signup" element={<AuthPage type="freelancer-signup" />} />
-              <Route path="client-signup" element={<AuthPage type="client-signup" />} />
+              <Route path="signup" element={<AuthPage type="signup" />} />
+              <Route path="freelancer-signup" element={<AuthPage type="signup" />} /> {/* Changed to just use common signup */}
+              <Route path="client-signup" element={<AuthPage type="signup" />} /> {/* Changed to just use common signup */}
             </Route>
             
             {/* Legal & Info Pages */}
