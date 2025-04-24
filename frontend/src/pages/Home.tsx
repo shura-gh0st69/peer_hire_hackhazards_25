@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Users, Briefcase, Calendar, Zap } from 'lucide-react';
@@ -20,7 +19,7 @@ const Home = () => {
                 Connect with clients, secure payments via Base, and enhance your work with Grok AI & Screenpipe integration.
               </p>
               <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-                <Link to="/signup">
+                <Link to="/auth/signup">
                   <CustomButton
                     size="lg"
                     leftIcon={<BaseIcon className="w-5 h-5" />}
@@ -249,7 +248,7 @@ const Home = () => {
                   <p className="ml-3 text-gray-600">Use AI to enhance your proposals and deliverables</p>
                 </li>
               </ul>
-              <Link to="/freelancer-signup">
+              <Link to="/auth/freelancer-signup">
                 <CustomButton size="lg">
                   Join as a Freelancer
                 </CustomButton>
@@ -290,7 +289,7 @@ const Home = () => {
                   <p className="ml-3 text-gray-600">Real-time progress tracking with Screenpipe</p>
                 </li>
               </ul>
-              <Link to="/client-signup">
+              <Link to="/auth/client-signup">
                 <CustomButton size="lg">
                   Hire Talent
                 </CustomButton>
@@ -423,7 +422,7 @@ const Home = () => {
             Join PeerHire today and experience the future of freelancing with blockchain security and AI assistance.
           </p>
           <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-            <Link to="/signup">
+            <Link to="/auth/signup">
               <CustomButton
                 size="lg"
                 className="bg-white text-primary hover:bg-white/90"

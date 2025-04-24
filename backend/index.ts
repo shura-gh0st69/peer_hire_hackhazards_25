@@ -1,15 +1,36 @@
 import { Hono } from 'hono';
 import { connect } from 'mongoose';
 import { authRoutes } from './routes/auth';
-import { auth, requireClient, requireFreelancer, requireAny } from './middleware/auth';
+import { auth, requireClient, requireFreelancer } from './middleware/auth';
 import { serve } from '@hono/node-server';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+// Ensure required environment variables are set
+const mongoURI = process.env.MONGODB_URI;
+if (!mongoURI) {
+  console.error('MONGODB_URI environment variable not set');
+  process.exit(1);
+}
+const jwtSecret = process.env.JWT_SECRET;
+if (!jwtSecret) {
+  console.error('JWT_SECRET environment variable not set');
+  process.exit(1);
+}
+const jwtExpiration = process.env.JWT_EXPIRATION;
+if (!jwtExpiration) {
+  console.error('JWT_EXPIRATION environment variable not set');
+  process.exit(1);
+}
+const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
 const app = new Hono();
 
 // MongoDB connection
 const connectDB = async () => {
   try {
-    await connect('mongodb://localhost:27017/freelancing_platform');
+    await connect(mongoURI);
     console.log('MongoDB connected');
   } catch (error) {
     console.error('MongoDB connection error:', error);
@@ -27,18 +48,18 @@ app.use('/api/*', auth);
 
 
 // Client-only routes
-app.get('/api/client/projects', requireClient, (c) => {
-  return c.json({ message: 'Client projects accessible' });
+app.get('/api/client/*', requireClient, (c) => {
+  return c.json({ message: 'Client  accessible' });
 });
 
 // Freelancer-only routes
-app.get('/api/freelancer/jobs', requireFreelancer, (c) => {
-  return c.json({ message: 'Freelancer jobs accessible' });
+app.get('/api/freelancer/*', requireFreelancer, (c) => {
+  return c.json({ message: 'Freelancer  accessible' });
 });
 
 // Start server
 serve({
   fetch: app.fetch,
-  port: 3000,
+  port,
 });
-console.log('Server running on http://localhost:3000');
+console.log(`Server running on http://localhost:${port}`);
