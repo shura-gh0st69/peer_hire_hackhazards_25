@@ -19,7 +19,11 @@ contract Escrow is ReentrancyGuard {
     event JobFunded(uint256 totalAmount);
 
     /// @notice Emitted when funds are released to the freelancer
-    event FundsReleased(address indexed freelancer, uint256 amount, uint256 indexed milestoneId);
+    event FundsReleased(
+        address indexed freelancer,
+        uint256 amount,
+        uint256 indexed milestoneId
+    );
 
     /// @notice Emitted when a refund is issued to the client
     event Refunded(address indexed client, uint256 amount);
@@ -32,7 +36,7 @@ contract Escrow is ReentrancyGuard {
 
     /// @notice Platform fee percentage (in basis points: 250 = 2.5%)
     uint256 public constant PLATFORM_FEE_BPS = 250;
-    
+
     /// @notice Platform treasury address
     address public immutable treasury;
 
@@ -53,13 +57,13 @@ contract Escrow is ReentrancyGuard {
 
     /// @notice Central dispute resolution contract
     DisputeResolution public immutable disputeHandler;
-    
+
     /// @notice Milestone manager for this job
     MilestoneManager public milestoneManager;
 
     /// @notice ID of the dispute related to this escrow
     uint256 public disputeId;
-    
+
     /// @notice Amount already paid to the freelancer
     uint256 public paidAmount;
 
@@ -77,7 +81,7 @@ contract Escrow is ReentrancyGuard {
         require(status == expected, "Invalid status");
         _;
     }
-    
+
     modifier onlyDisputeHandler() {
         require(msg.sender == address(disputeHandler), "Only dispute handler");
         _;
@@ -134,9 +138,17 @@ contract Escrow is ReentrancyGuard {
      * @notice Client funds the escrow.
      * @dev Transfers totalAmount from the client to the contract.
      */
-    function fundJob() external onlyClient nonReentrant inStatus(EscrowLib.JobStatus.NotFunded) {
-        require(address(milestoneManager) != address(0), "Set up milestone manager first");
-        
+    function fundJob()
+        external
+        onlyClient
+        nonReentrant
+        inStatus(EscrowLib.JobStatus.NotFunded)
+    {
+        require(
+            address(milestoneManager) != address(0),
+            "Set up milestone manager first"
+        );
+
         status = EscrowLib.JobStatus.Funded;
         paymentToken.safeTransferFrom(msg.sender, address(this), totalAmount);
         emit JobFunded(totalAmount);
@@ -146,46 +158,47 @@ contract Escrow is ReentrancyGuard {
      * @notice Releases funds for a completed milestone.
      * @param milestoneId The ID of the milestone to release payment for.
      */
-    function releaseMilestonePayment(uint256 milestoneId) 
-        external 
-        onlyClient 
-        nonReentrant 
-    {
-        require(address(milestoneManager) != address(0), "Milestone manager not set up");
-        require(status == EscrowLib.JobStatus.Funded || status == EscrowLib.JobStatus.InProgress, "Invalid status");
-        
+    function releaseMilestonePayment(
+        uint256 milestoneId
+    ) external onlyClient nonReentrant {
+        require(
+            address(milestoneManager) != address(0),
+            "Milestone manager not set up"
+        );
+        require(
+            status == EscrowLib.JobStatus.Funded ||
+                status == EscrowLib.JobStatus.InProgress,
+            "Invalid status"
+        );
+
         // Get milestone information
-        (
-            ,
-            uint256 amount,
-            bool isCompleted,
-            bool isPaid
-        ) = milestoneManager.getMilestone(milestoneId);
-        
+        (, uint256 amount, bool isCompleted, bool isPaid) = milestoneManager
+            .getMilestone(milestoneId);
+
         require(isCompleted, "Milestone not completed");
         require(!isPaid, "Already paid");
-        
+
         // Calculate platform fee
         uint256 fee = EscrowLib.calculateFee(amount, PLATFORM_FEE_BPS);
         uint256 freelancerAmount = amount - fee;
-        
+
         // Update accounting
         paidAmount += amount;
-        
+
         // Process the milestone payment through the milestone manager
         milestoneManager.claimMilestonePayment(milestoneId);
-        
+
         // Transfer funds
         paymentToken.safeTransfer(freelancer, freelancerAmount);
         if (fee > 0) {
             paymentToken.safeTransfer(treasury, fee);
         }
-        
+
         // Update job status if it wasn't already in progress
         if (status == EscrowLib.JobStatus.Funded) {
             status = EscrowLib.JobStatus.InProgress;
         }
-        
+
         emit FundsReleased(freelancer, freelancerAmount, milestoneId);
     }
 
@@ -195,14 +208,21 @@ contract Escrow is ReentrancyGuard {
      * @return The ID of the created dispute
      */
     function openDispute() external nonReentrant returns (uint256) {
-        require(msg.sender == client || msg.sender == freelancer, "Unauthorized");
+        require(
+            msg.sender == client || msg.sender == freelancer,
+            "Unauthorized"
+        );
         require(status != EscrowLib.JobStatus.Disputed, "Already disputed");
         require(status != EscrowLib.JobStatus.Cancelled, "Job cancelled");
         require(status != EscrowLib.JobStatus.Completed, "Job completed");
-        
+
         status = EscrowLib.JobStatus.Disputed;
-        disputeId = disputeHandler.openDispute(address(this), client, freelancer);
-        
+        disputeId = disputeHandler.openDispute(
+            address(this),
+            client,
+            freelancer
+        );
+
         emit DisputeOpened(msg.sender, disputeId);
         return disputeId;
     }
@@ -212,21 +232,27 @@ contract Escrow is ReentrancyGuard {
      * @param milestoneId The ID of the milestone to dispute
      * @return The ID of the created dispute
      */
-    function openMilestoneDispute(uint256 milestoneId) 
-        external 
-        nonReentrant 
-        returns (uint256) 
-    {
-        require(msg.sender == client || msg.sender == freelancer, "Unauthorized");
-        require(address(milestoneManager) != address(0), "Milestone manager not set up");
-        
+    function openMilestoneDispute(
+        uint256 milestoneId
+    ) external nonReentrant returns (uint256) {
+        require(
+            msg.sender == client || msg.sender == freelancer,
+            "Unauthorized"
+        );
+        require(
+            address(milestoneManager) != address(0),
+            "Milestone manager not set up"
+        );
+
         // Let the milestone manager handle the dispute creation
-        uint256 newDisputeId = milestoneManager.createMilestoneDispute(milestoneId);
-        
+        uint256 newDisputeId = milestoneManager.createMilestoneDispute(
+            milestoneId
+        );
+
         // Update escrow status
         status = EscrowLib.JobStatus.Disputed;
         disputeId = newDisputeId;
-        
+
         emit DisputeOpened(msg.sender, newDisputeId);
         return newDisputeId;
     }
@@ -248,41 +274,50 @@ contract Escrow is ReentrancyGuard {
     ) external onlyDisputeHandler nonReentrant {
         require(_disputeId == disputeId, "Invalid dispute ID");
         require(status == EscrowLib.JobStatus.Disputed, "Not disputed");
-        
+
         // If milestone specific dispute, let milestone manager handle it
         if (address(milestoneManager) != address(0)) {
-            milestoneManager.handleDisputeResolution(milestoneId, freelancerWon);
+            milestoneManager.handleDisputeResolution(
+                milestoneId,
+                freelancerWon
+            );
         }
-        
+
         // Process fund transfers according to dispute resolution
         uint256 availableBalance = paymentToken.balanceOf(address(this));
-        
+
         // Ensure we don't exceed available balance
-        require(clientAward + freelancerAward <= availableBalance, "Insufficient escrow balance");
-        
+        require(
+            clientAward + freelancerAward <= availableBalance,
+            "Insufficient escrow balance"
+        );
+
         // Transfer awards
         if (clientAward > 0) {
             paymentToken.safeTransfer(client, clientAward);
             emit Refunded(client, clientAward);
         }
-        
+
         if (freelancerAward > 0) {
             // Calculate platform fee for freelancer award
-            uint256 fee = EscrowLib.calculateFee(freelancerAward, PLATFORM_FEE_BPS);
+            uint256 fee = EscrowLib.calculateFee(
+                freelancerAward,
+                PLATFORM_FEE_BPS
+            );
             uint256 freelancerAmount = freelancerAward - fee;
-            
+
             paymentToken.safeTransfer(freelancer, freelancerAmount);
-            
+
             if (fee > 0) {
                 paymentToken.safeTransfer(treasury, fee);
             }
-            
+
             emit FundsReleased(freelancer, freelancerAmount, milestoneId);
         }
-        
+
         // Reset dispute status
         status = EscrowLib.JobStatus.InProgress;
-        
+
         emit DisputeResolved(disputeId, freelancerWon);
     }
 
@@ -295,14 +330,17 @@ contract Escrow is ReentrancyGuard {
         // Either client can request refund in funded state
         // Or dispute handler can issue refund after resolution
         require(
-            (msg.sender == client && status == EscrowLib.JobStatus.Funded) || 
-            (msg.sender == address(disputeHandler)),
+            (msg.sender == client && status == EscrowLib.JobStatus.Funded) ||
+                (msg.sender == address(disputeHandler)),
             "Unauthorized"
         );
-        
-        require(amount <= paymentToken.balanceOf(address(this)), "Insufficient balance");
+
+        require(
+            amount <= paymentToken.balanceOf(address(this)),
+            "Insufficient balance"
+        );
         paymentToken.safeTransfer(client, amount);
-        
+
         emit Refunded(client, amount);
     }
 
@@ -312,23 +350,29 @@ contract Escrow is ReentrancyGuard {
      */
     function cancelJob() external onlyClient nonReentrant {
         // Can only cancel if not disputed and either not yet started or milestone manager allows it
-        require(status != EscrowLib.JobStatus.Disputed, "Cannot cancel disputed job");
-        
+        require(
+            status != EscrowLib.JobStatus.Disputed,
+            "Cannot cancel disputed job"
+        );
+
         if (address(milestoneManager) != address(0)) {
             // If milestone manager exists, delegate cancellation check to it
             milestoneManager.cancelJob(); // This will revert if cancellation not allowed
         } else {
             // Without milestone manager, can only cancel if not in progress
-            require(status == EscrowLib.JobStatus.Funded, "Job already in progress");
+            require(
+                status == EscrowLib.JobStatus.Funded,
+                "Job already in progress"
+            );
         }
-        
+
         // Refund remaining balance to client
         uint256 remainingBalance = paymentToken.balanceOf(address(this));
         if (remainingBalance > 0) {
             paymentToken.safeTransfer(client, remainingBalance);
             emit Refunded(client, remainingBalance);
         }
-        
+
         status = EscrowLib.JobStatus.Cancelled;
     }
 
@@ -338,13 +382,15 @@ contract Escrow is ReentrancyGuard {
      */
     function markCompleted() external {
         require(
-            msg.sender == client || 
-            (address(milestoneManager) != address(0) && milestoneManager.jobStatus() == EscrowLib.JobStatus.Completed),
+            msg.sender == client ||
+                (address(milestoneManager) != address(0) &&
+                    milestoneManager.jobStatus() ==
+                    EscrowLib.JobStatus.Completed),
             "Unauthorized"
         );
-        
+
         status = EscrowLib.JobStatus.Completed;
-        
+
         // Release any remaining funds to client
         uint256 remainingBalance = paymentToken.balanceOf(address(this));
         if (remainingBalance > 0) {
@@ -352,7 +398,7 @@ contract Escrow is ReentrancyGuard {
             emit Refunded(client, remainingBalance);
         }
     }
-    
+
     /**
      * @notice Gets the remaining balance in the escrow
      * @return The remaining token balance

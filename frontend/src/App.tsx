@@ -43,18 +43,6 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 const queryClient = new QueryClient();
 
 // MainLayout wraps all app pages with Navbar and Sidebar
-function MainLayout() {
-  return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <div className="flex-1 flex pt-16">
-        <DashboardSidebar />
-        <main className="flex-1 p-6 md:p-8 overflow-auto">
-          <Outlet />
-        </main>
-      </div>
-    </div>
-  );
-}
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -69,12 +57,12 @@ const App = () => (
             <Route path="/enterprise" element={<Enterprise />} />
             <Route path="/jobs" element={<JobListing />} />
             
-            {/* Auth Pages - Updated for flexibility */}
+            {/* Auth Pages */}
             <Route path="/auth">
               <Route path="login" element={<AuthPage type="login" />} />
               <Route path="signup" element={<AuthPage type="signup" />} />
-              <Route path="freelancer-signup" element={<AuthPage type="signup" />} /> {/* Changed to just use common signup */}
-              <Route path="client-signup" element={<AuthPage type="signup" />} /> {/* Changed to just use common signup */}
+              <Route path="freelancer-signup" element={<AuthPage type="freelancer-signup" />} />
+              <Route path="client-signup" element={<AuthPage type="client-signup" />} />
             </Route>
             
             {/* Legal & Info Pages */}

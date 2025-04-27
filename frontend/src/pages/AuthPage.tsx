@@ -1,4 +1,4 @@
-import React, { useState, FormEvent } from 'react';
+import React, { useState, FormEvent, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { CustomButton } from '@/components/ui/custom-button';
 import { BaseIcon, GrokIcon } from '@/components/icons';
@@ -27,8 +27,7 @@ interface FormData {
   location?: string;
 }
 
-const AuthPage: React.FC<AuthPageProps> = () => {
-  const { type } = useParams();
+const AuthPage: React.FC<AuthPageProps> = ({ type = 'signup' }) => {
   const navigate = useNavigate();
   const { login, signUp } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
@@ -40,12 +39,21 @@ const AuthPage: React.FC<AuthPageProps> = () => {
     fullName: '',
   });
   const [agreeToTerms, setAgreeToTerms] = useState(false);
-
   const [selectedRole, setSelectedRole] = useState<'freelancer' | 'client'>(
-    type === 'freelancer-signup' ? 'freelancer' : 'client'
+    type === 'freelancer-signup' ? 'freelancer' :
+    type === 'client-signup' ? 'client' : 'freelancer'
   );
 
   const isSignUp = type === 'freelancer-signup' || type === 'client-signup' || type === 'signup';
+
+  useEffect(() => {
+    // Update selected role when type changes
+    if (type === 'freelancer-signup') {
+      setSelectedRole('freelancer');
+    } else if (type === 'client-signup') {
+      setSelectedRole('client');
+    }
+  }, [type]);
 
   const getTitle = () => {
     if (type === 'login') return 'Sign In with Coinbase Wallet';
