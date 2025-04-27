@@ -51,6 +51,13 @@ contract PlatformGovernanceTest is BaseTest {
         vm.stopPrank();
     }
 
+    /**
+     * @notice Test case: Create a new governance proposal
+     * @dev This test demonstrates:
+     * 1. A user with sufficient tokens creating a proposal to change a parameter
+     * 2. Verification of proposal details (proposer, description, type, target, initial votes, status, timing)
+     * 3. Correct initialization of a proposal in the Active state
+     */
     function test_CreateProposal() public {
         bytes memory callData = abi.encodeWithSelector(
             MockTarget.setValue.selector,
@@ -93,6 +100,13 @@ contract PlatformGovernanceTest is BaseTest {
         assertEq(endTime, startTime + VOTING_PERIOD);
     }
 
+    /**
+     * @notice Test case: Voting on an active proposal
+     * @dev This test demonstrates:
+     * 1. Creating a proposal
+     * 2. Multiple users casting votes (for and against)
+     * 3. Verification that vote counts (votesFor, votesAgainst) are updated correctly based on voter token balances
+     */
     function test_VotingProcess() public {
         // Create proposal
         vm.prank(client);
@@ -126,6 +140,16 @@ contract PlatformGovernanceTest is BaseTest {
         assertEq(votesAgainst, 200000 * 10 ** 18); // Freelancer's full balance
     }
 
+    /**
+     * @notice Test case: Successful execution of a passed proposal
+     * @dev This test demonstrates:
+     * 1. Creating a proposal
+     * 2. Casting enough votes for the proposal to pass quorum and majority
+     * 3. Advancing time beyond the voting period
+     * 4. Processing the proposal to update its status to Passed
+     * 5. Executing the proposal, triggering the target contract's function call
+     * 6. Verifying the state change in the target contract
+     */
     function test_ProposalExecution() public {
         bytes memory callData = abi.encodeWithSelector(
             MockTarget.setValue.selector,
@@ -159,6 +183,13 @@ contract PlatformGovernanceTest is BaseTest {
         assertEq(target.value(), 42);
     }
 
+    /**
+     * @notice Test case: Cancellation of a proposal by the proposer
+     * @dev This test demonstrates:
+     * 1. Creating a proposal
+     * 2. The original proposer cancelling their own proposal
+     * 3. Verification that the proposal status changes to Canceled
+     */
     function test_ProposalCancellation() public {
         vm.prank(client);
         uint256 proposalId = governance.createProposal(
@@ -190,6 +221,12 @@ contract PlatformGovernanceTest is BaseTest {
         );
     }
 
+    /**
+     * @notice Test case: Revert when user has insufficient tokens to create a proposal
+     * @dev This test demonstrates:
+     * 1. Attempting to create a proposal with a user holding less than the proposal threshold
+     * 2. Verification that the transaction reverts with the correct error message
+     */
     function test_RevertWhen_InsufficientProposalThreshold() public {
         address poorUser = makeAddr("poor");
         vm.prank(admin);
@@ -211,6 +248,13 @@ contract PlatformGovernanceTest is BaseTest {
         );
     }
 
+    /**
+     * @notice Test case: Revert when a user tries to vote twice on the same proposal
+     * @dev This test demonstrates:
+     * 1. A user casting a vote on a proposal
+     * 2. Attempting to cast another vote on the same proposal
+     * 3. Verification that the transaction reverts with the correct error message
+     */
     function test_RevertWhen_DoubleVoting() public {
         vm.prank(client);
         uint256 proposalId = governance.createProposal(
@@ -229,6 +273,12 @@ contract PlatformGovernanceTest is BaseTest {
         vm.stopPrank();
     }
 
+    /**
+     * @notice Test case: Revert when trying to execute a proposal that has not passed
+     * @dev This test demonstrates:
+     * 1. Attempting to execute a proposal that has not met quorum or majority
+     * 2. Verification that the transaction reverts with the correct error message
+     */
     function test_RevertWhen_ExecutingUnpassedProposal() public {
         vm.prank(client);
         uint256 proposalId = governance.createProposal(
@@ -243,6 +293,15 @@ contract PlatformGovernanceTest is BaseTest {
         governance.executeProposal(proposalId);
     }
 
+    /**
+     * @notice Test case: Proposal rejection due to not meeting quorum
+     * @dev This test demonstrates:
+     * 1. Creating a proposal
+     * 2. Casting votes that are insufficient to meet the quorum threshold
+     * 3. Advancing time beyond the voting period
+     * 4. Processing the proposal
+     * 5. Verification that the proposal status changes to Rejected
+     */
     function test_QuorumRequirement() public {
         bytes memory callData = abi.encodeWithSelector(
             MockTarget.setValue.selector,

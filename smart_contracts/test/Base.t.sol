@@ -44,16 +44,23 @@ contract BaseTest is Test {
         // Deploy mock USDC
         usdc = new MockUSDC();
 
-        // Deploy core contracts
+        // Deploy core contracts in correct order to resolve circular dependencies
         userRoles = new UserRoles(admin);
-        reputation = new Reputation(admin, address(0)); // Update factory later
+        
+        // First deploy escrow factory with temporary dispute handler
+        disputeResolution = new DisputeResolution(admin, address(0));
+        escrowFactory = new EscrowFactory(address(disputeResolution), treasury);
+        
+        // Deploy reputation with escrow factory
+        reputation = new Reputation(admin, address(escrowFactory));
+        
+        // Redeploy dispute resolution with proper reputation
         disputeResolution = new DisputeResolution(admin, address(reputation));
+        
+        // Finally redeploy escrow factory with proper dispute handler
         escrowFactory = new EscrowFactory(address(disputeResolution), treasury);
 
-        // Update reputation with factory
-        reputation = new Reputation(admin, address(escrowFactory));
-
-        // Deploy job registry
+        // Deploy job registry last since it depends on other contracts
         jobRegistry = new JobRegistry(
             admin,
             address(escrowFactory),
