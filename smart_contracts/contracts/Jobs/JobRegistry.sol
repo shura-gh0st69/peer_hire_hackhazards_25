@@ -356,6 +356,26 @@ contract JobRegistry {
     }
     
     /**
+     * @notice Get detailed information about a job
+     * @param jobId ID of the job
+     * @return job The job listing details
+     */
+    function getJob(uint256 jobId) external view returns (JobListing memory) {
+        require(jobId < jobListings.length, "Invalid job ID");
+        return jobListings[jobId];
+    }
+    
+    /**
+     * @notice Get detailed information about an application
+     * @param applicationId ID of the application
+     * @return application The application details
+     */
+    function getApplication(uint256 applicationId) external view returns (JobApplication memory application) {
+        require(applicationId < applications.length, "Invalid application ID");
+        return applications[applicationId];
+    }
+    
+    /**
      * @notice Updates the admin address
      * @param newAdmin New admin address
      */

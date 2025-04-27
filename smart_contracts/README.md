@@ -1,69 +1,66 @@
-# Peer Hire Smart Contracts
+## Foundry
 
-A decentralized freelancing platform built on blockchain technology with escrow services, dispute resolution, and reputation management.
+**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
 
-## Features
+Foundry consists of:
 
-- **Escrow System**: Secure payment handling between clients and freelancers
-- **Dispute Resolution**: Fair conflict resolution through governance
-- **Job Registry**: On-chain job postings and applications
-- **Milestones**: Track project progress with milestone-based payments
-- **Reputation**: Build trust through on-chain ratings and reviews
-- **Subscription Tiers**: Access different platform features based on subscription level
-- **Skill Verification**: Verify and endorse freelancer skills
-- **Platform Governance**: Community-driven decision making
+-   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
+-   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
+-   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
+-   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
 
-## Getting Started
+## Documentation
 
-### Prerequisites
+https://book.getfoundry.sh/
 
-- [Foundry](https://book.getfoundry.sh/getting-started/installation)
-- Solidity ^0.8.23
-
-### Installation
-
-1. Clone the repository
-2. Install dependencies:
-
-```bash
-forge install
-```
+## Usage
 
 ### Build
 
-Compile the contracts:
-
-```bash
-forge build
+```shell
+$ forge build
 ```
 
 ### Test
 
-Run tests:
-
-```bash
-forge test
+```shell
+$ forge test
 ```
 
-## Contract Architecture
+### Format
 
-### Core Contracts
+```shell
+$ forge fmt
+```
 
-- **Escrow.sol**: Holds funds in escrow until job completion
-- **EscrowFactory.sol**: Creates new escrow contracts for jobs
-- **JobRegistry.sol**: Manages job listings and applications
-- **DisputeResolution.sol**: Handles disputes between clients and freelancers
-- **Reputation.sol**: Tracks user ratings and reviews
-- **MilestoneManager.sol**: Manages project milestones and payments
-- **UserRoles.sol**: Role-based access control for platform users
+### Gas Snapshots
 
-### Supporting Contracts
+```shell
+$ forge snapshot
+```
 
-- **SubscriptionManager.sol**: Manages user subscription tiers
-- **PaymentSplitter.sol**: Handles fee distribution
-- **SkillVerification.sol**: Verifies freelancer skills and credentials
-- **PlatformGovernance.sol**: Decentralized platform governance
+### Anvil
 
-## License
+```shell
+$ anvil
+```
 
-MIT
+### Deploy
+
+```shell
+$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
+```
+
+### Cast
+
+```shell
+$ cast <subcommand>
+```
+
+### Help
+
+```shell
+$ forge --help
+$ anvil --help
+$ cast --help
+```
