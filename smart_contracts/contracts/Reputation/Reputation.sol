@@ -3,6 +3,7 @@ pragma solidity ^0.8.23;
 
 import {EscrowFactory} from "../Escrow/EscrowFactory.sol";
 import {Escrow} from "../Escrow/Escrow.sol";
+import {EscrowLib} from "../libraries/EscrowLib.sol";
 
 /**
  * @title Reputation
@@ -90,7 +91,7 @@ contract Reputation {
         );
         
         // Check that the job is completed
-        require(escrow.status() == Escrow.JobStatus.Completed, "Job not completed");
+        require(escrow.status() == EscrowLib.JobStatus.Completed, "Job not completed");
         
         // Record the review
         uint256 reviewId = reviews.length;
@@ -171,7 +172,12 @@ contract Reputation {
     /**
      * @notice Gets a specific review by ID
      * @param reviewId ID of the review to fetch
-     * @return Full review data
+     * @return reviewer Address of the reviewer
+     * @return reviewee Address being reviewed
+     * @return rating Rating given (1-5)
+     * @return comment Review comment/text
+     * @return escrow Associated escrow contract
+     * @return timestamp When the review was created
      */
     function getReview(uint256 reviewId) 
         external 
@@ -201,7 +207,11 @@ contract Reputation {
     /**
      * @notice Gets a user's full statistics
      * @param user Address of the user
-     * @return stats Full user statistics
+     * @return totalRatings Number of ratings received
+     * @return averageRating Average rating (0-500)
+     * @return jobsCompleted Number of jobs completed
+     * @return disputesWon Number of disputes won
+     * @return disputesLost Number of disputes lost
      */
     function getUserStats(address user) 
         external 

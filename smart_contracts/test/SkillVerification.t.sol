@@ -10,9 +10,9 @@ contract SkillVerificationTest is BaseTest {
 
     function setUp() public override {
         super.setUp();
-        
+
         verifier = makeAddr("verifier");
-        
+
         vm.startPrank(admin);
         skillVerification = new SkillVerification(admin);
         skillVerification.addVerifier(verifier);
@@ -49,8 +49,37 @@ contract SkillVerificationTest is BaseTest {
         );
 
         uint256 expiryTime = block.timestamp + 365 days;
-        
+
         vm.prank(verifier);
+        skillVerification.verifySkill(
+            freelancer,
+            skillId,
+            SkillVerification.VerificationLevel.Expert,
+            expiryTime
+        );
+
+        (
+            ,
+            SkillVerification.VerificationLevel level,
+            ,
+            ,
+            uint256 expiresAt
+        ) = skillVerification.freelancerSkills(freelancer, skillId);
+
+        assertEq(uint(level), uint(SkillVerification.VerificationLevel.Expert));
+        assertEq(expiresAt, expiryTime);
+    }
+
+    function testVerifySkill(address testVerifier) public {
+        vm.prank(freelancer);
+        uint256 skillId = skillVerification.addSkill(
+            "Solidity",
+            "ipfs://evidence-hash"
+        );
+
+        uint256 expiryTime = block.timestamp + 365 days;
+
+        vm.prank(testVerifier);
         skillVerification.verifySkill(
             freelancer,
             skillId,
@@ -81,7 +110,10 @@ contract SkillVerificationTest is BaseTest {
         vm.prank(endorser);
         skillVerification.endorseSkill(freelancer, skillId);
 
-        address[] memory endorsers = skillVerification.getSkillEndorsers(freelancer, skillId);
+        address[] memory endorsers = skillVerification.getSkillEndorsers(
+            freelancer,
+            skillId
+        );
         assertEq(endorsers.length, 1);
         assertEq(endorsers[0], endorser);
     }
@@ -104,7 +136,7 @@ contract SkillVerificationTest is BaseTest {
             string memory issuer,
             string memory evidence,
             bool isVerified,
-            address verifier,
+            address credVerifier,
             uint256 credIssuedAt,
             uint256 credExpiresAt
         ) = skillVerification.freelancerCredentials(freelancer, credentialId);
@@ -113,7 +145,7 @@ contract SkillVerificationTest is BaseTest {
         assertEq(issuer, "Ethereum Foundation");
         assertEq(evidence, "ipfs://credential-hash");
         assertFalse(isVerified);
-        assertEq(verifier, address(0));
+        assertEq(credVerifier, address(0));
         assertEq(credIssuedAt, issuedAt);
         assertEq(credExpiresAt, expiresAt);
     }
@@ -131,11 +163,11 @@ contract SkillVerificationTest is BaseTest {
         vm.prank(verifier);
         skillVerification.verifyCredential(freelancer, credentialId);
 
-        (,,, bool isVerified, address credVerifier,,) = 
-            skillVerification.freelancerCredentials(freelancer, credentialId);
+        (, , , bool isVerified, address credVerifierAddr, , ) = skillVerification
+            .freelancerCredentials(freelancer, credentialId);
 
         assertTrue(isVerified);
-        assertEq(credVerifier, verifier);
+        assertEq(credVerifierAddr, verifier);
     }
 
     function test_GetFreelancerSkills() public {
@@ -144,7 +176,8 @@ contract SkillVerificationTest is BaseTest {
         skillVerification.addSkill("Smart Contracts", "ipfs://hash2");
         vm.stopPrank();
 
-        SkillVerification.Skill[] memory skills = skillVerification.getFreelancerSkills(freelancer);
+        SkillVerification.Skill[] memory skills = skillVerification
+            .getFreelancerSkills(freelancer);
         assertEq(skills.length, 2);
         assertEq(skills[0].name, "Solidity");
         assertEq(skills[1].name, "Smart Contracts");
@@ -188,12 +221,26 @@ contract SkillVerificationTest is BaseTest {
         );
 
         address endorser = makeAddr("endorser");
-        
+
         vm.startPrank(endorser);
         skillVerification.endorseSkill(freelancer, skillId);
-        
+
         vm.expectRevert("Already endorsed");
         skillVerification.endorseSkill(freelancer, skillId);
+        vm.stopPrank();
+    }
+
+    function test_Verify() public {
+        vm.startPrank(admin);
+
+        // Create test verifiers
+        string[] memory skills = new string[](2);
+        skills[0] = "Solidity";
+        skills[1] = "Smart Contracts";
+
+        address testVerifierAddr = makeAddr("testVerifier");
+        skillVerification.addVerifier(testVerifierAddr);
+
         vm.stopPrank();
     }
 }
