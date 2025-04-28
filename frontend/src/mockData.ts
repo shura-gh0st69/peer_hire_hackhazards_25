@@ -938,6 +938,73 @@ export const pendingBids = [
     }
 ];
 
+// Mock dashboard data for fallback
+export const mockFreelancerDashboard = {
+  ongoingProjects: 2,
+  activeApplications: 5,
+  totalEarnings: 5850,
+  recentActivities: [
+    {
+      type: 'job-application',
+      title: 'You applied for "React Developer" job',
+      time: '2 hours ago'
+    },
+    {
+      type: 'bid-accepted',
+      title: 'Your bid was accepted for "UI Design"',
+      time: 'Yesterday'
+    },
+    {
+      type: 'payment',
+      title: 'You received payment for "Mobile App"',
+      time: '3 days ago'
+    }
+  ],
+  recommendedJobs: [
+    {
+      title: "React Developer for Financial Dashboard",
+      description: "We need an experienced React developer to build a responsive dashboard with data visualization components.",
+      budget: "$3,000-$5,000",
+      skills: ["React", "TypeScript", "D3.js"],
+      posted: "2 days ago",
+      bids: 8,
+      match: 95
+    }
+  ]
+};
+
+export const mockClientDashboard = {
+  activeJobs: 2,
+  totalSpent: 12750,
+  escrowBalance: 4250,
+  recentActivities: [
+    {
+      type: 'job-posted',
+      title: 'You posted a new job "React Developer"',
+      time: '3 hours ago'
+    },
+    {
+      type: 'bid-new',
+      title: 'New bid received for "UI Design"',
+      time: 'Yesterday'
+    },
+    {
+      type: 'payment',
+      title: 'Payment released for "Logo Design"',
+      time: '2 days ago'
+    }
+  ],
+  pendingBids: [
+    {
+      jobTitle: "UI/UX Designer for Mobile App",
+      freelancer: "Sarah Johnson",
+      bid: "$1,200",
+      rating: 4.8,
+      delivery: "7 days"
+    }
+  ]
+};
+
 // Helper functions to work with the mock data
 export const getJobById = (jobId: string): Job | undefined => {
     return jobs.find(job => job.id === jobId);

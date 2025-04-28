@@ -21,7 +21,18 @@ import { CustomButton } from '@/components/ui/custom-button';
 import { BaseIcon, GrokIcon, ScreenpipeIcon } from '@/components/icons';
 import { Progress } from '@/components/ui/progress';
 
-const ClientDashboard = () => {
+interface ClientDashboardProps {
+  dashboardData: {
+    name?: string;
+    activeJobs: number;
+    totalSpent: number;
+    escrowBalance: number;
+    recentActivities: any[];
+    pendingBids: any[];
+  };
+}
+
+const ClientDashboard: React.FC<ClientDashboardProps> = ({ dashboardData }) => {
   const [activeTab, setActiveTab] = useState<'active' | 'completed' | 'drafts' | 'bids'>('active');
 
   const renderTabContent = () => {
@@ -33,7 +44,7 @@ const ClientDashboard = () => {
       case 'drafts':
         return <DraftJobs />;
       case 'bids':
-        return <PendingBids />;
+        return <PendingBids bids={dashboardData.pendingBids} />;
       default:
         return <ActiveJobs />;
     }
@@ -44,7 +55,7 @@ const ClientDashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <div className="lg:col-span-3">
           <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold text-gray-900 font-montserrat">Welcome, Alex</h1>
+            <h1 className="text-2xl font-bold text-gray-900 font-montserrat">Welcome, {dashboardData.name || 'Client'}</h1>
             <Link to="/post-job">
               <CustomButton
                 leftIcon={<Plus className="w-4 h-4" />}
@@ -59,8 +70,8 @@ const ClientDashboard = () => {
               <div className="flex flex-wrap">
                 <button
                   className={`flex-1 py-3 px-4 text-sm font-medium text-center ${activeTab === 'active'
-                      ? 'text-primary border-b-2 border-primary'
-                      : 'text-gray-500 hover:text-gray-700'
+                    ? 'text-primary border-b-2 border-primary'
+                    : 'text-gray-500 hover:text-gray-700'
                     }`}
                   onClick={() => setActiveTab('active')}
                 >
@@ -107,33 +118,7 @@ const ClientDashboard = () => {
             </div>
             <div className="p-4">
               <div className="space-y-4">
-                {[
-                  {
-                    type: 'job-posted',
-                    title: 'You posted a new job "React Developer"',
-                    time: '3 hours ago'
-                  },
-                  {
-                    type: 'bid-new',
-                    title: 'New bid received for "UI Design"',
-                    time: 'Yesterday'
-                  },
-                  {
-                    type: 'payment',
-                    title: 'Payment released for "Logo Design"',
-                    time: '2 days ago'
-                  },
-                  {
-                    type: 'message',
-                    title: 'New message from Jane Smith',
-                    time: '5 days ago'
-                  },
-                  {
-                    type: 'milestone',
-                    title: 'Milestone 1 is overdue for "Backend API Development"',
-                    time: '1 day ago'
-                  }
-                ].map((activity, index) => (
+                {dashboardData.recentActivities.map((activity, index) => (
                   <div key={index} className="flex items-start p-3 hover:bg-gray-50 rounded-lg transition-colors">
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-3 ${activity.type === 'job-posted' ? 'bg-primary/10 text-primary' :
                         activity.type === 'bid-new' ? 'bg-primary/10 text-accent' :
@@ -205,11 +190,11 @@ const ClientDashboard = () => {
               <div className="grid grid-cols-2 gap-4 mb-4">
                 <div className="bg-primary/5 rounded-lg p-3">
                   <p className="text-xs text-gray-600 mb-1">In Escrow</p>
-                  <p className="text-lg font-semibold text-gray-900">$4,250</p>
+                  <p className="text-lg font-semibold text-gray-900">${dashboardData.escrowBalance}</p>
                 </div>
                 <div className="bg-gray-50 rounded-lg p-3">
                   <p className="text-xs text-gray-600 mb-1">Spent</p>
-                  <p className="text-lg font-semibold text-gray-900">$12,750</p>
+                  <p className="text-lg font-semibold text-gray-900">${dashboardData.totalSpent}</p>
                 </div>
               </div>
 
@@ -222,14 +207,14 @@ const ClientDashboard = () => {
           </div>
 
           <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden mb-6">
-                      <div className="bg-accent/10 p-4 text-accent">
-                        <div className="flex items-center">
-                          <GrokIcon className="w-6 h-6 mr-2" />
-                          <h2 className="text-lg font-medium">Grok AI Assistant</h2>
-                        </div>
-                      </div>
-                      <div className="p-4">
-                        <p className="text-sm text-gray-600 mb-4">
+            <div className="bg-accent/10 p-4 text-accent">
+              <div className="flex items-center">
+                <GrokIcon className="w-6 h-6 mr-2" />
+                <h2 className="text-lg font-medium">Grok AI Assistant</h2>
+              </div>
+            </div>
+            <div className="p-4">
+              <p className="text-sm text-gray-600 mb-4">
                 Grok can help write better job descriptions, evaluate proposals, and verify work quality.
               </p>
               <CustomButton fullWidth variant="accent" size="sm">
@@ -239,7 +224,7 @@ const ClientDashboard = () => {
           </div>
 
           <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
-            <div className="bg-success p-4 text-white">
+            <div className="bg-success/10 p-4 text-white">
               <div className="flex items-center">
                 <ScreenpipeIcon className="w-6 h-6 mr-2" />
                 <h2 className="text-lg font-medium font-montserrat">Screenpipe</h2>
@@ -340,42 +325,17 @@ const ActiveJobs = () => {
   );
 };
 
-const PendingBids = () => {
+const PendingBids = ({ bids }: { bids: any[] }) => {
   return (
     <div>
       <div className="space-y-4">
-        {[
-          {
-            title: "UI/UX Designer for Mobile App",
-            posted: "3 days ago",
-            bids: 7,
-            highestBid: "$1,800",
-            lowestBid: "$900",
-            deadline: "Oct 25, 2025",
-            bidders: [
-              { name: "Sarah Johnson", bid: "$1,200", rating: 4.8, delivery: "7 days" },
-              { name: "Mike Williams", bid: "$1,500", rating: 4.9, delivery: "5 days" }
-            ]
-          },
-          {
-            title: "WordPress Website Development",
-            posted: "5 days ago",
-            bids: 9,
-            highestBid: "$2,500",
-            lowestBid: "$1,100",
-            deadline: "Nov 10, 2025",
-            bidders: [
-              { name: "David Miller", bid: "$1,800", rating: 4.7, delivery: "10 days" },
-              { name: "Emma Davis", bid: "$2,200", rating: 4.9, delivery: "8 days" }
-            ]
-          }
-        ].map((job, index) => (
+        {bids.map((bid, index) => (
           <div key={index} className="border border-gray-200 rounded-lg hover:border-primary hover:shadow-sm transition-all">
             <div className="p-4 border-b border-gray-100">
               <div className="flex justify-between items-start mb-2">
                 <div>
-                  <h3 className="font-medium text-gray-900 font-montserrat">{job.title}</h3>
-                  <p className="text-sm text-gray-600">Posted: {job.posted}</p>
+                  <h3 className="font-medium text-gray-900 font-montserrat">{bid.jobTitle}</h3>
+                  <p className="text-sm text-gray-600">{bid.freelancer}</p>
                 </div>
                 <Link to={`/jobs/${index}/details`}>
                   <CustomButton variant="outline" size="sm">
@@ -384,60 +344,27 @@ const PendingBids = () => {
                 </Link>
               </div>
 
-              <div className="flex flex-wrap gap-3 text-xs mt-2">
-                <span className="inline-flex items-center text-gray-600">
-                  <Users className="w-3.5 h-3.5 mr-1" /> {job.bids} bids
-                </span>
-                <span className="inline-flex items-center text-gray-600">
-                  <DollarSign className="w-3.5 h-3.5 mr-1" /> {job.lowestBid} - {job.highestBid}
-                </span>
-                <span className="inline-flex items-center text-gray-600">
-                  <Calendar className="w-3.5 h-3.5 mr-1" /> Due: {job.deadline}
-                </span>
-              </div>
-            </div>
-
-            <div className="divide-y divide-gray-100">
-              {job.bidders.map((bidder, bidIndex) => (
-                <div key={bidIndex} className="p-4 hover:bg-gray-50">
-                  <div className="flex justify-between items-start mb-2">
-                    <div className="flex items-center">
-                      <div className="w-8 h-8 bg-gray-200 rounded-full mr-2 flex items-center justify-center">
-                        {bidder.name.charAt(0)}
-                      </div>
-                      <div>
-                        <h4 className="text-sm font-medium">{bidder.name}</h4>
-                        <div className="flex items-center mt-1">
-                          <div className="flex text-yellow-400 mr-1">
-                            {[...Array(5)].map((_, i) => (
-                              <Star key={i} className={`w-3 h-3 ${i < Math.floor(bidder.rating) ? 'fill-current' : ''}`} />
-                            ))}
-                          </div>
-                          <span className="text-xs text-gray-600">{bidder.rating}</span>
-                        </div>
-                      </div>
+              <div className="flex justify-between items-start mt-4">
+                <div>
+                  <div className="flex items-center space-x-4">
+                    <span className="text-sm font-semibold">{bid.bid}</span>
+                    <div className="flex text-yellow-400">
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} className={`w-3 h-3 ${i < Math.floor(bid.rating) ? 'fill-current' : ''}`} />
+                      ))}
                     </div>
-                    <div className="text-right">
-                      <div className="text-sm font-semibold">{bidder.bid}</div>
-                      <div className="text-xs text-gray-600">Delivery: {bidder.delivery}</div>
-                    </div>
-                  </div>
-                  <div className="flex justify-end space-x-2 mt-2">
-                    <CustomButton variant="outline" size="sm">
-                      Message
-                    </CustomButton>
-                    <CustomButton variant="primary" size="sm">
-                      Accept Bid
-                    </CustomButton>
+                    <span className="text-xs text-gray-600">Delivery: {bid.delivery}</span>
                   </div>
                 </div>
-              ))}
-            </div>
-
-            <div className="p-3 bg-gray-50 text-center">
-              <Link to={`/jobs/${index}/bids`} className="text-primary text-sm font-medium">
-                View All Bids
-              </Link>
+                <div className="flex space-x-2">
+                  <CustomButton variant="outline" size="sm">
+                    Message
+                  </CustomButton>
+                  <CustomButton variant="primary" size="sm">
+                    Accept Bid
+                  </CustomButton>
+                </div>
+              </div>
             </div>
           </div>
         ))}

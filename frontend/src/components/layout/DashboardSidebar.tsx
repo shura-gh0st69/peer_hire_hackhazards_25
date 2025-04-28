@@ -82,7 +82,7 @@ export function DashboardSidebar() {
     const toggleUserRole = () => {
         const newRole = user?.role === "client" ? "freelancer" : "client";
         updateUserRole(newRole);
-        
+
         // Redirect to appropriate dashboard when role changes
         navigate("/dashboard");
     };
@@ -134,19 +134,7 @@ export function DashboardSidebar() {
                         </div>
                     </div>
 
-                    {/* User role toggle */}
-                    <div className="p-4 border-b border-gray-200">
-                        <div className="flex justify-between items-center">
-                            <span className="text-sm text-gray-600">Switch to {user.role === "client" ? "Freelancer" : "Client"} Mode</span>
-                            <CustomButton
-                                variant="outline"
-                                size="sm"
-                                onClick={toggleUserRole}
-                            >
-                                Switch
-                            </CustomButton>
-                        </div>
-                    </div>
+
 
                     {/* Menu items */}
                     <nav className="flex-1 overflow-y-auto p-3 space-y-1">
