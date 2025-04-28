@@ -8,6 +8,23 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+// Request logging middleware
+const requestLogger = async (c, next) => {
+  const start = Date.now();
+  const { method, url } = c.req;
+  const requestId = crypto.randomUUID();
+
+  console.log(`[${new Date().toISOString()}] ${requestId} -> ${method} ${url}`);
+
+  await next();
+
+  const duration = Date.now() - start;
+  const status = c.res.status;
+  console.log(
+    `[${new Date().toISOString()}] ${requestId} <- ${method} ${url} ${status} ${duration}ms`
+  );
+};
+
 // Ensure required environment variables are set
 const mongoURI = process.env.MONGODB_URI;
 if (!mongoURI) {
@@ -33,6 +50,9 @@ const frontendURL = process.env.FRONTEND_URL || 'http://localhost:8080';
 const allowedOrigins = frontendURL.split(',').map(origin => origin.trim());
 
 const app = new Hono();
+
+// Add request logging middleware before other middleware
+app.use('*', requestLogger);
 
 // Setup CORS middleware with support for multiple origins
 app.use('*', cors({

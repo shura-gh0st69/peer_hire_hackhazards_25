@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { 
   BriefcaseIcon, 
@@ -59,6 +59,8 @@ export default function FloatingNavbar({ userType }: FloatingNavbarProps) {
   const location = useLocation();
   const [dropdown, setDropdown] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [signupDropdownOpen, setSignupDropdownOpen] = useState(false);
+  const signupDropdownTimeout = useRef<NodeJS.Timeout>();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   
@@ -102,6 +104,19 @@ export default function FloatingNavbar({ userType }: FloatingNavbarProps) {
     } catch (error) {
       console.error('Logout failed:', error);
     }
+  };
+
+  const handleSignupMouseEnter = () => {
+    if (signupDropdownTimeout.current) {
+      clearTimeout(signupDropdownTimeout.current);
+    }
+    setSignupDropdownOpen(true);
+  };
+
+  const handleSignupMouseLeave = () => {
+    signupDropdownTimeout.current = setTimeout(() => {
+      setSignupDropdownOpen(false);
+    }, 100); // Increased to 400ms to allow for the animation
   };
 
   // Select the appropriate navigation links based on authentication status and role
@@ -178,15 +193,25 @@ export default function FloatingNavbar({ userType }: FloatingNavbarProps) {
               Log in
             </Button>
           </Link>
-          <div className="relative group">
+          <div 
+            className="relative"
+            onMouseEnter={handleSignupMouseEnter}
+            onMouseLeave={handleSignupMouseLeave}
+          >
             <Button variant="default" size="sm" className="font-medium hover:text-white hover:bg-accent">
               Sign up
             </Button>
-            <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-2 hidden group-hover:block">
-              <Link to="/auth/freelancer-signup" className="block px-4 py-2 text-sm text-gray-700 hover:bg-primary/10 hover:text-primary">
+            <div className={cn(
+              "absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-2",
+              "transition-all duration-300 ease-in-out transform",
+              signupDropdownOpen 
+                ? "opacity-100 visible translate-y-0" 
+                : "opacity-0 invisible -translate-y-2 pointer-events-none"
+            )}>
+              <Link to="/auth/freelancer-signup" className="block px-4 py-2 text-sm text-gray-700 hover:bg-primary/10 hover:text-primary transition-colors duration-200">
                 Join as Freelancer
               </Link>
-              <Link to="/auth/client-signup" className="block px-4 py-2 text-sm text-gray-700 hover:bg-primary/10 hover:text-primary">
+              <Link to="/auth/client-signup" className="block px-4 py-2 text-sm text-gray-700 hover:bg-primary/10 hover:text-primary transition-colors duration-200">
                 Join as Client
               </Link>
             </div>
