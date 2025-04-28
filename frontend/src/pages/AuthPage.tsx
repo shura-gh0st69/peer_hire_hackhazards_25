@@ -27,6 +27,11 @@ interface FormData {
   location?: string;
 }
 
+interface ValidationError {
+  path: string;
+  message: string;
+}
+
 const AuthPage: React.FC<AuthPageProps> = ({ type = 'signup' }) => {
   const navigate = useNavigate();
   const { login, signUp } = useAuth();
@@ -43,6 +48,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ type = 'signup' }) => {
     type === 'freelancer-signup' ? 'freelancer' :
     type === 'client-signup' ? 'client' : 'freelancer'
   );
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const isSignUp = type === 'freelancer-signup' || type === 'client-signup' || type === 'signup';
 
@@ -74,9 +80,84 @@ const AuthPage: React.FC<AuthPageProps> = ({ type = 'signup' }) => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    
+    // Basic validation
+    if (!formData.email?.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email address';
+    }
+
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+    }
+
+    if (isSignUp && !formData.fullName?.trim()) {
+      newErrors.fullName = 'Full name is required';
+    }
+
+    // Profile specific validation
+    if (step === 'profile') {
+      if (selectedRole === 'freelancer') {
+        if (!formData.headline?.trim()) {
+          newErrors.headline = 'Please add a professional headline (e.g., "Senior Full Stack Developer")';
+        } else if (formData.headline.length < 5) {
+          newErrors.headline = 'Headline should be at least 5 characters';
+        }
+
+        if (!formData.hourlyRate) {
+          newErrors.hourlyRate = 'Please set your hourly rate';
+        } else {
+          const rate = parseFloat(formData.hourlyRate);
+          if (isNaN(rate) || rate < 1) {
+            newErrors.hourlyRate = 'Hourly rate must be at least $1';
+          } else if (rate > 1000) {
+            newErrors.hourlyRate = 'Hourly rate cannot exceed $1000';
+          }
+        }
+
+        if (!formData.skills?.trim()) {
+          newErrors.skills = 'Please add at least one skill';
+        } else {
+          const skills = formData.skills.split(',').map(s => s.trim()).filter(Boolean);
+          if (skills.length === 0) {
+            newErrors.skills = 'Please add at least one valid skill';
+          } else if (skills.some(s => s.length < 2)) {
+            newErrors.skills = 'Each skill should be at least 2 characters';
+          }
+        }
+
+        if (!formData.bio?.trim()) {
+          newErrors.bio = 'Please write a professional bio';
+        } else if (formData.bio.length < 50) {
+          newErrors.bio = 'Bio should be at least 50 characters. Describe your experience and expertise.';
+        } else if (formData.bio.length > 500) {
+          newErrors.bio = 'Bio should not exceed 500 characters';
+        }
+
+        if (!formData.location?.trim()) {
+          newErrors.location = 'Please add your location';
+        } else if (formData.location.length < 2) {
+          newErrors.location = 'Please enter a valid location';
+        }
+      } else {
+        if (!formData.industry?.trim()) newErrors.industry = 'Industry is required';
+        if (!formData.companySize?.trim()) newErrors.companySize = 'Company size is required';
+        if (!formData.companyLocation?.trim()) newErrors.companyLocation = 'Company location is required';
+        if (!formData.bio?.trim()) newErrors.bio = 'Company description is required';
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleEmailAuth = async (e: FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setErrors({});
 
     try {
       if (isSignUp) {
@@ -92,32 +173,72 @@ const AuthPage: React.FC<AuthPageProps> = ({ type = 'signup' }) => {
           return;
         }
 
+        // Validate form before submission
+        if (!validateForm()) {
+          setIsLoading(false);
+          // Show first error in toast
+          const firstError = Object.values(errors)[0];
+          if (firstError) {
+            toast.error(firstError);
+          }
+          return;
+        }
+
         const profile = selectedRole === 'freelancer' ? {
           skills: formData.skills?.split(',').map(s => s.trim()) || [],
-          bio: formData.bio || "Professional freelancer",
-          hourlyRate: formData.hourlyRate ? parseFloat(formData.hourlyRate.toString()) : 50,
-          location: formData.location || "Remote"
+          bio: formData.bio || "",
+          hourlyRate: formData.hourlyRate ? parseFloat(formData.hourlyRate) : undefined,
+          location: formData.location || ""
         } : {
-          companySize: formData.companySize || "1-10",
-          industry: formData.industry || "Technology",
-          companyLocation: formData.companyLocation || "Remote"
+          companySize: formData.companySize || "",
+          industry: formData.industry || "",
+          companyLocation: formData.companyLocation || "",
+          bio: formData.bio || ""
         };
 
-        await signUp(
-          formData.email,
-          formData.password,
-          selectedRole,
-          formData.fullName || "User",
-          profile
-        );
+        try {
+          await signUp(
+            formData.email,
+            formData.password,
+            selectedRole,
+            formData.fullName,
+            profile
+          );
+          toast.success("Account created successfully!");
+          navigate('/dashboard');
+        } catch (error: any) {
+          if (error.response?.data?.details) {
+            const validationErrors: ValidationError[] = error.response.data.details;
+            const errorMap: Record<string, string> = {};
+            
+            validationErrors.forEach(err => {
+              const field = err.path.split('.').pop() || '';
+              errorMap[field] = err.message;
 
-        toast.success("Account created successfully!");
+              // Map nested profile errors to form fields
+              if (err.path.includes('profile.')) {
+                const profileField = err.path.split('.').pop() || '';
+                errorMap[profileField] = err.message;
+              }
+            });
+            
+            setErrors(errorMap);
+            
+            // Show the first error in a toast
+            if (validationErrors.length > 0) {
+              toast.error(validationErrors[0].message);
+            }
+          } else {
+            toast.error(error.message || "Failed to create account");
+          }
+        }
       } else {
         await login(formData.email, formData.password);
         toast.success("Logged in successfully!");
+        navigate('/dashboard');
       }
-      navigate('/dashboard');
     } catch (error: any) {
+      console.error(error);
       toast.error(error.message || "Authentication failed");
     } finally {
       setIsLoading(false);
@@ -133,6 +254,70 @@ const AuthPage: React.FC<AuthPageProps> = ({ type = 'signup' }) => {
       toast.error(error.message || "Failed to connect wallet");
     }
   };
+
+  const renderInput = (name: string, label: string, type: string = 'text', placeholder?: string, options?: string[]) => (
+    <div>
+      <label htmlFor={name} className="block text-sm font-medium text-gray-700 mb-1">
+        {label}
+      </label>
+      <div className="relative">
+        {type === 'select' ? (
+          <select
+            id={name}
+            name={name}
+            value={formData[name as keyof FormData] || ''}
+            onChange={handleInputChange}
+            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent ${
+              errors[name] ? 'border-red-500' : 'border-gray-300'
+            }`}
+          >
+            <option value="">{`Select ${label.toLowerCase()}`}</option>
+            {options?.map(option => (
+              <option key={option} value={option}>{option}</option>
+            ))}
+          </select>
+        ) : type === 'textarea' ? (
+          <textarea
+            id={name}
+            name={name}
+            value={formData[name as keyof FormData] || ''}
+            onChange={handleInputChange}
+            rows={4}
+            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent ${
+              errors[name] ? 'border-red-500' : 'border-gray-300'
+            }`}
+            placeholder={placeholder}
+          />
+        ) : (
+          <>
+            <input
+              type={type === 'password' ? (showPassword ? 'text' : 'password') : type}
+              id={name}
+              name={name}
+              value={formData[name as keyof FormData] || ''}
+              onChange={handleInputChange}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent ${
+                errors[name] ? 'border-red-500' : 'border-gray-300'
+              }`}
+              placeholder={placeholder}
+            />
+            {type === 'password' && (
+              <button
+                type="button"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+              </button>
+            )}
+          </>
+        )}
+      </div>
+      {errors[name] && (
+        <p className="mt-1 text-sm text-red-600">{errors[name]}</p>
+      )}
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-primary/5 to-primary/10 py-12 px-4 pt-32 sm:px-6 lg:px-8 font-poppins">
@@ -212,46 +397,8 @@ const AuthPage: React.FC<AuthPageProps> = ({ type = 'signup' }) => {
                   </div>
 
                   <div className="space-y-4">
-                    <div>
-                      <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                        Email
-                      </label>
-                      <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        required
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                        placeholder="Enter your email"
-                      />
-                    </div>
-
-                    <div>
-                      <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                        Password
-                      </label>
-                      <div className="relative">
-                        <input
-                          type={showPassword ? "text" : "password"}
-                          id="password"
-                          name="password"
-                          value={formData.password}
-                          onChange={handleInputChange}
-                          required
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                          placeholder="Enter your password"
-                        />
-                        <button
-                          type="button"
-                          className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
-                          onClick={() => setShowPassword(!showPassword)}
-                        >
-                          {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                        </button>
-                      </div>
-                    </div>
+                    {renderInput('email', 'Email', 'email', 'Enter your email')}
+                    {renderInput('password', 'Password', 'password', 'Enter your password')}
 
                     {isSignUp && (
                       <div className="flex items-start">
@@ -293,189 +440,36 @@ const AuthPage: React.FC<AuthPageProps> = ({ type = 'signup' }) => {
                   </button>
 
                   <div className="space-y-4">
-                    <div>
-                      <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1">
-                        Full Name
-                      </label>
-                      <input
-                        type="text"
-                        id="fullName"
-                        name="fullName"
-                        value={formData.fullName}
-                        onChange={handleInputChange}
-                        required
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                      />
-                    </div>
+                    {renderInput('fullName', 'Full Name')}
 
                     {selectedRole === 'freelancer' ? (
                       <>
-                        <div>
-                          <label htmlFor="headline" className="block text-sm font-medium text-gray-700 mb-1">
-                            Professional Headline
-                          </label>
-                          <input
-                            type="text"
-                            id="headline"
-                            name="headline"
-                            value={formData.headline}
-                            onChange={handleInputChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                          />
-                        </div>
-
-                        <div>
-                          <label htmlFor="hourlyRate" className="block text-sm font-medium text-gray-700 mb-1">
-                            Hourly Rate (USD)
-                          </label>
-                          <input
-                            type="number"
-                            id="hourlyRate"
-                            name="hourlyRate"
-                            value={formData.hourlyRate || ''}
-                            onChange={handleInputChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                          />
-                        </div>
-
-                        <div>
-                          <label htmlFor="skills" className="block text-sm font-medium text-gray-700 mb-1">
-                            Skills (separated by commas)
-                          </label>
-                          <input
-                            type="text"
-                            id="skills"
-                            name="skills"
-                            value={formData.skills || ''}
-                            onChange={handleInputChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                          />
-                        </div>
-
-                        <div>
-                          <label htmlFor="bio" className="block text-sm font-medium text-gray-700 mb-1">
-                            Professional Bio
-                          </label>
-                          <textarea
-                            id="bio"
-                            name="bio"
-                            rows={4}
-                            value={formData.bio || ''}
-                            onChange={handleInputChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                          />
-                        </div>
-
-                        <div>
-                          <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">
-                            Location
-                          </label>
-                          <input
-                            type="text"
-                            id="location"
-                            name="location"
-                            value={formData.location || ''}
-                            onChange={handleInputChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                          />
-                        </div>
-
-                        <div className="bg-accent/5 p-4 rounded-lg border border-accent/10 flex items-start">
-                          <GrokIcon className="w-5 h-5 text-accent mr-3 mt-0.5" />
-                          <div>
-                            <p className="text-sm text-gray-600">
-                              <span className="font-medium text-accent">Grok AI Tip:</span> Adding portfolio items and detailed work history can increase your chances of getting hired by 70%.
-                            </p>
-                          </div>
-                        </div>
+                        {renderInput('headline', 'Professional Headline')}
+                        {renderInput('hourlyRate', 'Hourly Rate (USD)', 'number')}
+                        {renderInput('skills', 'Skills (separated by commas)')}
+                        {renderInput('bio', 'Professional Bio', 'textarea')}
+                        {renderInput('location', 'Location')}
                       </>
                     ) : (
                       <>
-                        <div>
-                          <label htmlFor="company" className="block text-sm font-medium text-gray-700 mb-1">
-                            Company Name (optional)
-                          </label>
-                          <input
-                            type="text"
-                            id="company"
-                            name="company"
-                            value={formData.company || ''}
-                            onChange={handleInputChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                          />
-                        </div>
-
-                        <div>
-                          <label htmlFor="industry" className="block text-sm font-medium text-gray-700 mb-1">
-                            Industry
-                          </label>
-                          <select
-                            id="industry"
-                            name="industry"
-                            value={formData.industry || ''}
-                            onChange={handleInputChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                          >
-                            <option value="">Select your industry</option>
-                            <option value="tech">Technology</option>
-                            <option value="finance">Finance</option>
-                            <option value="healthcare">Healthcare</option>
-                            <option value="education">Education</option>
-                            <option value="ecommerce">E-commerce</option>
-                            <option value="other">Other</option>
-                          </select>
-                        </div>
-
-                        <div>
-                          <label htmlFor="bio" className="block text-sm font-medium text-gray-700 mb-1">
-                            Company/Personal Bio
-                          </label>
-                          <textarea
-                            id="bio"
-                            name="bio"
-                            rows={4}
-                            value={formData.bio || ''}
-                            onChange={handleInputChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                          />
-                        </div>
-
-                        <div>
-                          <label htmlFor="companySize" className="block text-sm font-medium text-gray-700 mb-1">
-                            Company Size
-                          </label>
-                          <input
-                            type="text"
-                            id="companySize"
-                            name="companySize"
-                            value={formData.companySize || ''}
-                            onChange={handleInputChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                          />
-                        </div>
-
-                        <div>
-                          <label htmlFor="companyLocation" className="block text-sm font-medium text-gray-700 mb-1">
-                            Company Location
-                          </label>
-                          <input
-                            type="text"
-                            id="companyLocation"
-                            name="companyLocation"
-                            value={formData.companyLocation || ''}
-                            onChange={handleInputChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                          />
-                        </div>
-
-                        <div className="bg-accent/5 p-4 rounded-lg border border-accent/10 flex items-start">
-                          <GrokIcon className="w-5 h-5 text-accent mr-3 mt-0.5" />
-                          <div>
-                            <p className="text-sm text-gray-600">
-                              <span className="font-medium text-accent">Grok AI Tip:</span> Complete profiles attract 3x more quality responses from freelancers and help you find the right match faster.
-                            </p>
-                          </div>
-                        </div>
+                        {renderInput('company', 'Company Name (optional)')}
+                        {renderInput('industry', 'Industry', 'select', undefined, [
+                          'Technology',
+                          'Finance',
+                          'Healthcare',
+                          'Education',
+                          'E-commerce',
+                          'Other'
+                        ])}
+                        {renderInput('bio', 'Company Description', 'textarea')}
+                        {renderInput('companySize', 'Company Size', 'select', undefined, [
+                          '1-10',
+                          '11-50',
+                          '51-200',
+                          '201-500',
+                          '500+'
+                        ])}
+                        {renderInput('companyLocation', 'Company Location')}
                       </>
                     )}
                   </div>
