@@ -143,14 +143,27 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 // Handle demo user logic if present
                 return;
             }
-            
-            const response = await api.post("/auth/signup", {
-                email,
-                password,
-                name,
-                role,
-                profile
-            });
+
+            let response;
+            if (role === 'client') {
+                // Use dedicated client signup endpoint
+                response = await api.post("/auth/client/signup", {
+                    email,
+                    password,
+                    name,
+                    role,
+                    profile
+                });
+            } else {
+                // Use regular signup for freelancers
+                response = await api.post("/auth/signup", {
+                    email,
+                    password,
+                    name,
+                    role,
+                    profile
+                });
+            }
             
             const { token, user: userData } = response.data;
             localStorage.setItem("authToken", token);
