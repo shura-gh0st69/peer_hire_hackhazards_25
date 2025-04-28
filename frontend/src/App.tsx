@@ -77,7 +77,7 @@ const App = () => {
             <FloatingNavbar />
             <Routes>
               {/* Public Marketing Pages */}
-              <Route path="/" element={<Home />} />
+              <Route path="/" element={isLoading == true ? <LoadingScreen /> : <Home />} />
               <Route path="/pricing" element={<Pricing />} />
               <Route path="/enterprise" element={<Enterprise />} />
               <Route path="/jobs" element={<JobListing />} />
