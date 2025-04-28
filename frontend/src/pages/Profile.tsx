@@ -1,39 +1,46 @@
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { useAuth } from '@/context/AuthContext';
-import api from '@/lib/api';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import {
-    User,
-    Briefcase,
-    MapPin,
-    DollarSign,
-    Star,
     Edit2,
+    MapPin,
+    User,
     Calendar,
-    Wallet,
+    Briefcase,
+    DollarSign,
     ExternalLink,
-    Loader2
-} from 'lucide-react';
-import { BaseIcon } from '@/components/icons';
-import { CustomButton } from '@/components/ui/custom-button';
-import { LoadingScreen } from '@/components/LoadingScreen';
-import { toast } from 'sonner';
+    Wallet,
+    Copy,
 
-const Profile: React.FC = () => {
-    const { user, fetchDashboardData } = useAuth();
+    BadgeCheck
+} from 'lucide-react';
+import { CustomButton } from '@/components/ui/custom-button';
+import { useAuth } from '@/context/AuthContext';
+import { LoadingScreen } from '@/components/LoadingScreen';
+import api from '@/lib/api';
+import { toast } from 'sonner';
+import { useWallet } from '@/hooks/use-wallet';
+import { BaseIcon } from '@/components/icons';
+
+// Helper function to truncate wallet address
+const truncateAddress = (address: string) => {
+    if (!address) return '';
+    return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
+};
+
+const Profile = () => {
+    const navigate = useNavigate();
+    const { user, updateProfile } = useAuth();
+    const { connect, disconnect, isConnecting } = useWallet();
     const [isLoading, setIsLoading] = useState(true);
     const [profileData, setProfileData] = useState<any>(null);
+    const [isWalletConnecting, setIsWalletConnecting] = useState(false);
+    const [walletError, setWalletError] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchProfileData = async () => {
-            if (!user) return;
+            if (!user?.id) return;
 
             try {
-                setIsLoading(true);
-                // Fetch dashboard data for stats
-                await fetchDashboardData();
-
-                // Fetch detailed profile data
                 const response = await api.get(`/auth/profile/${user.id}`);
                 setProfileData(response.data.profile);
             } catch (error: any) {
@@ -46,6 +53,72 @@ const Profile: React.FC = () => {
 
         fetchProfileData();
     }, [user?.id]);
+
+    const handleConnectWallet = async () => {
+        setIsWalletConnecting(true);
+        setWalletError(null);
+
+        try {
+            const data = await connect();
+            if (data) {
+                try {
+                    // Use dedicated wallet endpoint instead of general profile update
+                    await api.post('/users/wallet', {
+                        address: data.address,
+                        signature: data.signature,
+                        message: data.message
+                    });
+
+                    // Update local profile data
+                    setProfileData(prev => ({
+                        ...prev,
+                        walletAddress: data.address
+                    }));
+
+                    toast.success('Wallet connected successfully!');
+                } catch (error: any) {
+                    console.error('Wallet connection error:', error);
+                    setWalletError(error.message || 'Failed to link wallet to account');
+                    toast.error(error.message || 'Failed to link wallet to account');
+
+                    // If wallet update fails, disconnect wallet to keep UI state consistent
+                    disconnect();
+                }
+            }
+        } catch (error: any) {
+            console.error('Wallet connection error:', error);
+            setWalletError(error.message || 'Failed to connect wallet');
+            toast.error(error.message || 'Failed to connect wallet');
+        } finally {
+            setIsWalletConnecting(false);
+        }
+    };
+
+    const handleDisconnectWallet = async () => {
+        try {
+            // Use dedicated wallet disconnect endpoint
+            await api.delete('/users/wallet');
+
+            // Update local state
+            setProfileData(prev => ({
+                ...prev,
+                walletAddress: ''
+            }));
+
+            // Disconnect wallet
+            disconnect();
+
+            toast.success('Wallet disconnected successfully');
+        } catch (error: any) {
+            toast.error(error.message || 'Failed to disconnect wallet');
+        }
+    };
+
+    const copyToClipboard = (text: string) => {
+        navigator.clipboard.writeText(text).then(() => {
+            toast.success('Address copied to clipboard!');
+        });
+    };
 
     if (!user) {
         return (
@@ -133,30 +206,56 @@ const Profile: React.FC = () => {
                                         <div className="mt-1 flex items-center">
                                             <Wallet className="w-4 h-4 text-gray-500 mr-2" />
                                             <span className="text-xs text-gray-600 truncate">
-                                                {profileData.walletAddress}
+                                                {truncateAddress(profileData.walletAddress)}
                                             </span>
+                                            <button
+                                                onClick={() => copyToClipboard(profileData.walletAddress)}
+                                                className="ml-1 text-gray-400 hover:text-gray-600"
+                                                title="Copy to clipboard"
+                                            >
+                                                <Copy className="w-3 h-3" />
+                                            </button>
                                             <a
                                                 href={`https://basescan.org/address/${profileData.walletAddress}`}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                                 className="ml-2 text-primary hover:text-primary/80"
+                                                title="View on BaseScan"
                                             >
                                                 <ExternalLink className="w-3 h-3" />
                                             </a>
                                         </div>
                                         <div className="mt-2 flex items-center text-green-600 text-xs">
-                                            <svg className="w-3 h-3 mr-1" viewBox="0 0 20 20" fill="currentColor">
-                                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                            </svg>
+                                            <BadgeCheck className="w-3 h-3 mr-1" />
                                             Verified
+                                        </div>
+                                        <div className="mt-2">
+                                            <CustomButton
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={handleDisconnectWallet}
+                                            >
+                                                Disconnect Wallet
+                                            </CustomButton>
                                         </div>
                                     </div>
                                 ) : (
                                     <div className="text-sm text-gray-500">
                                         <p>No wallet connected</p>
-                                        <Link to="/profile/settings" className="text-primary hover:text-primary/80 text-sm mt-1 inline-block">
-                                            Connect your wallet
-                                        </Link>
+                                        <div className="mt-2">
+                                            <CustomButton
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={handleConnectWallet}
+                                                disabled={isWalletConnecting}
+                                                leftIcon={<BaseIcon className="w-3 h-3" />}
+                                            >
+                                                {isWalletConnecting ? 'Connecting...' : 'Connect Wallet'}
+                                            </CustomButton>
+                                        </div>
+                                        {walletError && (
+                                            <p className="text-xs text-red-500 mt-2">{walletError}</p>
+                                        )}
                                     </div>
                                 )}
                             </div>

@@ -9,15 +9,25 @@ import {
     Star,
     Trash,
     Wallet,
-    BadgeCheck
+    BadgeCheck,
+
 } from 'lucide-react';
 import { CustomButton } from '@/components/ui/custom-button';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
+import { useWallet } from '@/hooks/use-wallet';
+import { BaseIcon } from '@/components/icons';
+import { LoadingScreen } from '@/components/LoadingScreen';
+import api from '@/lib/api';
 
 const ProfileSettings = () => {
     const navigate = useNavigate();
     const { user, updateProfile } = useAuth();
+    const { connect, disconnect, isConnecting } = useWallet();
+
+    const [walletError, setWalletError] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [profileData, setProfileData] = useState<any>(null);
 
     const [formData, setFormData] = useState({
         fullName: '',
@@ -36,53 +46,129 @@ const ProfileSettings = () => {
 
     const [newSkill, setNewSkill] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [showConnectWallet, setShowConnectWallet] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
 
-    // Initialize form data from user context
+    // Fetch complete user profile data from API
     useEffect(() => {
-        if (user) {
-            setFormData({
-                fullName: user.name || '',
-                headline: user.profile?.headline ? String(user.profile.headline) : '',
-                email: user.email || '',
-                bio: user.profile?.bio || '',
-                walletAddress: user.walletAddress || '',
-                hourlyRate: user.profile?.hourlyRate?.toString() || '',
-                location: user.profile?.location || '',
-                skills: user.profile?.skills || [],
-                company: user.profile?.company || '',
-                industry: user.profile?.industry || '',
-                companySize: user.profile?.companySize || '',
-                companyLocation: user.profile?.companyLocation || ''
-            });
-        }
-    }, [user]);
+        const fetchProfileData = async () => {
+            if (!user?.id) return;
+
+            try {
+                setIsLoading(true);
+                const response = await api.get(`/auth/profile/${user.id}`);
+                const profile = response.data.profile;
+                setProfileData(profile);
+
+                // Map API response to form fields
+                setFormData({
+                    fullName: profile.name || '',
+                    headline: profile.headline || '',
+                    email: profile.email || '',
+                    bio: profile.bio || '',
+                    walletAddress: profile.walletAddress || '',
+                    hourlyRate: profile.hourlyRate ? profile.hourlyRate.toString() : '',
+                    location: profile.location || '',
+                    skills: profile.skills || [],
+                    company: profile.company || '',
+                    industry: profile.industry || '',
+                    companySize: profile.companySize || '',
+                    companyLocation: profile.companyLocation || ''
+                });
+            } catch (error: any) {
+                toast.error(error.message || 'Failed to load profile data');
+                console.error('Profile fetch error:', error);
+
+                // Fall back to basic user data if API request fails
+                if (user) {
+                    setFormData({
+                        fullName: user.name || '',
+                        headline: user.profile?.headline ? String(user.profile.headline) : '',
+                        email: user.email || '',
+                        bio: user.profile?.bio || '',
+                        walletAddress: user.walletAddress || '',
+                        hourlyRate: user.profile?.hourlyRate?.toString() || '',
+                        location: user.profile?.location || '',
+                        skills: user.profile?.skills || [],
+                        company: user.profile?.company || '',
+                        industry: user.profile?.industry || '',
+                        companySize: user.profile?.companySize || '',
+                        companyLocation: user.profile?.companyLocation || ''
+                    });
+                }
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchProfileData();
+    }, [user?.id]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
 
-        // Clear error when field is edited
         if (errors[name]) {
             setErrors(prev => ({ ...prev, [name]: '' }));
         }
     };
 
-    const connectWallet = async () => {
+    const handleWalletConnect = async () => {
+        setWalletError(null);
         try {
-            // In a real implementation, this would connect to wallet like Coinbase Wallet
-            // For demo, we'll simulate connecting a wallet
-            const walletAddress = '0x1234567890abcdef1234567890abcdef12345678'; // Simulated wallet address
-        } catch (error) {
+            const data = await connect();
+            if (data) {
+                try {
+                    // Use the dedicated wallet connection endpoint
+                    await api.post('auth/users/wallet', {
+                        address: data.address,
+                        signature: data.signature,
+                        message: data.message
+                    });
+
+                    // Update local form state
+                    setFormData(prev => ({
+                        ...prev,
+                        walletAddress: data.address
+                    }));
+
+                    toast.success('Wallet connected successfully!');
+                } catch (error: any) {
+                    setWalletError(error.message || 'Failed to link wallet to account');
+                    toast.error(error.message || 'Failed to link wallet to account');
+
+                    // If profile update fails, disconnect wallet to keep UI state consistent
+                    disconnect();
+                }
+            }
+        } catch (error: any) {
             console.error('Wallet connection error:', error);
-            toast.error('An error occurred while connecting your wallet.');
+            setWalletError(error.message || 'Failed to connect wallet');
+            toast.error(error.message || 'Failed to connect wallet');
+        }
+    };
+
+    const handleWalletDisconnect = async () => {
+        try {
+            // Use the dedicated wallet disconnect endpoint
+            await api.delete('auth/users/wallet');
+
+            // Disconnect wallet and update local state
+            disconnect();
+            setFormData(prev => ({
+                ...prev,
+                walletAddress: ''
+            }));
+
+            toast.success('Wallet disconnected successfully');
+        } catch (error: any) {
+            toast.error(error.message || 'Failed to disconnect wallet');
         }
     };
 
     const addSkill = () => {
         if (!newSkill.trim()) return;
 
-        // Check if skill already exists
         if (formData.skills.includes(newSkill.trim())) {
             toast.error('This skill is already in your list');
             return;
@@ -105,7 +191,6 @@ const ProfileSettings = () => {
     const validateForm = () => {
         const newErrors: Record<string, string> = {};
 
-        // Basic validation
         if (!formData.fullName.trim()) {
             newErrors.fullName = 'Name is required';
         }
@@ -116,12 +201,10 @@ const ProfileSettings = () => {
             newErrors.email = 'Please enter a valid email';
         }
 
-        // Wallet address validation - basic format check for Ethereum/Base address
         if (formData.walletAddress && !/^(0x)?[0-9a-fA-F]{40}$/.test(formData.walletAddress)) {
             newErrors.walletAddress = 'Please enter a valid wallet address (0x followed by 40 characters)';
         }
 
-        // Role-specific validation
         if (user?.role === 'freelancer') {
             if (!formData.headline?.trim()) {
                 newErrors.headline = 'Professional headline is required';
@@ -141,7 +224,6 @@ const ProfileSettings = () => {
                 newErrors.skills = 'Please add at least one skill';
             }
         } else {
-            // Client-specific validation
             if (!formData.company?.trim()) {
                 newErrors.company = 'Company name is required';
             }
@@ -169,7 +251,6 @@ const ProfileSettings = () => {
         setIsSubmitting(true);
 
         try {
-            // Format profile data based on user role
             const profileData = user?.role === 'freelancer'
                 ? {
                     headline: formData.headline,
@@ -183,9 +264,8 @@ const ProfileSettings = () => {
                     companyLocation: ''
                 }
                 : {
-                    // Provide defaults for required freelancer fields to satisfy type requirements
                     headline: '',
-                    bio: '',
+                    bio: formData.bio,
                     hourlyRate: 0,
                     location: '',
                     skills: [],
@@ -195,7 +275,6 @@ const ProfileSettings = () => {
                     companyLocation: formData.companyLocation
                 };
 
-            // Update profile using auth context
             await updateProfile({
                 name: formData.fullName,
                 email: formData.email,
@@ -212,6 +291,26 @@ const ProfileSettings = () => {
         }
     };
 
+    if (!user) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="text-center">
+                    <h2 className="text-xl font-medium text-gray-900">Please sign in to edit your profile</h2>
+                    <CustomButton
+                        onClick={() => navigate('/auth/login')}
+                        className="mt-4"
+                    >
+                        Sign In
+                    </CustomButton>
+                </div>
+            </div>
+        );
+    }
+
+    if (isLoading) {
+        return <LoadingScreen />;
+    }
+
     return (
         <div className="min-h-screen bg-gray-50 pt-20 pb-12">
             <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -222,7 +321,6 @@ const ProfileSettings = () => {
                     </div>
 
                     <form onSubmit={handleSubmit} className="p-6 sm:p-8 space-y-6">
-                        {/* Basic Information */}
                         <div className="space-y-4">
                             <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                                 <User className="h-5 w-5 text-primary" />
@@ -268,7 +366,6 @@ const ProfileSettings = () => {
                             </div>
                         </div>
 
-                        {/* Wallet */}
                         <div className="space-y-4 pt-4 border-t border-gray-200">
                             <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                                 <Wallet className="h-5 w-5 text-primary" />
@@ -285,17 +382,39 @@ const ProfileSettings = () => {
                                         id="walletAddress"
                                         name="walletAddress"
                                         value={formData.walletAddress}
-                                        onChange={handleChange}
                                         placeholder="0x..."
                                         className={`flex-grow px-3 py-2 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent ${errors.walletAddress ? 'border-red-500' : 'border-gray-300'
                                             }`}
+                                        readOnly
                                     />
                                     <button
                                         type="button"
-                                        onClick={connectWallet}
-                                        className="px-4 py-2 bg-primary text-white rounded-r-md hover:bg-primary/90 flex-shrink-0"
+                                        onClick={formData.walletAddress ? handleWalletDisconnect : handleWalletConnect}
+                                        disabled={isConnecting}
+                                        className={`px-4 py-2 rounded-r-md flex items-center justify-center transition-colors ${formData.walletAddress
+                                            ? 'bg-red-500 hover:bg-red-600 text-white'
+                                            : 'bg-primary hover:bg-primary/90 text-white'
+                                            }`}
                                     >
-                                        Connect
+                                        {isConnecting ? (
+                                            <span className="flex items-center">
+                                                <svg className="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                </svg>
+                                                Connecting...
+                                            </span>
+                                        ) : formData.walletAddress ? (
+                                            <span className="flex items-center">
+                                                <Trash className="w-4 h-4 mr-2" />
+                                                Disconnect
+                                            </span>
+                                        ) : (
+                                            <span className="flex items-center">
+                                                <BaseIcon className="w-4 h-4 mr-2" />
+                                                Connect Wallet
+                                            </span>
+                                        )}
                                     </button>
                                 </div>
                                 {formData.walletAddress && !errors.walletAddress && (
@@ -303,6 +422,9 @@ const ProfileSettings = () => {
                                         <BadgeCheck className="h-4 w-4 mr-1" />
                                         Wallet address connected
                                     </div>
+                                )}
+                                {walletError && (
+                                    <p className="mt-1 text-sm text-red-600">{walletError}</p>
                                 )}
                                 {errors.walletAddress && (
                                     <p className="mt-1 text-sm text-red-600">{errors.walletAddress}</p>
@@ -313,10 +435,8 @@ const ProfileSettings = () => {
                             </div>
                         </div>
 
-                        {/* Role-specific sections */}
                         {user?.role === 'freelancer' ? (
                             <div className="space-y-6">
-                                {/* Freelancer Profile */}
                                 <div className="space-y-4 pt-4 border-t border-gray-200">
                                     <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                                         <Briefcase className="h-5 w-5 text-primary" />
@@ -411,7 +531,6 @@ const ProfileSettings = () => {
                                     </div>
                                 </div>
 
-                                {/* Skills */}
                                 <div className="space-y-4 pt-4 border-t border-gray-200">
                                     <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                                         <Star className="h-5 w-5 text-primary" />
@@ -461,7 +580,6 @@ const ProfileSettings = () => {
                                 </div>
                             </div>
                         ) : (
-                            /* Client Profile */
                             <div className="space-y-4 pt-4 border-t border-gray-200">
                                 <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                                     <Briefcase className="h-5 w-5 text-primary" />
@@ -560,7 +678,6 @@ const ProfileSettings = () => {
                             </div>
                         )}
 
-                        {/* Form Actions */}
                         <div className="pt-6 border-t border-gray-200 flex flex-col sm:flex-row-reverse gap-3">
                             <CustomButton
                                 type="submit"

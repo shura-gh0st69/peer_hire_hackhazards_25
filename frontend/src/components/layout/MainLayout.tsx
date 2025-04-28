@@ -18,7 +18,7 @@ export default function MainLayout({
 
     // Use auth context if available, otherwise use props for backward compatibility
     const isUserAuthenticated = auth.isAuthenticated || isAuthenticated;
-    
+
     // Use currentRole from context for consistent experience
     const currentUserType = userType || auth.currentRole;
 
@@ -30,14 +30,14 @@ export default function MainLayout({
 
             {/* Main content area wrapper */}
             {/* pt-20 to offset the fixed navbar height */}
-            <div className="flex flex-1 pt-20">
+            <div className="flex flex-1 ">
                 {/* Sidebar - visible for authenticated users */}
                 {isUserAuthenticated && (
                     <DashboardSidebar />
                 )}
 
                 {/* Main content area */}
-                <main className={`flex-1 overflow-y-auto ${isUserAuthenticated ? 'md:ml-64' : ''}`}>
+                <main className={`flex-1 overflow-y-auto ${isUserAuthenticated}`}>
                     {children}
                 </main>
             </div>
