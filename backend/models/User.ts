@@ -1,11 +1,13 @@
-import { Schema, model } from 'mongoose';
+import { Schema, model, Document } from 'mongoose';
 
 // Define interfaces for better type safety
-interface IUser {
+interface IUser extends Document {
+  _id: string;
   email: string;
   password: string;
   name: string;
   role: 'client' | 'freelancer';
+  walletAddress?: string;
   createdAt: Date;
   updatedAt: Date;
   // Freelancer specific fields
@@ -25,6 +27,7 @@ const userSchema = new Schema<IUser>({
   password: { type: String, required: true },
   name: { type: String, required: true },
   role: { type: String, enum: ['client', 'freelancer'], required: true },
+  walletAddress: { type: String, required: false, unique: true, sparse: true },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
   // Freelancer specific fields

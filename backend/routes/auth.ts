@@ -2,7 +2,13 @@ import { Hono } from 'hono';
 import { z } from 'zod';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
-import { User } from '../models/User';
+import { User, IUser } from '../models/User';
+import { Activity } from '../models/Activity';
+import { Job } from '../models/Job';
+import { Bid } from '../models/Bid';
+import { Contract } from '../models/Contract';
+import { Payment } from '../models/Payment';
+import { auth } from '../middleware/auth';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -334,6 +340,13 @@ authRoutes.post('/login', async (c) => {
   }
 });
 
+// Update the Context interface
+declare module 'hono' {
+  interface ContextVariableMap {
+    user: IUser;
+  }
+}
+
 // Get current user route
 authRoutes.get('/me', async (c) => {
   try {
@@ -373,6 +386,200 @@ authRoutes.get('/me', async (c) => {
     });
   } catch (error) {
     return c.json({ error: 'Invalid token' }, 401);
+  }
+});
+
+// Get user profile data
+authRoutes.get('/profile/:userId', auth, async (c) => {
+  try {
+    const userId = c.req.param('userId');
+    const user = await User.findById(userId).select('-password');
+    
+    if (!user) {
+      return c.json({ error: 'User not found' }, 404);
+    }
+
+    // Get user statistics based on role
+    let stats = {};
+    if (user.role === 'freelancer') {
+      const completedJobs = await Contract.countDocuments({ 
+        freelancerId: user._id, 
+        status: 'completed' 
+      });
+      
+      const totalEarnings = await Payment.aggregate([
+        { $match: { freelancerId: user._id, status: 'completed' } },
+        { $group: { _id: null, total: { $sum: '$amount' } } }
+      ]);
+
+      const avgRating = await Contract.aggregate([
+        { $match: { freelancerId: user._id, status: 'completed' } },
+        { $group: { _id: null, rating: { $avg: '$rating' } } }
+      ]);
+
+      stats = {
+        completedJobs,
+        totalEarnings: totalEarnings[0]?.total || 0,
+        rating: avgRating[0]?.rating || 0,
+      };
+    } else {
+      const jobsPosted = await Job.countDocuments({ clientId: user._id });
+      const totalSpent = await Payment.aggregate([
+        { $match: { clientId: user._id, status: 'completed' } },
+        { $group: { _id: null, total: { $sum: '$amount' } } }
+      ]);
+
+      stats = {
+        jobsPosted,
+        totalSpent: totalSpent[0]?.total || 0
+      };
+    }
+
+    // Construct profile response
+    const profile = {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      walletAddress: user.walletAddress,
+      createdAt: user.createdAt,
+      ...(user.role === 'freelancer' ? {
+        bio: user.bio,
+        hourlyRate: user.hourlyRate,
+        location: user.location,
+        skills: user.skills,
+        stats
+      } : {
+        industry: user.industry,
+        companySize: user.companySize,
+        companyLocation: user.companyLocation,
+        bio: user.bio,
+        stats
+      })
+    };
+
+    return c.json({ profile });
+  } catch (error) {
+    console.error('Profile fetch error:', error);
+    return c.json({ error: 'Failed to fetch profile data' }, 500);
+  }
+});
+
+// Get user dashboard data
+authRoutes.get('/dashboard', auth, async (c) => {
+  try {
+    const user = c.get('user');
+    if (!user) {
+      return c.json({ error: 'Unauthorized' }, 401);
+    }
+
+    // Fetch user's dashboard data based on role
+    if (user.role === 'freelancer') {
+      // Get freelancer dashboard data
+      const dashboardData = {
+        name: user.name,
+        ongoingProjects: await Contract.countDocuments({ freelancerId: user._id, status: 'active' }),
+        activeApplications: await Bid.countDocuments({ freelancerId: user._id, status: 'pending' }),
+        totalEarnings: await Payment.aggregate([
+          { $match: { freelancerId: user._id, status: 'completed' } },
+          { $group: { _id: null, total: { $sum: '$amount' } } }
+        ]),
+        recentActivities: await Activity.find({ userId: user._id })
+          .sort({ createdAt: -1 })
+          .limit(5),
+        recommendedJobs: await Job.find({
+          skills: { $in: user.skills },
+          status: 'open'
+        })
+        .sort({ createdAt: -1 })
+        .limit(5)
+      };
+
+      return c.json({ freelancer: dashboardData });
+    } else {
+      // Get client dashboard data
+      const dashboardData = {
+        name: user.name,
+        activeJobs: await Job.countDocuments({ clientId: user._id, status: 'active' }),
+        totalSpent: await Payment.aggregate([
+          { $match: { clientId: user._id, status: 'completed' } },
+          { $group: { _id: null, total: { $sum: '$amount' } } }
+        ]),
+        escrowBalance: await Payment.aggregate([
+          { $match: { clientId: user._id, status: 'escrow' } },
+          { $group: { _id: null, total: { $sum: '$amount' } } }
+        ]),
+        recentActivities: await Activity.find({ userId: user._id })
+          .sort({ createdAt: -1 })
+          .limit(5),
+        pendingBids: await Bid.find({ jobId: { $in: await Job.find({ clientId: user._id }).distinct('_id') } })
+          .populate('freelancerId', 'name rating')
+          .sort({ createdAt: -1 })
+          .limit(5)
+      };
+
+      return c.json({ client: dashboardData });
+    }
+  } catch (error) {
+    console.error('Dashboard error:', error);
+    return c.json({ error: 'Internal server error' }, 500);
+  }
+});
+
+authRoutes.patch('/users/profile', auth, async (c) => {
+  try {
+    const user = c.get('user');
+    if (!user) {
+      return c.json({ error: 'Unauthorized' }, 401);
+    }
+
+    const body = await c.req.json();
+    const { name, email, walletAddress, profile } = body;
+
+    // Update basic info
+    user.name = name || user.name;
+    user.email = email || user.email;
+    user.walletAddress = walletAddress || user.walletAddress;
+
+    // Update role-specific profile data
+    if (user.role === 'freelancer') {
+      user.skills = profile.skills || user.skills;
+      user.bio = profile.bio || user.bio;
+      user.hourlyRate = profile.hourlyRate || user.hourlyRate;
+      user.location = profile.location || user.location;
+    } else {
+      user.companySize = profile.companySize || user.companySize;
+      user.industry = profile.industry || user.industry;
+      user.companyLocation = profile.companyLocation || user.companyLocation;
+      user.bio = profile.bio || user.bio;
+    }
+
+    await user.save();
+
+    return c.json({
+      user: {
+        id: user._id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        walletAddress: user.walletAddress,
+        profile: user.role === 'freelancer' ? {
+          skills: user.skills,
+          bio: user.bio,
+          hourlyRate: user.hourlyRate,
+          location: user.location,
+        } : {
+          companySize: user.companySize,
+          industry: user.industry,
+          companyLocation: user.companyLocation,
+          bio: user.bio,
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error('Profile update error:', error);
+    return c.json({ error: 'Failed to update profile' }, 500);
   }
 });
 

@@ -12,6 +12,8 @@ import JobListing from "./pages/JobListing";
 import JobDetails from "./pages/JobDetails";
 import NotFound from "./pages/NotFound";
 import Profile from "./pages/Profile";
+import ProfileSettings from "./pages/ProfileSettings";
+import Settings from "./pages/Settings";
 import Messages from "./pages/Messages";
 import PostJob from "./pages/PostJob";
 import Contracts from "./pages/Contracts";
@@ -77,7 +79,7 @@ const App = () => {
             <FloatingNavbar />
             <Routes>
               {/* Public Marketing Pages */}
-              <Route path="/" element={<Home />} />
+              <Route path="/" element={isLoading == true ? <LoadingScreen /> : <Home />} />
               <Route path="/pricing" element={<Pricing />} />
               <Route path="/enterprise" element={<Enterprise />} />
               <Route path="/jobs" element={<JobListing />} />
@@ -120,7 +122,9 @@ const App = () => {
 
                 {/* User Profile & Settings */}
                 <Route path="/profile" element={<Profile />} />
+                <Route path="/profile/settings" element={<ProfileSettings />} />
                 <Route path="/portfolio" element={<Portfolio />} />
+                <Route path="/settings" element={<Settings />} />
 
                 {/* Communication */}
                 <Route path="/messages" element={<Messages />} />

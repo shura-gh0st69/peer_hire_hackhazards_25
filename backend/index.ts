@@ -72,6 +72,8 @@ app.use('*', cors({
 
 // Spinup check endpoint
 app.get('/spinup', (c) => c.json({ status: 'ok' }));
+app.get('/healthz', (c) => c.json({ status: 'ok' }));
+
 
 // MongoDB connection
 const connectDB = async () => {
