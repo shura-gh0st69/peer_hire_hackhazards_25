@@ -8,6 +8,18 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+// Log all environment variables (excluding sensitive ones)
+console.log('Environment Configuration:');
+console.log('------------------------');
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('PORT:', process.env.PORT);
+console.log('MONGODB_URI:', process.env.MONGODB_URI ? '**configured**' : 'missing');
+console.log('JWT_SECRET:', process.env.JWT_SECRET ? '**configured**' : 'missing');
+console.log('JWT_EXPIRATION:', process.env.JWT_EXPIRATION);
+console.log('FRONTEND_URL:', process.env.FRONTEND_URL);
+console.log('DEMO_MODE:', process.env.DEMO_MODE);
+console.log('------------------------');
+
 // Request logging middleware
 const requestLogger = async (c, next) => {
   const start = Date.now();

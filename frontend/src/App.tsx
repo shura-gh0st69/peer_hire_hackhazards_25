@@ -51,6 +51,15 @@ const App = () => {
   let [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    // Log frontend environment variables
+    console.log('Frontend Environment Configuration:');
+    console.log('------------------------');
+    console.log('VITE_API_URL:', import.meta.env.VITE_API_URL);
+    console.log('VITE_AUTH_STORAGE_KEY:', import.meta.env.VITE_AUTH_STORAGE_KEY);
+    console.log('VITE_ENABLE_CHAT_FEATURE:', import.meta.env.VITE_ENABLE_CHAT_FEATURE);
+    console.log('VITE_ENABLE_SCREEN_RECORDING:', import.meta.env.VITE_ENABLE_SCREEN_RECORDING);
+    console.log('------------------------');
+
     const checkBackend = async () => {
       try {
         const response = await axios.get(`${import.meta.env.VITE_API_URL}/spinup`);
