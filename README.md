@@ -1,4 +1,3 @@
-
 ![github-submission-banner](https://github.com/user-attachments/assets/a1493b84-e4e2-456e-a791-ce35ee2bcf2f)
 
 # 🚀 PeerHire: Decentralized Freelance Marketplace
@@ -9,7 +8,7 @@
 
 ## 📌 Problem Statement
 
-**Problem Statement 4 –  Craft the Future of Onchain Consumer Experiences with Base**
+**Problem Statement 4 – Craft the Future of Onchain Consumer Experiences with Base**
 
 ---
 
@@ -21,21 +20,21 @@ PeerHire solves the problem of trust and transparency in freelance marketplaces 
 
 ## 🧠 Team & Approach
 
-### Team Name  
+### Team Name
 
 `Team Undefined`
 
-### Team Members  
+### Team Members
 
-- Jaykumar Patel        (Fullstack Dev | The Blockchain Guy | Groq Guy)  
-- V Meghashreee         (Frontend Lead | Screenpipe Integration)
-- Tejaswini S           (Backend Dev)
-- Priyanshi Bhardwaj    (AI Specialist)  
+- Jaykumar Patel (Fullstack Dev | The Blockchain Guy | Groq Guy)
+- V Meghashreee (Frontend Lead | Screenpipe Integration)
+- Tejaswini S (Backend Dev)
+- Priyanshi Bhardwaj (AI Specialist)
 
-### Your Approach  
+### Your Approach
 
-- Key challenges included integrating blockchain payments and AI verification.  
-- A breakthrough was using Screenpipe's AI for task verification, ensuring trust.  
+- Key challenges included integrating blockchain payments and AI verification.
+- A breakthrough was using Screenpipe's AI for task verification, ensuring trust.
 
 ---
 
@@ -53,82 +52,199 @@ PeerHire solves the problem of trust and transparency in freelance marketplaces 
 
 ### Sponsor Technologies Used
 
-- [✅] **Groq:** Used for AI job recommendations and chatbot.  
-- [✅] **Base:** Implemented OnchainKit for wallet connections.  
-- [✅] **Screenpipe:** Integrated for screen recording and AI verification.  
+- [✅] **Groq:** Used for AI job recommendations and chatbot.
+- [✅] **Base:** Implemented OnchainKit for wallet connections.
+- [✅] **Screenpipe:** Integrated for screen recording and AI verification.
 
 ---
 
 ## ✨ Key Features
 
-- ✅ Wallet-based authentication  
-- ✅ AI-powered job recommendations  
-- ✅ Blockchain-secured payments  
-- ✅ AI-driven task verification  
+- ✅ Wallet-based authentication
+- ✅ AI-powered job recommendations
+- ✅ Blockchain-secured payments
+- ✅ AI-driven task verification
 
 ---
 
 ## 📽️ Demo & Deliverables
 
-- **Demo Video Link:** [YouTube Link]  
-- **Pitch Deck / PPT Link:** [Google Slides Link]  
+- **Demo Video Link:** [YouTube Link]
+- **Pitch Deck / PPT Link:** [Google Slides Link]
 
 ---
 
-## ✅ Tasks & Bonus Checklist
+## 🧪 Project Setup Instructions
 
-- [✅] **All members of the team completed the mandatory task - Followed at least 2 of our social channels and filled the form**  
-- [ ] **All members of the team completed Bonus Task 1 - Sharing of Badges and filled the form (2 points)**  
-- [ ] **All members of the team completed Bonus Task 2 - Signing up for Sprint.dev and filled the form (3 points)**  
-
----
-
-## 🧪 How to Run the Project
-
-### Requirements
+### Prerequisites
 
 - Node.js v18+
 - MongoDB Atlas account
-- API Keys for Groq and Screenpipe
+- Bun (JavaScript runtime and package manager)
+- Foundry (for smart contract development)
+- API Keys:
+  - Groq API
+  - Screenpipe API
+  - Coinbase Platform API
 
-### Local Setup
+### 1. Backend Setup
 
 ```bash
-# Clone the repository
-git clone https://github.com/jayptl-me/hackhazards25_peer_hire
-
-# Navigate to the project directory
-cd hackhazards25_peer_hire
+# Navigate to the backend directory
+cd backend
 
 # Install dependencies
 bun install
 
-# Set up environment variables
-# Create a .env file with the following:
-# MONGODB_URI=<your_mongodb_uri>
-# GROQ_API_KEY=<your_groq_api_key>
-# SCREENPIPE_API_KEY=<your_screenpipe_api_key>
-# CDP_API_KEY=<your_coinbase_api_key>
+# Create .env file with the following variables
+touch .env
+```
 
-# Start the development server
+Required environment variables for backend:
+
+```
+# Required
+MONGODB_URI=mongodb://localhost:27017/peerhire
+JWT_SECRET=your_jwt_secret_key
+JWT_EXPIRATION=7d
+
+# API Keys
+GROQ_API_KEY=your_groq_api_key
+SCREENPIPE_API_KEY=your_screenpipe_api_key
+
+# Optional for demo mode
+DEMO_MODE=true
+DEMO_CLIENT_EMAIL=demo.client@example.com
+DEMO_CLIENT_PASSWORD=demoClient123
+DEMO_FREELANCER_EMAIL=demo.freelancer@example.com
+DEMO_FREELANCER_PASSWORD=demoFreelancer123
+```
+
+```bash
+# Start the backend server
+bun run dev
+```
+
+### 2. Frontend Setup
+
+```bash
+# Navigate to the frontend directory
+cd frontend
+
+# Install dependencies
+bun install
+
+# Create .env file
+touch .env
+```
+
+Required environment variables for frontend:
+
+```
+VITE_API_BASE_URL=http://localhost:3000/api
+VITE_COINBASE_APP_ID=your_coinbase_app_id
+VITE_BASE_CHAIN_ID=84532
+```
+
+```bash
+# Start the frontend application
+bun run dev
+```
+
+### 3. Smart Contracts Setup
+
+```bash
+# Navigate to the smart_contracts directory
+cd smart_contracts
+
+# Install Foundry dependencies
+forge install
+
+# Compile contracts
+forge build
+
+# Run tests
+forge test
+
+# Deploy contracts (to local development environment)
+forge script script/Deploy.s.sol --rpc-url http://localhost:8545 --private-key <your_private_key>
+```
+
+For Base Sepolia Testnet deployment:
+
+```bash
+# Setup .env file
+touch .env
+```
+
+Required environment variables for smart contracts:
+
+```
+PRIVATE_KEY=your_private_key
+BASE_SEPOLIA_RPC_URL=https://sepolia.base.org
+ETHERSCAN_API_KEY=your_etherscan_api_key
+```
+
+```bash
+# Deploy to Base Sepolia Testnet
+forge script script/Deploy.s.sol --rpc-url $BASE_SEPOLIA_RPC_URL --private-key $PRIVATE_KEY --verify --etherscan-api-key $ETHERSCAN_API_KEY
+```
+
+### 4. Running the Entire Application
+
+```bash
+# From the root directory
+# Install all dependencies
+bun install
+
+# Start all services concurrently
 bun run dev
 ```
 
 ---
 
+## 📡 API Integration Details
+
+### Groq AI Integration
+
+The backend utilizes Groq's LLM API for:
+
+- Job matching and recommendations
+- Skills assessment and verification
+- Intelligent chatbot assistance
+
+### Coinbase OnchainKit Integration
+
+The frontend integrates with Coinbase's OnchainKit for:
+
+- Wallet authentication
+- Transaction signing
+- Payment processing on Base network
+- Smart contract interaction
+
+### Screenpipe Integration
+
+Used for:
+
+- Work verification through screen recording
+- AI analysis of work patterns
+- Proof of work validation
+
+---
+
 ## 🧬 Future Scope
 
-- 📈 Integration with more blockchains  
-- 🛡️ Enhanced security with zero-knowledge proofs  
-- 🌐 Support for multiple languages  
+- 📈 Integration with more blockchains
+- 🛡️ Enhanced security with zero-knowledge proofs
+- 🌐 Support for multiple languages
 
 ---
 
 ## 📎 Resources / Credits
 
-- APIs: Groq, Screenpipe  
-- Libraries: Ethers.js, React Query  
-- Acknowledgements: Thanks to the hackathon organizers and sponsors!  
+- APIs: Groq, Screenpipe
+- Libraries: Ethers.js, React Query, OnchainKit
+- Acknowledgements: Thanks to the hackathon organizers and sponsors!
 
 ---
 

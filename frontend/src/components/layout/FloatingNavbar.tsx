@@ -178,11 +178,19 @@ export default function FloatingNavbar({ userType }: FloatingNavbarProps) {
               Log in
             </Button>
           </Link>
-          <Link to="/auth/signup">
+          <div className="relative group">
             <Button variant="default" size="sm" className="font-medium hover:text-white hover:bg-accent">
               Sign up
             </Button>
-          </Link>
+            <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-2 hidden group-hover:block">
+              <Link to="/auth/freelancer-signup" className="block px-4 py-2 text-sm text-gray-700 hover:bg-primary/10 hover:text-primary">
+                Join as Freelancer
+              </Link>
+              <Link to="/auth/client-signup" className="block px-4 py-2 text-sm text-gray-700 hover:bg-primary/10 hover:text-primary">
+                Join as Client
+              </Link>
+            </div>
+          </div>
         </div>
       )}
 

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.23;
 
-import "forge-std/Test.sol";
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {Test} from "lib/forge-std/src/Test.sol";
+import {IERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
+import {ERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
 import {UserRoles} from "../contracts/UserRoles.sol";
 import {DisputeResolution} from "../contracts/Dispute/DisputeResolution.sol";
 import {EscrowFactory} from "../contracts/Escrow/EscrowFactory.sol";
@@ -46,17 +46,17 @@ contract BaseTest is Test {
 
         // Deploy core contracts in correct order to resolve circular dependencies
         userRoles = new UserRoles(admin);
-        
+
         // First deploy escrow factory with temporary dispute handler
         disputeResolution = new DisputeResolution(admin, address(0));
         escrowFactory = new EscrowFactory(address(disputeResolution), treasury);
-        
+
         // Deploy reputation with escrow factory
         reputation = new Reputation(admin, address(escrowFactory));
-        
+
         // Redeploy dispute resolution with proper reputation
         disputeResolution = new DisputeResolution(admin, address(reputation));
-        
+
         // Finally redeploy escrow factory with proper dispute handler
         escrowFactory = new EscrowFactory(address(disputeResolution), treasury);
 

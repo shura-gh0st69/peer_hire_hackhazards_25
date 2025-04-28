@@ -3,6 +3,7 @@ import { connect } from 'mongoose';
 import { authRoutes } from './routes/auth';
 import { auth, requireClient, requireFreelancer } from './middleware/auth';
 import { serve } from '@hono/node-server';
+import { cors } from 'hono/cors';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -25,7 +26,29 @@ if (!jwtExpiration) {
 }
 const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
+// CORS Configuration
+// Get allowed origins from environment variables
+// Support both single URL and comma-separated URLs
+const frontendURL = process.env.FRONTEND_URL || 'http://localhost:8080';
+const allowedOrigins = frontendURL.split(',').map(origin => origin.trim());
+
 const app = new Hono();
+
+// Setup CORS middleware with support for multiple origins
+app.use('*', cors({
+  origin: (origin, c) => {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return null;
+    
+    // Check if the origin is in our allowed list
+    return allowedOrigins.includes(origin) ? origin : null;
+  },
+  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowHeaders: ['Authorization', 'Content-Type', 'Accept'],
+  exposeHeaders: ['Content-Length', 'X-Powered-By'],
+  maxAge: 86400,
+  credentials: true,
+}));
 
 // MongoDB connection
 const connectDB = async () => {
