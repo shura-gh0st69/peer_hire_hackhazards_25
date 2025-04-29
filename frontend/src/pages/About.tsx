@@ -9,22 +9,22 @@ const About = () => {
     {
       name: 'Jaykumar Patel',
       role: 'Fullstack Dev | The Blockchain Guy | Groq Guy',
-      image: 'https://i.pravatar.cc/150?img=1'
+      image: 'https://cdn3d.iconscout.com/3d/premium/thumb/profile-3d-icon-download-in-png-blend-fbx-gltf-file-formats--user-avatar-account-interface-pack-icons-5220669.png?f=webp'
     },
     {
       name: 'V Meghashreee',
       role: 'Frontend Lead | Screenpipe Integration',
-      image: 'https://i.pravatar.cc/150?img=2'
+      image: 'https://cdn3d.iconscout.com/3d/premium/thumb/profile-3d-icon-download-in-png-blend-fbx-gltf-file-formats--user-avatar-account-interface-pack-icons-5220669.png?f=webp'
     },
     {
       name: 'Tejaswini S',
       role: 'Backend Dev',
-      image: 'https://i.pravatar.cc/150?img=3'
+      image: 'https://cdn3d.iconscout.com/3d/premium/thumb/profile-3d-icon-download-in-png-blend-fbx-gltf-file-formats--user-avatar-account-interface-pack-icons-5220669.png?f=webp'
     },
     {
       name: 'Priyanshi Bhardwaj',
       role: 'AI Specialist',
-      image: 'https://i.pravatar.cc/150?img=4'
+      image: 'https://cdn3d.iconscout.com/3d/premium/thumb/profile-3d-icon-download-in-png-blend-fbx-gltf-file-formats--user-avatar-account-interface-pack-icons-5220669.png?f=webp'
     }
   ];
 

@@ -4,7 +4,7 @@ import { mockFreelancerDashboard, mockClientDashboard } from '@/mockData';
 import Cookies from 'js-cookie';
 
 // Constants for cache keys and TTLs
-const CACHE_KEYS = {
+export const CACHE_KEYS = {
     USER: "user_data",
     AUTH_TOKEN: "auth_token",
     PREFERRED_ROLE: "preferred_role",
@@ -93,7 +93,6 @@ interface User {
     email: string;
     role: UserRole;
     avatar?: string;
-    walletAddress?: string;
     profile?: {
         headline: any;
         company: string;
@@ -133,7 +132,6 @@ interface AuthContextType {
     login: (email: string, password: string) => Promise<void>;
     signUp: (email: string, password: string, role: UserRole, name: string, profile?: any) => Promise<void>;
     logout: () => void;
-    connectWallet: (address: string) => void;
     updateUserRole: (role: UserRole) => void;
     updateProfile: (profileData: Partial<User>) => Promise<void>;
     fetchDashboardData: () => Promise<void>;
@@ -363,19 +361,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
     };
 
-    const connectWallet = async (address: string) => {
-        if (user) {
-            try {
-                const response = await api.post("/users/wallet", { walletAddress: address });
-                const updatedUser = response.data.user;
-                setUser(updatedUser);
-                cacheUtils.localStorage.set(CACHE_KEYS.USER, updatedUser);
-            } catch (error: any) {
-                throw new Error(error.response?.data?.message || "Failed to connect wallet");
-            }
-        }
-    };
-
     const updateUserRole = async (role: UserRole) => {
         setCurrentRole(role);
         cacheUtils.localStorage.set(CACHE_KEYS.PREFERRED_ROLE, role);
@@ -450,7 +435,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 login,
                 signUp,
                 logout,
-                connectWallet,
                 updateUserRole,
                 updateProfile,
                 fetchDashboardData,

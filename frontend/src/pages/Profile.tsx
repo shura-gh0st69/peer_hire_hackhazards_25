@@ -63,7 +63,7 @@ const Profile = () => {
             if (data) {
                 try {
                     // Use dedicated wallet endpoint instead of general profile update
-                    await api.post('/users/wallet', {
+                    await api.post('auth/users/wallet', {
                         address: data.address,
                         signature: data.signature,
                         message: data.message
@@ -97,7 +97,7 @@ const Profile = () => {
     const handleDisconnectWallet = async () => {
         try {
             // Use dedicated wallet disconnect endpoint
-            await api.delete('/users/wallet');
+            await api.delete('auth/users/wallet');
 
             // Update local state
             setProfileData(prev => ({

@@ -8,6 +8,8 @@ import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
 import { useWallet } from '@/hooks/use-wallet';
 import api from '@/lib/api';
+import { CACHE_KEYS } from '@/context/AuthContext';
+import { cacheUtils } from '@/lib/utils';
 
 type AuthType = 'freelancer-signup' | 'client-signup' | 'login' | 'signup';
 
@@ -191,7 +193,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ type = 'signup' }) => {
         // Check for cached wallet data
         let walletDataToUse = walletData;
         if (!walletDataToUse) {
-          const cachedWalletData = localStorage.getItem('peerhire:walletData');
+          const cachedWalletData = cacheUtils.localStorage.get('peerhire:walletData');
           if (cachedWalletData) {
             try {
               walletDataToUse = JSON.parse(cachedWalletData);
@@ -235,10 +237,10 @@ const AuthPage: React.FC<AuthPageProps> = ({ type = 'signup' }) => {
 
             // Store the token from the response
             const { token } = response.data;
-            localStorage.setItem('peerhire:token', token);
+            cacheUtils.secureCookie.set(CACHE_KEYS.AUTH_TOKEN, token);
 
             // Clean up cached wallet data
-            localStorage.removeItem('peerhire:walletData');
+            cacheUtils.localStorage.remove('peerhire:walletData');
 
             toast.success("Account created successfully with wallet!");
             navigate('/dashboard');
@@ -311,9 +313,9 @@ const AuthPage: React.FC<AuthPageProps> = ({ type = 'signup' }) => {
               message: walletData.message
             });
 
-            // Store token in localStorage
+            // Store token in secure cookie
             const { token } = response.data;
-            localStorage.setItem('peerhire:token', token);
+            cacheUtils.secureCookie.set(CACHE_KEYS.AUTH_TOKEN, token);
 
             toast.success("Logged in successfully with wallet!");
             navigate('/dashboard');
@@ -344,19 +346,10 @@ const AuthPage: React.FC<AuthPageProps> = ({ type = 'signup' }) => {
     try {
       setIsConnecting(true);
       const data = await connect();
-      
+
       if (data) {
         // Store wallet data in component state
         setWalletData(data);
-        
-        // Cache wallet data locally for persistence
-        localStorage.setItem('peerhire:walletData', JSON.stringify(data));
-        
-        // Pre-populate name with wallet-based username if empty
-        setFormData(prev => ({
-          ...prev,
-          fullName: prev.fullName || `User_${data.address.substring(0, 8)}`
-        }));
 
         // If this is login page, attempt immediate login
         if (!isSignUp) {
@@ -369,24 +362,32 @@ const AuthPage: React.FC<AuthPageProps> = ({ type = 'signup' }) => {
               message: data.message
             });
 
-            // Store token
-            const { token } = response.data;
-            localStorage.setItem('peerhire:token', token);
+            const { token, user } = response.data;
+
+            // Store token in secure cookie
+            cacheUtils.secureCookie.set(CACHE_KEYS.AUTH_TOKEN, token);
+            // Store user data with proper caching
+            cacheUtils.localStorage.set(CACHE_KEYS.USER, user);
 
             toast.success("Logged in successfully with wallet!");
-            navigate('/dashboard');
+            // Navigate based on user role
+            navigate(user.role === 'freelancer' ? '/dashboard/freelancer' : '/dashboard/client');
           } catch (error: any) {
-            // If no account exists for this wallet on login page
             if (error.response?.status === 404 && error.response?.data?.needsRegistration) {
               toast.error("No account linked to this wallet. Please sign up first.");
+              navigate('/auth/signup');
             } else {
               toast.error(error.response?.data?.error || error.message || "Authentication failed");
             }
+            // Clear wallet data on error
+            setWalletData(null);
+            disconnect();
           } finally {
             setIsLoading(false);
           }
         } else {
-          // For signup, just proceed to next step after wallet connection
+          // For signup, cache wallet data and proceed to next step
+          cacheUtils.localStorage.set('peerhire:walletData', data);
           toast.success('Wallet connected successfully! Continue filling out your details.');
           setStep('credentials');
         }
@@ -408,7 +409,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ type = 'signup' }) => {
         }
         return;
       }
-      
+
       setStep('profile');
     } else {
       toast.error('Please connect your wallet before continuing.');
@@ -573,8 +574,6 @@ const AuthPage: React.FC<AuthPageProps> = ({ type = 'signup' }) => {
                 </div>
               )}
 
-
-
               {step === 'profile' ? (
                 <div className="space-y-4">
                   {renderInput('fullName', 'Full Name')}
@@ -614,53 +613,57 @@ const AuthPage: React.FC<AuthPageProps> = ({ type = 'signup' }) => {
                 </div>
               ) : (
                 <div className="space-y-6">
-                  <div className="p-4 bg-blue-50 rounded-lg border border-blue-100 mb-4">
-                    <div className="flex items-start">
-                      <div className="flex-shrink-0">
-                        <BaseIcon className="h-5 w-5 text-blue-600" />
+                  {isSignUp && (
+                    <>
+                      <div className="p-4 bg-blue-50 rounded-lg border border-blue-100 mb-4">
+                        <div className="flex items-start">
+                          <div className="flex-shrink-0">
+                            <BaseIcon className="h-5 w-5 text-blue-600" />
+                          </div>
+                          <div className="ml-3">
+                            <h3 className="font-medium text-gray-900">Base Network Integration</h3>
+                            <p className="mt-1 text-sm text-gray-600">
+                              Connect securely with Coinbase Smart Wallet for instant payments and verification on the Base network.
+                            </p>
+                          </div>
+                        </div>
                       </div>
-                      <div className="ml-3">
-                        <h3 className="font-medium text-gray-900">Base Network Integration</h3>
-                        <p className="mt-1 text-sm text-gray-600">
-                          Connect securely with Coinbase Smart Wallet for instant payments and verification on the Base network.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
 
-                  <div className="flex flex-col gap-4 mb-6">
-                    <CustomButton
-                      type="button"
-                      variant="outline"
-                      size="lg"
-                      onClick={handleWalletSignup}
-                      disabled={isConnecting}
-                      className="w-full flex items-center justify-center"
-                    >
-                      {isConnecting ? (
-                        <span className="flex items-center">
-                          <svg className="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                          </svg>
-                          Connecting Wallet...
-                        </span>
-                      ) : (
-                        <>
-                          <BaseIcon className="w-5 h-5 mr-2" />
-                          Continue with Coinbase Wallet
-                        </>
-                      )}
-                    </CustomButton>
-                    <div className="relative">
-                      <div className="absolute inset-0 flex items-center">
-                        <div className="w-full border-t border-gray-300"></div>
+                      <div className="flex flex-col gap-4 mb-6">
+                        <CustomButton
+                          type="button"
+                          variant="outline"
+                          size="lg"
+                          onClick={handleWalletSignup}
+                          disabled={isConnecting}
+                          className="w-full flex items-center justify-center"
+                        >
+                          {isConnecting ? (
+                            <span className="flex items-center">
+                              <svg className="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              </svg>
+                              Connecting Wallet...
+                            </span>
+                          ) : (
+                            <>
+                              <BaseIcon className="w-5 h-5 mr-2" />
+                              Continue with Coinbase Wallet
+                            </>
+                          )}
+                        </CustomButton>
+                        <div className="relative">
+                          <div className="absolute inset-0 flex items-center">
+                            <div className="w-full border-t border-gray-300"></div>
+                          </div>
+                          <div className="relative flex justify-center text-sm">
+                            <span className="px-2 bg-white text-gray-500">Or continue with email</span>
+                          </div>
+                        </div>
                       </div>
-                      <div className="relative flex justify-center text-sm">
-                        <span className="px-2 bg-white text-gray-500">Or continue with email</span>
-                      </div>
-                    </div>
-                  </div>
+                    </>
+                  )}
 
                   <div className="space-y-4">
                     {renderInput('email', 'Email', 'email', 'Enter your email')}
