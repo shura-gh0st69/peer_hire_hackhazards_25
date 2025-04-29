@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { Calendar, Clock, DollarSign, Star, MapPin, ArrowLeft, Eye, MessageSquare, Shield } from 'lucide-react';
 import { CustomButton } from '@/components/ui/custom-button';
-import { BaseIcon, GrokIcon, ScreenpipeIcon } from '@/components/icons';
+import { BaseIcon, GroqIcon, ScreenpipeIcon } from '@/components/icons';
 import { getJobById, getBidsByJobId, jobs as allJobs, Client } from '@/mockData';
 
 const JobDetails = () => {
@@ -49,7 +49,7 @@ const JobDetails = () => {
               <div className="flex justify-between items-start mb-4">
                 <h1 className="text-2xl font-bold text-gray-900">{job.title}</h1>
                 <div className="bg-primary/10 text-primary text-sm px-3 py-1 rounded-full">
-                  {job.budget} ETH
+                  {job.budget} USDC
                 </div>
               </div>
 
@@ -103,7 +103,7 @@ const JobDetails = () => {
                     <MessageSquare className="w-5 h-5" />
                   </button>
                   <button className="flex items-center justify-center w-10 h-10 rounded-full border border-gray-300 text-gray-500 hover:text-accent hover:border-accent">
-                    <GrokIcon className="w-5 h-5" />
+                    <GroqIcon className="w-5 h-5" />
                   </button>
                 </div>
               </div>
@@ -117,7 +117,7 @@ const JobDetails = () => {
                   <div className="flex flex-col sm:flex-row gap-4">
                     <div className="w-full sm:w-1/2">
                       <label htmlFor="bid-amount" className="block text-sm font-medium text-gray-700 mb-1">
-                        Your Bid Amount (ETH)
+                        Your Bid Amount (USDC)
                       </label>
                       <input
                         type="number"
@@ -158,11 +158,11 @@ const JobDetails = () => {
                   </div>
 
                   <div className="bg-accent/5 p-4 rounded-lg border border-accent/10 flex items-start">
-                    <GrokIcon className="w-5 h-5 text-accent mr-3 mt-0.5" />
+                    <GroqIcon className="w-5 h-5 text-accent mr-3 mt-0.5" />
                     <div>
                       <h4 className="font-medium text-gray-900">AI Proposal Assistant</h4>
                       <p className="text-sm text-gray-600 mb-3">
-                        Let Grok help you craft a winning proposal based on your skills and this project's requirements.
+                        Let Groq help you craft a winning proposal based on your skills and this project's requirements.
                       </p>
                       <CustomButton variant="accent" size="sm">
                         Generate Proposal Draft
@@ -202,7 +202,7 @@ const JobDetails = () => {
                           </span>
                         ))}
                       </div>
-                      <span className="text-primary text-sm font-medium">{similarJob.budget} ETH</span>
+                      <span className="text-primary text-sm font-medium">{similarJob.budget} USDC</span>
                     </div>
                   </div>
                 ))}
@@ -229,8 +229,8 @@ const JobDetails = () => {
                       <Star
                         key={i}
                         className={`w-4 h-4 ${i < Math.floor(job.client.rating)
-                            ? 'text-yellow-400 fill-current'
-                            : 'text-gray-300'
+                          ? 'text-yellow-400 fill-current'
+                          : 'text-gray-300'
                           }`}
                       />
                     ))}
@@ -248,7 +248,7 @@ const JobDetails = () => {
                 </div>
                 <div>
                   <p className="text-xs text-gray-500">Total Spent</p>
-                  <p className="text-sm font-medium">~{clientReviewsCount * parseFloat(job.budget)} ETH</p>
+                  <p className="text-sm font-medium">~{clientReviewsCount * parseFloat(job.budget)} USDC</p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500">Projects Posted</p>
@@ -283,13 +283,13 @@ const JobDetails = () => {
           <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden mb-6">
             <div className="bg-accent p-4 text-white">
               <div className="flex items-center">
-                <GrokIcon className="w-6 h-6 mr-2" />
-                <h2 className="text-lg font-medium">Grok AI Assistant</h2>
+                <GroqIcon className="w-6 h-6 mr-2" />
+                <h2 className="text-lg font-medium">Groq AI Assistant</h2>
               </div>
             </div>
             <div className="p-4">
               <p className="text-sm text-gray-600 mb-4">
-                Analyze this job with Grok AI to determine if it's a good match for your skills and experience.
+                Analyze this job with Groq AI to determine if it's a good match for your skills and experience.
               </p>
               <CustomButton fullWidth variant="accent" size="sm">
                 Analyze Job Fit
@@ -319,7 +319,7 @@ const JobDetails = () => {
                 </li>
                 <li className="flex items-start">
                   <span className="text-success mr-2">✓</span>
-                  <span>Dispute resolution with Grok AI verification</span>
+                  <span>Dispute resolution with Groq AI verification</span>
                 </li>
               </ul>
             </div>

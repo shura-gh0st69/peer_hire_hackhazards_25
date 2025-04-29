@@ -18,7 +18,7 @@ import {
   AlertTriangle
 } from 'lucide-react';
 import { CustomButton } from '@/components/ui/custom-button';
-import { BaseIcon, GrokIcon, ScreenpipeIcon } from '@/components/icons';
+import { BaseIcon, GroqIcon, ScreenpipeIcon } from '@/components/icons';
 import { Progress } from '@/components/ui/progress';
 
 interface ClientDashboardProps {
@@ -79,8 +79,8 @@ const ClientDashboard: React.FC<ClientDashboardProps> = ({ dashboardData }) => {
                 </button>
                 <button
                   className={`flex-1 py-3 px-4 text-sm font-medium text-center ${activeTab === 'bids'
-                      ? 'text-primary border-b-2 border-primary'
-                      : 'text-gray-500 hover:text-gray-700'
+                    ? 'text-primary border-b-2 border-primary'
+                    : 'text-gray-500 hover:text-gray-700'
                     }`}
                   onClick={() => setActiveTab('bids')}
                 >
@@ -88,8 +88,8 @@ const ClientDashboard: React.FC<ClientDashboardProps> = ({ dashboardData }) => {
                 </button>
                 <button
                   className={`flex-1 py-3 px-4 text-sm font-medium text-center ${activeTab === 'completed'
-                      ? 'text-primary border-b-2 border-primary'
-                      : 'text-gray-500 hover:text-gray-700'
+                    ? 'text-primary border-b-2 border-primary'
+                    : 'text-gray-500 hover:text-gray-700'
                     }`}
                   onClick={() => setActiveTab('completed')}
                 >
@@ -97,8 +97,8 @@ const ClientDashboard: React.FC<ClientDashboardProps> = ({ dashboardData }) => {
                 </button>
                 <button
                   className={`flex-1 py-3 px-4 text-sm font-medium text-center ${activeTab === 'drafts'
-                      ? 'text-primary border-b-2 border-primary'
-                      : 'text-gray-500 hover:text-gray-700'
+                    ? 'text-primary border-b-2 border-primary'
+                    : 'text-gray-500 hover:text-gray-700'
                     }`}
                   onClick={() => setActiveTab('drafts')}
                 >
@@ -121,10 +121,10 @@ const ClientDashboard: React.FC<ClientDashboardProps> = ({ dashboardData }) => {
                 {dashboardData.recentActivities.map((activity, index) => (
                   <div key={index} className="flex items-start p-3 hover:bg-gray-50 rounded-lg transition-colors">
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-3 ${activity.type === 'job-posted' ? 'bg-primary/10 text-primary' :
-                        activity.type === 'bid-new' ? 'bg-primary/10 text-accent' :
-                          activity.type === 'payment' ? 'bg-green-100 text-green-600' :
-                            activity.type === 'milestone' ? 'bg-red-100 text-red-600' :
-                              'bg-blue-100 text-blue-600'
+                      activity.type === 'bid-new' ? 'bg-primary/10 text-accent' :
+                        activity.type === 'payment' ? 'bg-green-100 text-green-600' :
+                          activity.type === 'milestone' ? 'bg-red-100 text-red-600' :
+                            'bg-blue-100 text-blue-600'
                       }`}>
                       {activity.type === 'job-posted' && <Briefcase className="w-4 h-4" />}
                       {activity.type === 'bid-new' && <Users className="w-4 h-4" />}
@@ -209,16 +209,16 @@ const ClientDashboard: React.FC<ClientDashboardProps> = ({ dashboardData }) => {
           <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden mb-6">
             <div className="bg-accent/10 p-4 text-accent">
               <div className="flex items-center">
-                <GrokIcon className="w-6 h-6 mr-2" />
-                <h2 className="text-lg font-medium">Grok AI Assistant</h2>
+                <GroqIcon className="w-6 h-6 mr-2" />
+                <h2 className="text-lg font-medium">Groq AI Assistant</h2>
               </div>
             </div>
             <div className="p-4">
               <p className="text-sm text-gray-600 mb-4">
-                Grok can help write better job descriptions, evaluate proposals, and verify work quality.
+                Groq can help write better job descriptions, evaluate proposals, and verify work quality.
               </p>
               <CustomButton fullWidth variant="accent" size="sm">
-                Ask Grok AI
+                Ask Groq AI
               </CustomButton>
             </div>
           </div>

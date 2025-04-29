@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Users, Briefcase, Calendar, Zap } from 'lucide-react';
 import { CustomButton } from '@/components/ui/custom-button';
-import { BaseIcon, GrokIcon, ScreenpipeIcon } from '@/components/icons';
+import { BaseIcon, GroqIcon, ScreenpipeIcon } from '@/components/icons';
 
 const Home = () => {
   return (
@@ -16,7 +16,7 @@ const Home = () => {
                 The Next-Gen <span className="text-primary">Freelance</span> Platform Powered by AI & Blockchain
               </h1>
               <p className="text-lg text-gray-600 mb-8">
-                Connect with clients, secure payments via Base, and enhance your work with Grok AI & Screenpipe integration.
+                Connect with clients, secure payments via Base, and enhance your work with Groq AI & Screenpipe integration.
               </p>
               <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
                 <Link to="/auth/signup">
@@ -42,8 +42,8 @@ const Home = () => {
                   <span className="text-sm text-gray-600">Base Integration</span>
                 </div>
                 <div className="flex items-center">
-                  <GrokIcon className="w-5 h-5 text-accent mr-2" />
-                  <span className="text-sm text-gray-600">Grok AI Powered</span>
+                  <GroqIcon className="w-5 h-5 text-accent mr-2" />
+                  <span className="text-sm text-gray-600">Groq AI Powered</span>
                 </div>
                 <div className="flex items-center">
                   <ScreenpipeIcon className="w-5 h-5 text-success mr-2" />
@@ -58,7 +58,7 @@ const Home = () => {
                   <div className="col-span-2 bg-gray-50 rounded p-4">
                     <h3 className="font-medium text-secondary mb-2">Mobile App Development</h3>
                     <div className="flex justify-between text-sm text-gray-500 mb-2">
-                      <span>Budget: $5,000</span>
+                      <span>Budget: 5,000 USDC</span>
                       <span>1 week ago</span>
                     </div>
                     <p className="text-sm text-gray-600 mb-3">Looking for React Native developer to build a social media app with user profiles, live chat...</p>
@@ -70,15 +70,15 @@ const Home = () => {
                       <div className="text-xs text-primary">12 bids</div>
                     </div>
                   </div>
-                  
+
                   <div className="bg-gray-50 rounded p-4">
                     <div className="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center mb-3">
-                      <GrokIcon className="w-6 h-6 text-accent" />
+                      <GroqIcon className="w-6 h-6 text-accent" />
                     </div>
                     <h4 className="font-medium text-sm">AI Contract Writing</h4>
-                    <p className="text-xs text-gray-600 mt-1">Let Grok draft secure contracts for you</p>
+                    <p className="text-xs text-gray-600 mt-1">Let Groq draft secure contracts for you</p>
                   </div>
-                  
+
                   <div className="bg-gray-50 rounded p-4">
                     <div className="w-12 h-12 bg-success/10 rounded-full flex items-center justify-center mb-3">
                       <ScreenpipeIcon className="w-6 h-6 text-success" />
@@ -86,7 +86,7 @@ const Home = () => {
                     <h4 className="font-medium text-sm">Progress Tracking</h4>
                     <p className="text-xs text-gray-600 mt-1">Verify work with Screenpipe integration</p>
                   </div>
-                  
+
                   <div className="col-span-2 bg-primary/5 rounded p-4 relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-16 h-16">
                       <div className="absolute transform rotate-45 bg-primary text-white text-xs font-semibold py-1 right-[-40px] top-[20px] w-[150px] text-center">
@@ -133,7 +133,7 @@ const Home = () => {
               Our platform combines the security of blockchain with the intelligence of AI to create a seamless freelancing experience.
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
               <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mb-4">
@@ -158,14 +158,14 @@ const Home = () => {
                 </li>
               </ul>
             </div>
-            
+
             <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
               <div className="w-14 h-14 bg-accent/10 rounded-full flex items-center justify-center mb-4">
-                <GrokIcon className="w-7 h-7 text-accent" />
+                <GroqIcon className="w-7 h-7 text-accent" />
               </div>
-              <h3 className="text-xl font-bold mb-3">Grok AI Assistant</h3>
+              <h3 className="text-xl font-bold mb-3">Groq AI Assistant</h3>
               <p className="text-gray-600 mb-4">
-                Leverage Grok's multimodal AI capabilities to enhance your freelancing experience at every step.
+                Leverage Groq's multimodal AI capabilities to enhance your freelancing experience at every step.
               </p>
               <ul className="space-y-2">
                 <li className="flex items-start">
@@ -182,7 +182,7 @@ const Home = () => {
                 </li>
               </ul>
             </div>
-            
+
             <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
               <div className="w-14 h-14 bg-success/10 rounded-full flex items-center justify-center mb-4">
                 <ScreenpipeIcon className="w-7 h-7 text-success" />
@@ -254,7 +254,7 @@ const Home = () => {
                 </CustomButton>
               </Link>
             </div>
-            
+
             <div className="bg-white rounded-lg p-8 shadow-sm border border-gray-100">
               <h3 className="text-2xl font-bold mb-4 text-secondary flex items-center">
                 <Users className="w-6 h-6 mr-2 text-primary" />
@@ -308,17 +308,17 @@ const Home = () => {
               Discover top projects from verified clients looking for skilled professionals.
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[1, 2, 3].map((i) => (
               <div key={i} className="bg-white rounded-lg border border-gray-200 hover:border-primary hover:shadow-md transition-all overflow-hidden">
                 <div className="p-6">
                   <div className="flex justify-between items-start mb-4">
                     <h3 className="font-bold text-lg text-secondary">
-                      {["Frontend Developer", "UI/UX Designer", "Blockchain Developer"][i-1]}
+                      {["Frontend Developer", "UI/UX Designer", "Blockchain Developer"][i - 1]}
                     </h3>
                     <span className="bg-primary/10 text-primary text-xs px-2 py-1 rounded-full">
-                      ${["50", "65", "85"][i-1]}/hr
+                      ${["50", "65", "85"][i - 1]}/hr
                     </span>
                   </div>
                   <p className="text-gray-600 text-sm mb-4 line-clamp-3">
@@ -326,14 +326,14 @@ const Home = () => {
                       "We need a React developer to build a responsive dashboard with data visualization components and user authentication.",
                       "Looking for a designer to create a modern, clean interface for our finance app with focus on usability and accessibility.",
                       "Seeking an experienced blockchain developer to implement smart contracts for our decentralized marketplace platform."
-                    ][i-1]}
+                    ][i - 1]}
                   </p>
                   <div className="flex flex-wrap gap-2 mb-4">
                     {[
                       ["React", "TypeScript", "Tailwind"],
                       ["Figma", "UI/UX", "Mobile"],
                       ["Solidity", "Base", "Web3"]
-                    ][i-1].map((tag, idx) => (
+                    ][i - 1].map((tag, idx) => (
                       <span key={idx} className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">
                         {tag}
                       </span>
@@ -342,11 +342,11 @@ const Home = () => {
                   <div className="flex justify-between items-center text-sm text-gray-500">
                     <div className="flex items-center">
                       <div className="w-6 h-6 rounded-full bg-secondary text-white flex items-center justify-center text-xs mr-2">
-                        {["AB", "CD", "EF"][i-1]}
+                        {["AB", "CD", "EF"][i - 1]}
                       </div>
                       <span>Verified Client</span>
                     </div>
-                    <span>{["2 days", "1 week", "5 days"][i-1]} ago</span>
+                    <span>{["2 days", "1 week", "5 days"][i - 1]} ago</span>
                   </div>
                 </div>
                 <div className="bg-gray-50 px-6 py-3 border-t border-gray-100">
@@ -357,7 +357,7 @@ const Home = () => {
               </div>
             ))}
           </div>
-          
+
           <div className="mt-10 text-center">
             <Link to="/jobs">
               <CustomButton variant="outline" size="lg">
@@ -377,29 +377,29 @@ const Home = () => {
               Hear from freelancers and clients who've found success on our platform.
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[1, 2, 3].map((i) => (
               <div key={i} className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
                 <div className="flex items-center mb-4">
                   <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white text-xl mr-4">
-                    {["JD", "AK", "MS"][i-1]}
+                    {["JD", "AK", "MS"][i - 1]}
                   </div>
                   <div>
                     <h4 className="font-bold text-secondary">
-                      {["John Doe", "Alice Kim", "Michael Smith"][i-1]}
+                      {["John Doe", "Alice Kim", "Michael Smith"][i - 1]}
                     </h4>
                     <p className="text-sm text-gray-600">
-                      {["Frontend Developer", "UI/UX Designer", "Blockchain Developer"][i-1]}
+                      {["Frontend Developer", "UI/UX Designer", "Blockchain Developer"][i - 1]}
                     </p>
                   </div>
                 </div>
                 <p className="text-gray-600 mb-4">
                   {[
                     "PeerHire's integration with Base for payments has been a game-changer. I get paid instantly when my work is approved, with minimal fees.",
-                    "The Grok AI assistant helped me write better proposals and even improved my design descriptions. My client hire rate has increased by 40%!",
+                    "The Groq AI assistant helped me write better proposals and even improved my design descriptions. My client hire rate has increased by 40%!",
                     "As someone who values transparency, the Screenpipe integration gives my clients confidence in my work. The verification process is seamless."
-                  ][i-1]}
+                  ][i - 1]}
                 </p>
                 <div className="flex text-accent">
                   {[...Array(5)].map((_, idx) => (

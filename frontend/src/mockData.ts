@@ -50,6 +50,7 @@ export interface Job {
     requirements: string;
     category: string;
     budget: string;
+    currency: string;
     deadline: string;
     createdAt: string;
     client: {
@@ -79,6 +80,7 @@ export interface Bid {
         skills: string[];
     };
     amount: string;
+    currency: string;
     deliveryTime: string;
     proposal: string;
     status?: "Pending" | "Accepted" | "Rejected";
@@ -194,7 +196,7 @@ export const users: User[] = [
         online: true,
         email: "alex.johnson@example.com",
         bio: "Full stack developer with 5 years of experience specializing in React and blockchain technology.",
-        hourlyRate: "0.05 ETH",
+        hourlyRate: "50 USDC",
         location: "San Francisco, USA",
         joinedDate: new Date(2023, 5, 15).toISOString(),
         responseTime: "Under 2 hours",
@@ -210,7 +212,7 @@ export const users: User[] = [
         online: false,
         email: "samantha.lee@example.com",
         bio: "UI/UX designer with a passion for creating intuitive and beautiful user experiences.",
-        hourlyRate: "0.04 ETH",
+        hourlyRate: "40 USDC",
         location: "Toronto, Canada",
         joinedDate: new Date(2023, 2, 10).toISOString(),
         responseTime: "Under 1 hour",
@@ -226,7 +228,7 @@ export const users: User[] = [
         online: true,
         email: "michael.chen@example.com",
         bio: "Blockchain developer specialized in Solidity smart contracts and DeFi protocols.",
-        hourlyRate: "0.06 ETH",
+        hourlyRate: "60 USDC",
         location: "Singapore",
         joinedDate: new Date(2022, 11, 5).toISOString(),
         responseTime: "Same day",
@@ -242,7 +244,7 @@ export const users: User[] = [
         online: true,
         email: "emily.rodriguez@example.com",
         bio: "Mobile app developer with expertise in React Native and native app development.",
-        hourlyRate: "0.045 ETH",
+        hourlyRate: "45 USDC",
         location: "Berlin, Germany",
         joinedDate: new Date(2023, 1, 20).toISOString(),
         responseTime: "Under 3 hours",
@@ -258,7 +260,7 @@ export const users: User[] = [
         online: false,
         email: "david.kim@example.com",
         bio: "Frontend specialist with expert knowledge in Vue.js and modern CSS techniques.",
-        hourlyRate: "0.042 ETH",
+        hourlyRate: "42 USDC",
         location: "Seoul, South Korea",
         joinedDate: new Date(2022, 8, 12).toISOString(),
         responseTime: "Under 5 hours",
@@ -274,7 +276,7 @@ export const users: User[] = [
         online: true,
         email: "lisa.wang@example.com",
         bio: "AI and machine learning expert with a background in data science and blockchain analytics.",
-        hourlyRate: "0.065 ETH",
+        hourlyRate: "65 USDC",
         location: "New York, USA",
         joinedDate: new Date(2022, 6, 8).toISOString(),
         responseTime: "Under 2 hours",
@@ -386,7 +388,8 @@ export const jobs: Job[] = [
         description: "We are looking for an experienced React developer to build a decentralized finance dashboard that integrates with multiple blockchain protocols.",
         requirements: "At least 2 years of experience with React, familiarity with Web3 libraries, and experience with data visualization libraries.",
         category: "Frontend",
-        budget: "0.8",
+        budget: "1000",
+        currency: "USDC",
         deadline: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(), // 14 days from now
         createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 days ago
         client: {
@@ -409,7 +412,8 @@ export const jobs: Job[] = [
         description: "Looking for a Solidity developer to build smart contracts for our NFT marketplace. The contracts should support ERC-721 and ERC-1155 standards.",
         requirements: "Strong knowledge of Solidity, experience with NFT-related contracts, and understanding of security best practices.",
         category: "Blockchain",
-        budget: "1.2",
+        budget: "1200",
+        currency: "USDC",
         deadline: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000).toISOString(), // 21 days from now
         createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days ago
         client: {
@@ -432,7 +436,8 @@ export const jobs: Job[] = [
         description: "We need a backend developer to create a high-performance API that interfaces with multiple blockchain networks.",
         requirements: "Experience with Node.js, Express, blockchain RPC interfaces, and database design for high-performance APIs.",
         category: "Backend",
-        budget: "0.9",
+        budget: "900",
+        currency: "USDC",
         deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
         createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
         client: {
@@ -455,7 +460,8 @@ export const jobs: Job[] = [
         description: "We need a designer to create a sleek and intuitive UI for our mobile cryptocurrency wallet application.",
         requirements: "Experience in mobile app design, understanding of cryptocurrency concepts, and ability to create user-friendly interfaces for complex functionality.",
         category: "Design",
-        budget: "0.7",
+        budget: "700",
+        currency: "USDC",
         deadline: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(),
         createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
         client: {
@@ -478,7 +484,8 @@ export const jobs: Job[] = [
         description: "We're building a platform for DAOs to manage governance, treasury, and member coordination. Looking for a full-stack developer to join our team.",
         requirements: "Experience with React, Node.js, smart contracts integration, and Web3 authentication systems.",
         category: "Full Stack",
-        budget: "1.5",
+        budget: "1500",
+        currency: "USDC",
         deadline: new Date(Date.now() + 25 * 24 * 60 * 60 * 1000).toISOString(),
         createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
         client: {
@@ -501,7 +508,8 @@ export const jobs: Job[] = [
         description: "Need a security audit for our ERC-20 token with custom functionality.",
         requirements: "Must have previous experience in smart contract auditing and a strong understanding of security vulnerabilities in Solidity.",
         category: "Security",
-        budget: "1.0",
+        budget: "1000",
+        currency: "USDC",
         deadline: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(),
         createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
         client: {
@@ -533,7 +541,8 @@ export const bids: Bid[] = [
             completedJobs: 32,
             skills: ["React", "TypeScript", "Node.js", "Solidity"]
         },
-        amount: "0.75",
+        amount: "750",
+        currency: "USDC",
         deliveryTime: "10 days",
         proposal: "I have extensive experience building DeFi dashboards with React and have integrated with protocols like Uniswap, Aave, and Compound. I can deliver a high-performance, responsive interface with real-time data visualization.",
         status: "Pending",
@@ -550,7 +559,8 @@ export const bids: Bid[] = [
             completedJobs: 19,
             skills: ["React Native", "iOS", "Android", "React"]
         },
-        amount: "0.78",
+        amount: "780",
+        currency: "USDC",
         deliveryTime: "12 days",
         proposal: "I've built multiple React applications for fintech companies and have the skills to create a beautiful, intuitive DeFi dashboard that your users will love. I'm familiar with all major Web3 libraries and can ensure the dashboard connects seamlessly to blockchain data.",
         status: "Pending",
@@ -567,7 +577,8 @@ export const bids: Bid[] = [
             completedJobs: 28,
             skills: ["Solidity", "Smart Contracts", "DeFi", "EVM"]
         },
-        amount: "1.1",
+        amount: "1100",
+        currency: "USDC",
         deliveryTime: "15 days",
         proposal: "As a smart contract developer with 5+ years of experience, I've developed multiple NFT marketplaces on Ethereum and Layer 2 solutions. I can ensure your contracts are secure, gas-efficient, and implement all the features you need for a successful marketplace.",
         status: "Accepted",
@@ -584,7 +595,8 @@ export const bids: Bid[] = [
             completedJobs: 32,
             skills: ["React", "TypeScript", "Node.js", "Solidity"]
         },
-        amount: "0.85",
+        amount: "850",
+        currency: "USDC",
         deliveryTime: "25 days",
         proposal: "I've built several high-performance APIs that interface with Ethereum, Binance Smart Chain, and Polygon. I can create a scalable solution that handles multiple blockchain networks efficiently.",
         status: "Pending",
@@ -601,7 +613,8 @@ export const bids: Bid[] = [
             completedJobs: 47,
             skills: ["UI/UX Design", "Figma", "Adobe XD", "Wireframing"]
         },
-        amount: "0.68",
+        amount: "680",
+        currency: "USDC",
         deliveryTime: "14 days",
         proposal: "I specialize in crypto and fintech app UI/UX design and have worked on multiple wallet applications. I can create an interface that balances security features with ease of use.",
         status: "Pending",
@@ -759,7 +772,7 @@ export const contracts: Contract[] = [
         clientName: "NFT Innovations",
         freelancerId: "u3",
         freelancerName: "Michael Chen",
-        amount: "1.1",
+        amount: "1100",
         startDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
         endDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(),
         status: "Active",
@@ -769,7 +782,7 @@ export const contracts: Contract[] = [
                 id: "ms1",
                 title: "Smart Contract Architecture",
                 description: "Define the contract structure and relationships",
-                amount: "0.3",
+                amount: "300",
                 dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
                 status: "In Progress",
                 submissions: []
@@ -778,7 +791,7 @@ export const contracts: Contract[] = [
                 id: "ms2",
                 title: "NFT Base Implementation",
                 description: "Implement ERC-721 and ERC-1155 base contracts",
-                amount: "0.4",
+                amount: "400",
                 dueDate: new Date(Date.now() + 8 * 24 * 60 * 60 * 1000).toISOString(),
                 status: "Pending",
                 submissions: []
@@ -787,7 +800,7 @@ export const contracts: Contract[] = [
                 id: "ms3",
                 title: "Marketplace Features",
                 description: "Implement listing, bidding, and sales features",
-                amount: "0.4",
+                amount: "400",
                 dueDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(),
                 status: "Pending",
                 submissions: []
@@ -802,7 +815,7 @@ export const contracts: Contract[] = [
         clientName: "BlockFin Ltd.",
         freelancerId: "u1",
         freelancerName: "Alex Johnson",
-        amount: "1.0",
+        amount: "1000",
         startDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
         endDate: new Date(Date.now() + 12 * 24 * 60 * 60 * 1000).toISOString(),
         status: "Active",
@@ -812,7 +825,7 @@ export const contracts: Contract[] = [
                 id: "ms4",
                 title: "Initial Code Review",
                 description: "First pass review of contract code",
-                amount: "0.2",
+                amount: "200",
                 dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
                 status: "In Progress",
                 submissions: []
@@ -821,7 +834,7 @@ export const contracts: Contract[] = [
                 id: "ms5",
                 title: "Detailed Security Analysis",
                 description: "In-depth security analysis and vulnerability testing",
-                amount: "0.5",
+                amount: "500",
                 dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
                 status: "Pending",
                 submissions: []
@@ -830,7 +843,7 @@ export const contracts: Contract[] = [
                 id: "ms6",
                 title: "Final Report and Recommendations",
                 description: "Complete audit report with findings and fixes",
-                amount: "0.3",
+                amount: "300",
                 dueDate: new Date(Date.now() + 12 * 24 * 60 * 60 * 1000).toISOString(),
                 status: "Pending",
                 submissions: []
@@ -845,8 +858,8 @@ export const payments: Payment[] = [
         id: "payment1",
         contractId: "contract1",
         milestoneId: "ms1",
-        amount: "0.3",
-        currency: "ETH",
+        amount: "300",
+        currency: "USDC",
         timestamp: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
         status: "Pending",
         txHash: "0xabcd1234...",
@@ -858,8 +871,8 @@ export const payments: Payment[] = [
         id: "payment2",
         contractId: "contract2",
         milestoneId: "ms4",
-        amount: "0.2",
-        currency: "ETH",
+        amount: "200",
+        currency: "USDC",
         timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
         status: "Completed",
         txHash: "0xefgh5678...",
@@ -926,14 +939,14 @@ export const pendingBids = [
         id: "pb1",
         jobTitle: "React Frontend Developer for DeFi Dashboard",
         freelancer: "Alex Johnson",
-        amount: "0.75 ETH",
+        amount: "750 USDC",
         deliveryTime: "10 days"
     },
     {
         id: "pb2",
         jobTitle: "React Frontend Developer for DeFi Dashboard",
         freelancer: "Emily Rodriguez",
-        amount: "0.78 ETH",
+        amount: "780 USDC",
         deliveryTime: "12 days"
     }
 ];
@@ -964,7 +977,7 @@ export const mockFreelancerDashboard = {
     {
       title: "React Developer for Financial Dashboard",
       description: "We need an experienced React developer to build a responsive dashboard with data visualization components.",
-      budget: "$3,000-$5,000",
+      budget: "3,000-5,000 USDC",
       skills: ["React", "TypeScript", "D3.js"],
       posted: "2 days ago",
       bids: 8,
@@ -998,7 +1011,7 @@ export const mockClientDashboard = {
     {
       jobTitle: "UI/UX Designer for Mobile App",
       freelancer: "Sarah Johnson",
-      bid: "$1,200",
+      bid: "1,200 USDC",
       rating: 4.8,
       delivery: "7 days"
     }

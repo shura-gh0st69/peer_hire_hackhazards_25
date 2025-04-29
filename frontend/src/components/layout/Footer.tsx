@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { BaseIcon, GrokIcon, ScreenpipeIcon } from '../icons';
+import { BaseIcon, GroqIcon, ScreenpipeIcon } from '../icons';
 
 const Footer = () => {
   return (
@@ -15,11 +15,11 @@ const Footer = () => {
             </p>
             <div className="flex space-x-4">
               <BaseIcon className="w-6 h-6 text-white opacity-80 hover:opacity-100 cursor-pointer" />
-              <GrokIcon className="w-6 h-6 text-white opacity-80 hover:opacity-100 cursor-pointer" />
+              <GroqIcon className="w-6 h-6 text-white opacity-80 hover:opacity-100 cursor-pointer" />
               <ScreenpipeIcon className="w-6 h-6 text-white opacity-80 hover:opacity-100 cursor-pointer" />
             </div>
           </div>
-          
+
           <div>
             <h4 className="text-lg font-medium mb-4">For Freelancers</h4>
             <ul className="space-y-2">
@@ -37,7 +37,7 @@ const Footer = () => {
               </li>
             </ul>
           </div>
-          
+
           <div>
             <h4 className="text-lg font-medium mb-4">For Clients</h4>
             <ul className="space-y-2">
@@ -55,7 +55,7 @@ const Footer = () => {
               </li>
             </ul>
           </div>
-          
+
           <div>
             <h4 className="text-lg font-medium mb-4">Resources</h4>
             <ul className="space-y-2">
@@ -74,7 +74,7 @@ const Footer = () => {
             </ul>
           </div>
         </div>
-        
+
         <div className="mt-12 pt-6 border-t border-gray-700 flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-400 text-sm">
             &copy; {new Date().getFullYear()} PeerHire. All rights reserved.

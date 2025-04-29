@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { CustomButton } from '@/components/ui/custom-button';
-import { GrokIcon } from '@/components/icons';
+import { GroqIcon } from '@/components/icons';
 import { ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -15,25 +15,25 @@ const PostJob = () => {
     skills: '',
     projectType: 'fixed'
   });
-  
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setJobData(prev => ({ ...prev, [name]: value }));
   };
-  
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Job data submitted:', jobData);
-    
+
     // In a real app, this would send data to the backend
     toast.success('Job posted successfully! You will start receiving bids soon.');
-    
+
     // Reset form or redirect to jobs page
   };
-  
+
   return (
     <div className="bg-gray-50 min-h-screen pt-16 pb-12">
-      
+
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
         <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
           <div className="bg-primary/5 p-6 border-b border-gray-200">
@@ -42,7 +42,7 @@ const PostJob = () => {
               Fill out the details below to post your job and start receiving bids from talented freelancers.
             </p>
           </div>
-          
+
           <form onSubmit={handleSubmit} className="p-6 space-y-6">
             <div className="space-y-4">
               <div>
@@ -60,7 +60,7 @@ const PostJob = () => {
                   required
                 />
               </div>
-              
+
               <div>
                 <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
                   Category
@@ -82,7 +82,7 @@ const PostJob = () => {
                   <option value="other">Other</option>
                 </select>
               </div>
-              
+
               <div>
                 <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
                   Job Description
@@ -98,7 +98,7 @@ const PostJob = () => {
                   required
                 />
               </div>
-              
+
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="w-full sm:w-1/2">
                   <label htmlFor="projectType" className="block text-sm font-medium text-gray-700 mb-1">
@@ -117,7 +117,7 @@ const PostJob = () => {
                     <option value="milestone">Milestone-based</option>
                   </select>
                 </div>
-                
+
                 <div className="w-full sm:w-1/2">
                   <label htmlFor="budget" className="block text-sm font-medium text-gray-700 mb-1">
                     Budget (USD)
@@ -135,7 +135,7 @@ const PostJob = () => {
                   />
                 </div>
               </div>
-              
+
               <div>
                 <label htmlFor="skills" className="block text-sm font-medium text-gray-700 mb-1">
                   Required Skills (comma-separated)
@@ -151,7 +151,7 @@ const PostJob = () => {
                   required
                 />
               </div>
-              
+
               <div>
                 <label htmlFor="deadline" className="block text-sm font-medium text-gray-700 mb-1">
                   Deadline
@@ -167,10 +167,10 @@ const PostJob = () => {
                 />
               </div>
             </div>
-            
+
             <div className="bg-accent/5 p-4 rounded-lg border border-accent/10 mt-6">
               <div className="flex items-start">
-                <GrokIcon className="w-5 h-5 text-accent mr-3 mt-0.5" />
+                <GroqIcon className="w-5 h-5 text-accent mr-3 mt-0.5" />
                 <div>
                   <h3 className="font-medium text-gray-900">Grok AI Suggestion</h3>
                   <p className="mt-1 text-sm text-gray-600">
@@ -179,9 +179,9 @@ const PostJob = () => {
                 </div>
               </div>
             </div>
-            
+
             <div className="pt-4 border-t border-gray-200 flex justify-end">
-              <CustomButton 
+              <CustomButton
                 type="submit"
                 size="lg"
                 rightIcon={<ArrowRight className="w-4 h-4" />}

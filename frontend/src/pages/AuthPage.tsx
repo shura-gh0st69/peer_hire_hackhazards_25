@@ -2,7 +2,7 @@ import React, { useState, FormEvent, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { CustomButton } from '@/components/ui/custom-button';
 import { WalletConnect } from '@/components/ui/wallet-connect';
-import { BaseIcon, GrokIcon } from '@/components/icons';
+import { BaseIcon, GroqIcon } from '@/components/icons';
 import { Eye, EyeOff, ChevronLeft, Briefcase, Users, Mail } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
@@ -52,32 +52,48 @@ const AuthPage: React.FC<AuthPageProps> = ({ type = 'signup' }) => {
   const [isConnecting, setIsConnecting] = useState(false);
   const [walletData, setWalletData] = useState<WalletData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [isWalletLoading, setIsWalletLoading] = useState(false);
-  const [step, setStep] = useState<'initial' | 'credentials' | 'profile'>('initial');
+  const [step, setStep] = useState<'initial' | 'profile'>('initial');
   const [showPassword, setShowPassword] = useState(false);
-  const [formData, setFormData] = useState<FormData>({
-    email: '',
-    password: '',
-    fullName: '',
+  const [formData, setFormData] = useState<FormData>(() => {
+    const cachedData = localStorage.getItem('signup_form_data');
+    return cachedData ? JSON.parse(cachedData) : {
+      email: '',
+      password: '',
+      fullName: '',
+    };
   });
   const [agreeToTerms, setAgreeToTerms] = useState(false);
-  const [selectedRole, setSelectedRole] = useState<'freelancer' | 'client'>(
-    type === 'freelancer-signup' ? 'freelancer' :
-      type === 'client-signup' ? 'client' : 'freelancer'
-  );
+  const [selectedRole, setSelectedRole] = useState<'freelancer' | 'client'>(() => {
+    const cachedRole = localStorage.getItem('selected_role');
+    return (cachedRole as 'freelancer' | 'client') || (
+      type === 'freelancer-signup' ? 'freelancer' :
+        type === 'client-signup' ? 'client' : 'freelancer'
+    );
+  });
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [useWalletSignup, setUseWalletSignup] = useState(false);
 
   const isSignUp = type === 'freelancer-signup' || type === 'client-signup' || type === 'signup';
 
   useEffect(() => {
-    // Update selected role when type changes
+    // Update selected role when type changes and cache it
     if (type === 'freelancer-signup') {
       setSelectedRole('freelancer');
+      localStorage.setItem('selected_role', 'freelancer');
     } else if (type === 'client-signup') {
       setSelectedRole('client');
+      localStorage.setItem('selected_role', 'client');
     }
   }, [type]);
+
+  // Cache form data when it changes
+  useEffect(() => {
+    localStorage.setItem('signup_form_data', JSON.stringify(formData));
+  }, [formData]);
+
+  // Cache selected role when it changes
+  useEffect(() => {
+    localStorage.setItem('selected_role', selectedRole);
+  }, [selectedRole]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -133,8 +149,23 @@ const AuthPage: React.FC<AuthPageProps> = ({ type = 'signup' }) => {
         if (!formData.company?.trim()) {
           newErrors.company = 'Company name is required';
         }
+
         if (!formData.industry?.trim()) {
           newErrors.industry = 'Please select an industry';
+        }
+
+        if (!formData.companySize?.trim()) {
+          newErrors.companySize = 'Please select your company size';
+        }
+
+        if (!formData.companyLocation?.trim()) {
+          newErrors.companyLocation = 'Company location is required';
+        }
+
+        if (!formData.bio?.trim()) {
+          newErrors.bio = 'Please provide a company description';
+        } else if (formData.bio.length < 50) {
+          newErrors.bio = 'Company description should be at least 50 characters';
         }
       }
     }
@@ -145,200 +176,129 @@ const AuthPage: React.FC<AuthPageProps> = ({ type = 'signup' }) => {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
     setErrors({});
 
-    try {
+    // Step management without immediate API calls
+    if (step === 'initial') {
+      if (!validateForm()) {
+        const firstError = Object.values(errors)[0];
+        if (firstError) {
+          toast.error(firstError);
+        }
+        return;
+      }
+
       if (isSignUp) {
-        if (!agreeToTerms && step === 'credentials') {
+        if (!agreeToTerms) {
           toast.error("Please agree to the terms and conditions");
-          setIsLoading(false);
           return;
         }
+        setStep('profile');
+        return;
+      }
+    }
 
-        // If we have wallet data and are on credentials step
-        if (step === 'credentials') {
-          // Validate email and password here
-          if (!formData.email || !formData.password) {
-            toast.error("Email and password are required even when connecting a wallet");
-            setIsLoading(false);
-            return;
-          }
+    // Only proceed with API calls if we're on the profile step or it's a login
+    if (!isSignUp || (isSignUp && step === 'profile')) {
+      setIsLoading(true);
 
+      try {
+        if (isSignUp) {
+          // Final validation before API call
           if (!validateForm()) {
-            setIsLoading(false);
             const firstError = Object.values(errors)[0];
             if (firstError) {
               toast.error(firstError);
             }
+            setIsLoading(false);
             return;
           }
 
-          setStep('profile');
-          setIsLoading(false);
-          return;
-        }
+          // Prepare profile data
+          const profile = selectedRole === 'freelancer' ? {
+            skills: formData.skills?.split(',').map(s => s.trim()) || [],
+            bio: formData.bio || "",
+            hourlyRate: formData.hourlyRate ? parseFloat(formData.hourlyRate) : undefined,
+            location: formData.location || ""
+          } : {
+            company: formData.company || "",
+            industry: formData.industry || "",
+            companySize: formData.companySize || "",
+            companyLocation: formData.companyLocation || "",
+            bio: formData.bio || ""
+          };
 
-        // Validate form before submission
-        if (!validateForm()) {
-          setIsLoading(false);
-          // Show first error in toast
-          const firstError = Object.values(errors)[0];
-          if (firstError) {
-            toast.error(firstError);
-          }
-          return;
-        }
-
-        // Check for cached wallet data
-        let walletDataToUse = walletData;
-        if (!walletDataToUse) {
-          const cachedWalletData = cacheUtils.localStorage.get('peerhire:walletData');
-          if (cachedWalletData) {
-            try {
-              walletDataToUse = JSON.parse(cachedWalletData);
-            } catch (error) {
-              console.error('Failed to parse cached wallet data:', error);
-            }
-          }
-        }
-
-        // If using wallet authentication and profile is complete
-        if (walletDataToUse && step === 'profile') {
-          try {
-            // Create a complete signup payload with both wallet and user details
+          // Handle wallet-based signup
+          if (walletData) {
             const walletSignupPayload = {
-              address: walletDataToUse.address,
-              signature: walletDataToUse.signature,
-              message: walletDataToUse.message,
+              address: walletData.address,
+              signature: walletData.signature,
+              message: walletData.message,
               name: formData.fullName,
               email: formData.email,
               role: selectedRole,
               password: formData.password,
-              // Include profile data based on role
-              ...(selectedRole === 'freelancer' ? {
-                profile: {
-                  skills: formData.skills?.split(',').map(s => s.trim()) || [],
-                  bio: formData.bio || "",
-                  hourlyRate: formData.hourlyRate ? parseFloat(formData.hourlyRate) : undefined,
-                  location: formData.location || ""
-                }
-              } : {
-                profile: {
-                  companySize: formData.companySize || "",
-                  industry: formData.industry || "",
-                  companyLocation: formData.companyLocation || "",
-                  bio: formData.bio || ""
-                }
-              })
+              profile
             };
 
             const response = await api.post("/auth/wallet/signup", walletSignupPayload);
+            const { token, user } = response.data;
 
-            // Store the token from the response
-            const { token } = response.data;
             cacheUtils.secureCookie.set(CACHE_KEYS.AUTH_TOKEN, token);
-
-            // Clean up cached wallet data
+            cacheUtils.localStorage.set(CACHE_KEYS.USER, user);
             cacheUtils.localStorage.remove('peerhire:walletData');
 
             toast.success("Account created successfully with wallet!");
             navigate('/dashboard');
-            return;
-          } catch (error: any) {
-            toast.error(error.response?.data?.error || error.message || "Failed to create account with wallet");
-            return;
-          } finally {
-            setIsLoading(false);
-          }
-        }
-
-        // Regular email signup
-        const profile = selectedRole === 'freelancer' ? {
-          skills: formData.skills?.split(',').map(s => s.trim()) || [],
-          bio: formData.bio || "",
-          hourlyRate: formData.hourlyRate ? parseFloat(formData.hourlyRate) : undefined,
-          location: formData.location || ""
-        } : {
-          companySize: formData.companySize || "",
-          industry: formData.industry || "",
-          companyLocation: formData.companyLocation || "",
-          bio: formData.bio || ""
-        };
-
-        try {
-          await signUp(
-            formData.email,
-            formData.password,
-            selectedRole,
-            formData.fullName,
-            profile
-          );
-          toast.success("Account created successfully!");
-          navigate('/dashboard');
-        } catch (error: any) {
-          if (error.response?.data?.details) {
-            const validationErrors: ValidationError[] = error.response.data.details;
-            const errorMap: Record<string, string> = {};
-
-            validationErrors.forEach(err => {
-              const field = err.path.split('.').pop() || '';
-              errorMap[field] = err.message;
-
-              // Map nested profile errors to form fields
-              if (err.path.includes('profile.')) {
-                const profileField = err.path.split('.').pop() || '';
-                errorMap[profileField] = err.message;
-              }
-            });
-
-            setErrors(errorMap);
-
-            // Show the first error in a toast
-            if (validationErrors.length > 0) {
-              toast.error(validationErrors[0].message);
-            }
           } else {
-            toast.error(error.message || "Failed to create account");
+            // Regular email signup
+            await signUp(formData.email, formData.password, selectedRole, formData.fullName, profile);
+            toast.success("Account created successfully!");
+            navigate('/dashboard');
           }
-        }
-      } else {
-        // Login logic - if wallet data is present use wallet auth
-        if (walletData) {
-          try {
-            // Use the dedicated wallet login endpoint
+        } else {
+          // Login logic
+          if (walletData) {
             const response = await api.post("auth/wallet", {
               address: walletData.address,
               signature: walletData.signature,
               message: walletData.message
             });
 
-            // Store token in secure cookie
             const { token } = response.data;
             cacheUtils.secureCookie.set(CACHE_KEYS.AUTH_TOKEN, token);
-
             toast.success("Logged in successfully with wallet!");
             navigate('/dashboard');
-          } catch (error: any) {
-            // If no account exists for this wallet
-            if (error.response?.status === 404 && error.response?.data?.needsRegistration) {
-              toast.error("No account linked to this wallet. Please sign up first.");
-            } else {
-              toast.error(error.response?.data?.error || error.message || "Authentication failed");
-            }
+          } else {
+            await login(formData.email, formData.password);
+            toast.success("Logged in successfully!");
+            navigate('/dashboard');
           }
-        } else {
-          // Regular email login
-          await login(formData.email, formData.password);
-          toast.success("Logged in successfully!");
-          navigate('/dashboard');
         }
+      } catch (error: any) {
+        console.error(error);
+        if (error.response?.data?.details) {
+          const validationErrors = error.response.data.details;
+          const errorMap: Record<string, string> = {};
+
+          validationErrors.forEach((err: ValidationError) => {
+            const field = err.path.split('.').pop() || '';
+            errorMap[field] = err.message;
+
+            if (err.path.includes('profile.')) {
+              const profileField = err.path.split('.').pop() || '';
+              errorMap[profileField] = err.message;
+            }
+          });
+
+          setErrors(errorMap);
+          toast.error(validationErrors[0].message);
+        } else {
+          toast.error(error.message || "Authentication failed");
+        }
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error: any) {
-      console.error(error);
-      toast.error(error.message || "Authentication failed");
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -389,7 +349,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ type = 'signup' }) => {
           // For signup, cache wallet data and proceed to next step
           cacheUtils.localStorage.set('peerhire:walletData', data);
           toast.success('Wallet connected successfully! Continue filling out your details.');
-          setStep('credentials');
+          setStep('profile');
         }
       }
     } catch (error: any) {
@@ -399,21 +359,21 @@ const AuthPage: React.FC<AuthPageProps> = ({ type = 'signup' }) => {
     }
   };
 
-  const handleContinue = async () => {
-    if (walletData) {
-      // Validate form fields before proceeding
-      if (!validateForm()) {
-        const firstError = Object.values(errors)[0];
-        if (firstError) {
-          toast.error(firstError);
-        }
-        return;
-      }
-
-      setStep('profile');
-    } else {
-      toast.error('Please connect your wallet before continuing.');
-    }
+  const handleRoleSelect = (role: 'freelancer' | 'client') => {
+    setSelectedRole(role);
+    // Clear any role-specific form fields when switching roles
+    setFormData(prev => ({
+      ...prev,
+      headline: '',
+      hourlyRate: '',
+      skills: '',
+      company: '',
+      industry: '',
+      companySize: '',
+      companyLocation: '',
+      bio: '',
+      location: ''
+    }));
   };
 
   const renderInput = (name: string, label: string, type: string = 'text', placeholder?: string, options?: string[]) => (
@@ -484,10 +444,6 @@ const AuthPage: React.FC<AuthPageProps> = ({ type = 'signup' }) => {
     </div>
   );
 
-  const handleRoleSelect = (role: 'freelancer' | 'client') => {
-    setSelectedRole(role);
-  };
-
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center pt-28 pb-12">
       <div className="w-full max-w-md mx-auto">
@@ -510,7 +466,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ type = 'signup' }) => {
         </div>
 
         <div className="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
-          {isSignUp && step === 'credentials' && (
+          {isSignUp && (
             <div className="flex border-b border-gray-200">
               <button
                 type="button"
@@ -546,7 +502,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ type = 'signup' }) => {
               {step === 'profile' && (
                 <button
                   type="button"
-                  onClick={() => setStep('credentials')}
+                  onClick={() => setStep('initial')}
                   className="text-primary hover:text-primary/80 flex items-center text-sm font-medium"
                 >
                   <ChevronLeft className="w-4 h-4 mr-1" />

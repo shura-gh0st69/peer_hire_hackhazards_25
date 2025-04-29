@@ -13,7 +13,8 @@ import {
     User,
     PlusCircle,
     FileText,
-    UploadCloud
+    UploadCloud,
+    Users
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
@@ -55,8 +56,9 @@ export function DashboardSidebar() {
 
     // Role-specific menu items
     const clientMenuItems = [
+        { icon: Users, label: "Find Freelancers", path: "/freelancers" },
         { icon: PlusCircle, label: "Post Job", path: "/post-job" },
-        { icon: FileText, label: "Posted Jobs", path: "/jobs?filter=posted" },
+        { icon: FileText, label: "Posted Jobs", path: "/jobs/posted" },
         { icon: Briefcase, label: "Pending Bids", path: "/jobs?filter=pending-bids" },
     ];
 

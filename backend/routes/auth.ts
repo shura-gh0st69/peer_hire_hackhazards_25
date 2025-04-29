@@ -92,8 +92,12 @@ const freelancerSignupSchema = baseSignup.extend({
 });
 
 const signupSchema = z.discriminatedUnion('role', [
-  clientSignupSchema,
-  freelancerSignupSchema,
+  clientSignupSchema.extend({
+    currentStep: z.literal('initial').or(z.literal('profile')).optional()
+  }),
+  freelancerSignupSchema.extend({
+    currentStep: z.literal('initial').or(z.literal('profile')).optional()
+  }),
 ]);
 
 const loginSchema = z.object({

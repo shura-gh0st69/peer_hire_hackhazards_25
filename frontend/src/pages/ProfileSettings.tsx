@@ -487,21 +487,23 @@ const ProfileSettings = () => {
                                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                         <div>
                                             <label htmlFor="hourlyRate" className="block text-sm font-medium text-gray-700 mb-1">
-                                                Hourly Rate (ETH)
+                                                Hourly Rate (USDC)
                                             </label>
                                             <div className="relative">
                                                 <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                                                    <DollarSign className="h-4 w-4 text-gray-400" />
+                                                    <DollarSign className="h-5 w-5 text-gray-400" />
                                                 </div>
                                                 <input
-                                                    type="text"
+                                                    type="number"
                                                     id="hourlyRate"
                                                     name="hourlyRate"
                                                     value={formData.hourlyRate}
                                                     onChange={handleChange}
-                                                    placeholder="0.05"
-                                                    className={`w-full pl-10 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent ${errors.hourlyRate ? 'border-red-500' : 'border-gray-300'
+                                                    placeholder="Enter your hourly rate"
+                                                    className={`w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent ${errors.hourlyRate ? 'border-red-500' : 'border-gray-300'
                                                         }`}
+                                                    min="0"
+                                                    step="0.01"
                                                 />
                                                 {errors.hourlyRate && (
                                                     <p className="mt-1 text-sm text-red-600">{errors.hourlyRate}</p>

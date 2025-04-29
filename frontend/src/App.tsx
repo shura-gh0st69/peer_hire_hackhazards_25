@@ -37,18 +37,22 @@ import Enterprise from "./pages/Enterprise";
 import Portfolio from "./pages/Portfolio";
 import SuccessStories from "./pages/SuccessStories";
 import MobileApp from "./pages/MobileApp";
-import GrokChatButton from "./components/GrokChatButton";
+import FreelancerListing from "./pages/FreelancerListing";
+import GroqChatButton from "@/components/GroqChatButton";
 import { RoleToggle } from "./components/RoleToggle";
 import { DashboardSidebar } from "./components/layout/DashboardSidebar";
 import FloatingNavbar from "./components/layout/FloatingNavbar";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { LoadingScreen } from './components/LoadingScreen';
 import axios from 'axios';
+import PostedJobs from '@/pages/PostedJobs';
 
 const queryClient = new QueryClient();
 
 const App = () => {
   let [isLoading, setIsLoading] = useState(false);
+  let [retryCount, setRetryCount] = useState(0);
+  const MAX_RETRIES = 3;
 
   useEffect(() => {
     // Log frontend environment variables
@@ -62,21 +66,33 @@ const App = () => {
 
     const checkBackend = async () => {
       try {
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}/spinup`);
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/healthz`);
         if (response.status >= 200 && response.status < 300) {
           setIsLoading(false);
+          setRetryCount(0);
         }
       } catch (error) {
-        setIsLoading(true);
-        setTimeout(checkBackend, 2000);
+        if (retryCount < MAX_RETRIES) {
+          setIsLoading(true);
+          setRetryCount(prev => prev + 1);
+          // Exponential backoff: 2s, 4s, 8s
+          setTimeout(checkBackend, Math.pow(2, retryCount + 1) * 1000);
+        } else {
+          // After max retries, show the app anyway
+          setIsLoading(false);
+          console.warn('Backend health check failed, but continuing to load app');
+        }
       }
     };
 
-    checkBackend();
-  }, []);
+    // Only run health check in production
+    if (import.meta.env.PROD) {
+      checkBackend();
+    }
+  }, [retryCount]);
 
-  // Show LoadingScreen when backend is inaccessible (isLoading is true)
-  if (isLoading) {
+  // Only show LoadingScreen during initial backend check attempts
+  if (isLoading && retryCount < MAX_RETRIES) {
     return <LoadingScreen />;
   }
 
@@ -91,7 +107,6 @@ const App = () => {
               <Route path="/" element={isLoading == true ? <LoadingScreen /> : <Home />} />
               <Route path="/pricing" element={<Pricing />} />
               <Route path="/enterprise" element={<Enterprise />} />
-              <Route path="/jobs" element={<JobListing />} />
 
               {/* Auth Pages */}
               <Route path="/auth">
@@ -121,8 +136,11 @@ const App = () => {
 
                 {/* Job Management */}
                 <Route path="/post-job" element={<PostJob />} />
+                <Route path="/jobs/posted" element={<PostedJobs />} />
+                <Route path="/jobs" element={<JobListing />} />
                 <Route path="/jobs/:id" element={<JobDetails />} />
                 <Route path="/proposals" element={<Proposals />} />
+                <Route path="/freelancers" element={<FreelancerListing />} />
 
                 {/* Projects & Contracts */}
                 <Route path="/contracts" element={<Contracts />} />
@@ -149,7 +167,7 @@ const App = () => {
               {/* 404 */}
               <Route path="*" element={<NotFound />} />
             </Routes>
-            <GrokChatButton />
+            <GroqChatButton />
             <RoleToggle />
           </Router>
           <Toaster />

@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { CustomButton } from '@/components/ui/custom-button';
 import { Send, Paperclip, UserIcon } from 'lucide-react';
-import { GrokIcon } from '@/components/icons';
+import { GroqIcon } from '@/components/icons';
 import { conversations as mockConversations, messages as mockMessages, getMessagesByConversationId } from '@/mockData';
 
 const Messages = () => {
   const [selectedConversation, setSelectedConversation] = useState(mockConversations[0]);
   const [newMessage, setNewMessage] = useState('');
-  const [showGrokSuggestions, setShowGrokSuggestions] = useState(false);
+  const [showGroqSuggestions, setShowGroqSuggestions] = useState(false);
 
   // Get messages for the selected conversation
   const conversationMessages = selectedConversation ?
@@ -21,6 +21,10 @@ const Messages = () => {
       console.log('Sending message:', newMessage);
       setNewMessage('');
     }
+  };
+
+  const handleSuggestionClick = (suggestion: string) => {
+    setNewMessage(suggestion);
   };
 
   return (
@@ -99,10 +103,10 @@ const Messages = () => {
               </div>
               <div>
                 <button
-                  className={`p-2 rounded-full ${showGrokSuggestions ? 'bg-accent/20' : 'hover:bg-gray-100'}`}
-                  onClick={() => setShowGrokSuggestions(!showGrokSuggestions)}
+                  className={`p-2 rounded-full ${showGroqSuggestions ? 'bg-accent/20' : 'hover:bg-gray-100'}`}
+                  onClick={() => setShowGroqSuggestions(!showGroqSuggestions)}
                 >
-                  <GrokIcon className="w-5 h-5 text-accent" />
+                  <GroqIcon className="w-5 h-5 text-accent" />
                 </button>
               </div>
             </div>
@@ -124,26 +128,27 @@ const Messages = () => {
               ))}
             </div>
 
-            {/* Grok Suggestions */}
-            {showGrokSuggestions && (
+            {/* Groq Suggestions */}
+            {showGroqSuggestions && (
               <div className="p-3 bg-accent/5 border-t border-accent/10">
                 <div className="flex items-start space-x-2">
-                  <GrokIcon className="w-5 h-5 text-accent mt-0.5" />
+                  <GroqIcon className="w-5 h-5 text-accent mt-0.5" />
                   <div className="text-sm">
                     <span className="font-medium text-accent">Message suggestions:</span>
                     <div className="mt-2 space-y-2">
                       {[
                         "Could you share some examples of your previous React projects?",
-                        "What's your preferred way to handle state management in React applications?",
-                        "Great! Let's schedule a quick call to discuss the project details."
+                        "What's your estimated timeline for completing this milestone?",
+                        "My budget for this project is 2,000 USDC. Is this within your range?",
+                        "Here's a breakdown of the project requirements..."
                       ].map((suggestion, i) => (
-                        <div
+                        <button
                           key={i}
-                          className="p-2 bg-white rounded border border-accent/20 cursor-pointer hover:bg-accent/10"
-                          onClick={() => setNewMessage(suggestion)}
+                          className="block w-full text-left p-2 rounded hover:bg-accent/10 transition-colors"
+                          onClick={() => handleSuggestionClick(suggestion)}
                         >
                           {suggestion}
-                        </div>
+                        </button>
                       ))}
                     </div>
                   </div>

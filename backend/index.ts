@@ -1,10 +1,10 @@
 import { Hono } from 'hono';
-import { connect } from 'mongoose';
 import { authRoutes } from './routes/auth';
 import { auth, requireClient, requireFreelancer } from './middleware/auth';
 import { serve } from '@hono/node-server';
 import { cors } from 'hono/cors';
 import dotenv from 'dotenv';
+import { connect } from 'mongoose';
 
 dotenv.config();
 
@@ -84,8 +84,23 @@ app.use('*', cors({
 
 // Spinup check endpoint
 app.get('/spinup', (c) => c.json({ status: 'ok' }));
-app.get('/healthz', (c) => c.json({ status: 'ok' }));
 
+// Health check endpoint with MongoDB connection status
+app.get('/healthz', async (c) => {
+  try {
+    // Check MongoDB connection
+    
+    return c.json({ 
+      status: 'ok',
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    return c.json({ 
+      status: 'error',
+      error: 'Health check failed'
+    }, 500);
+  }
+});
 
 // MongoDB connection
 const connectDB = async () => {
