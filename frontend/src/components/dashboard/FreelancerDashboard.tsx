@@ -15,7 +15,7 @@ import {
   FileText
 } from 'lucide-react';
 import { CustomButton } from '@/components/ui/custom-button';
-import { GrokIcon, ScreenpipeIcon, BaseIcon } from '@/components/icons';
+import { GroqIcon, ScreenpipeIcon, BaseIcon } from '@/components/icons';
 import { Progress } from '@/components/ui/progress';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -218,7 +218,7 @@ const RecommendedJobs = ({ jobs }: { jobs: any[] }) => {
     <div>
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center">
-          <GrokIcon className="w-5 h-5 text-accent mr-2" />
+          <GroqIcon className="w-5 h-5 text-accent mr-2" />
           <p className="text-sm text-gray-600">Jobs recommended by Grok based on your skills and work history</p>
         </div>
         <div className="flex space-x-2">
@@ -237,7 +237,7 @@ const RecommendedJobs = ({ jobs }: { jobs: any[] }) => {
             <div className="flex justify-between items-start mb-2">
               <h3 className="font-medium text-gray-900">{job.title}</h3>
               <div className="bg-accent/10 text-accent text-xs px-2 py-1 rounded-full flex items-center">
-                <GrokIcon className="w-3 h-3 mr-1" />
+                <GroqIcon className="w-3 h-3 mr-1" />
                 {job.match}% Match
               </div>
             </div>

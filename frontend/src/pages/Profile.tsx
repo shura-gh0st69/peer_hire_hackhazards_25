@@ -63,7 +63,7 @@ const Profile = () => {
             if (data) {
                 try {
                     // Use dedicated wallet endpoint instead of general profile update
-                    await api.post('/users/wallet', {
+                    await api.post('auth/users/wallet', {
                         address: data.address,
                         signature: data.signature,
                         message: data.message
@@ -97,7 +97,7 @@ const Profile = () => {
     const handleDisconnectWallet = async () => {
         try {
             // Use dedicated wallet disconnect endpoint
-            await api.delete('/users/wallet');
+            await api.delete('auth/users/wallet');
 
             // Update local state
             setProfileData(prev => ({
@@ -277,7 +277,7 @@ const Profile = () => {
                                             <div className="flex items-center">
                                                 <DollarSign className="w-5 h-5 text-primary mr-1" />
                                                 <span className="text-xl font-bold text-gray-900">
-                                                    {profileData.hourlyRate || '0'} ETH
+                                                    {profileData.hourlyRate || '0'} USDC
                                                 </span>
                                                 <span className="text-sm text-gray-500 ml-2">per hour</span>
                                             </div>

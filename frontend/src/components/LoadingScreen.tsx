@@ -1,5 +1,5 @@
 import React from 'react';
-import { BaseIcon, GrokIcon, ScreenpipeIcon } from './icons';
+import { BaseIcon, GroqIcon, ScreenpipeIcon } from './icons';
 
 export const LoadingScreen = () => {
   return (
@@ -26,7 +26,7 @@ export const LoadingScreen = () => {
               <span className="text-sm text-gray-600 text-center">Base Network</span>
             </div>
             <div className="flex flex-col items-center">
-              <GrokIcon className="w-10 h-10 text-accent mb-2" />
+              <GroqIcon className="w-10 h-10 text-accent mb-2" />
               <span className="text-sm text-gray-600 text-center">Grok AI</span>
             </div>
             <div className="flex flex-col items-center">
@@ -37,7 +37,7 @@ export const LoadingScreen = () => {
 
           {/* Loading bar */}
           <div className="w-full bg-gray-100 rounded-full h-1.5 mb-4 overflow-hidden">
-            <div 
+            <div
               className="bg-primary h-full rounded-full"
               style={{
                 width: '90%',

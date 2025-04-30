@@ -18,7 +18,7 @@ import {
   AlertTriangle
 } from 'lucide-react';
 import { CustomButton } from '@/components/ui/custom-button';
-import { BaseIcon, GrokIcon, ScreenpipeIcon } from '@/components/icons';
+import { BaseIcon, GroqIcon, ScreenpipeIcon } from '@/components/icons';
 import { Progress } from '@/components/ui/progress';
 
 interface ClientDashboardProps {
@@ -29,6 +29,7 @@ interface ClientDashboardProps {
     escrowBalance: number;
     recentActivities: any[];
     pendingBids: any[];
+    groqProgress: number;
   };
 }
 
@@ -66,6 +67,18 @@ const ClientDashboard: React.FC<ClientDashboardProps> = ({ dashboardData }) => {
           </div>
 
           <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden mb-6">
+            <div className="p-4 border-b border-gray-200">
+              <h2 className="text-lg font-medium text-gray-900 font-montserrat">Groq Analyzed Progress</h2>
+            </div>
+            <div className="p-4">
+              <div className="flex items-center">
+                <GroqIcon className="w-6 h-6 text-accent mr-2" />
+                <p className="text-sm text-gray-600">Groq AI estimates the overall project progress to be <span className="font-medium text-gray-900">{dashboardData.groqProgress}%</span>.</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden mb-6">
             <div className="border-b border-gray-200">
               <div className="flex flex-wrap">
                 <button
@@ -79,8 +92,8 @@ const ClientDashboard: React.FC<ClientDashboardProps> = ({ dashboardData }) => {
                 </button>
                 <button
                   className={`flex-1 py-3 px-4 text-sm font-medium text-center ${activeTab === 'bids'
-                      ? 'text-primary border-b-2 border-primary'
-                      : 'text-gray-500 hover:text-gray-700'
+                    ? 'text-primary border-b-2 border-primary'
+                    : 'text-gray-500 hover:text-gray-700'
                     }`}
                   onClick={() => setActiveTab('bids')}
                 >
@@ -88,8 +101,8 @@ const ClientDashboard: React.FC<ClientDashboardProps> = ({ dashboardData }) => {
                 </button>
                 <button
                   className={`flex-1 py-3 px-4 text-sm font-medium text-center ${activeTab === 'completed'
-                      ? 'text-primary border-b-2 border-primary'
-                      : 'text-gray-500 hover:text-gray-700'
+                    ? 'text-primary border-b-2 border-primary'
+                    : 'text-gray-500 hover:text-gray-700'
                     }`}
                   onClick={() => setActiveTab('completed')}
                 >
@@ -97,8 +110,8 @@ const ClientDashboard: React.FC<ClientDashboardProps> = ({ dashboardData }) => {
                 </button>
                 <button
                   className={`flex-1 py-3 px-4 text-sm font-medium text-center ${activeTab === 'drafts'
-                      ? 'text-primary border-b-2 border-primary'
-                      : 'text-gray-500 hover:text-gray-700'
+                    ? 'text-primary border-b-2 border-primary'
+                    : 'text-gray-500 hover:text-gray-700'
                     }`}
                   onClick={() => setActiveTab('drafts')}
                 >
@@ -121,10 +134,10 @@ const ClientDashboard: React.FC<ClientDashboardProps> = ({ dashboardData }) => {
                 {dashboardData.recentActivities.map((activity, index) => (
                   <div key={index} className="flex items-start p-3 hover:bg-gray-50 rounded-lg transition-colors">
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-3 ${activity.type === 'job-posted' ? 'bg-primary/10 text-primary' :
-                        activity.type === 'bid-new' ? 'bg-primary/10 text-accent' :
-                          activity.type === 'payment' ? 'bg-green-100 text-green-600' :
-                            activity.type === 'milestone' ? 'bg-red-100 text-red-600' :
-                              'bg-blue-100 text-blue-600'
+                      activity.type === 'bid-new' ? 'bg-primary/10 text-accent' :
+                        activity.type === 'payment' ? 'bg-green-100 text-green-600' :
+                          activity.type === 'milestone' ? 'bg-red-100 text-red-600' :
+                            'bg-blue-100 text-blue-600'
                       }`}>
                       {activity.type === 'job-posted' && <Briefcase className="w-4 h-4" />}
                       {activity.type === 'bid-new' && <Users className="w-4 h-4" />}
@@ -209,16 +222,16 @@ const ClientDashboard: React.FC<ClientDashboardProps> = ({ dashboardData }) => {
           <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden mb-6">
             <div className="bg-accent/10 p-4 text-accent">
               <div className="flex items-center">
-                <GrokIcon className="w-6 h-6 mr-2" />
-                <h2 className="text-lg font-medium">Grok AI Assistant</h2>
+                <GroqIcon className="w-6 h-6 mr-2" />
+                <h2 className="text-lg font-medium">Groq AI Assistant</h2>
               </div>
             </div>
             <div className="p-4">
               <p className="text-sm text-gray-600 mb-4">
-                Grok can help write better job descriptions, evaluate proposals, and verify work quality.
+                Groq can help write better job descriptions, evaluate proposals, and verify work quality.
               </p>
               <CustomButton fullWidth variant="accent" size="sm">
-                Ask Grok AI
+                Ask Groq AI
               </CustomButton>
             </div>
           </div>
@@ -252,28 +265,79 @@ const ActiveJobs = () => {
         {[
           {
             title: "React Developer for Dashboard UI",
-            posted: "1 week ago",
+            posted: "April 23, 2025",
             applications: 12,
             hired: "Jane Doe",
             progress: 65,
             budget: "$3,500",
-            deadline: "Oct 30, 2025"
+            deadline: "April 30, 2025",
+            groqProgress: 68,
+            nextMilestone: "UI Components",
+            dueInDays: 0,
+            lastActivity: "2 hours ago",
+            daysLeft: 0,
+            tags: ["Frontend", "React", "UI/UX"],
+            projectHealth: "on-track"
           },
           {
             title: "Backend API Development",
-            posted: "2 weeks ago",
+            posted: "April 16, 2025",
             applications: 8,
             hired: "John Smith",
             progress: 40,
             budget: "$4,200",
-            deadline: "Nov 15, 2025"
+            deadline: "May 15, 2025",
+            groqProgress: 42,
+            nextMilestone: "Database Integration",
+            dueInDays: 5,
+            lastActivity: "Yesterday",
+            daysLeft: 15,
+            tags: ["Backend", "API", "Node.js"],
+            projectHealth: "needs-attention"
+          },
+          {
+            title: "Mobile App Testing",
+            posted: "April 10, 2025",
+            applications: 15,
+            hired: "Alex Johnson",
+            progress: 85,
+            budget: "$2,800",
+            deadline: "May 5, 2025",
+            groqProgress: 82,
+            nextMilestone: "Final Testing",
+            dueInDays: 2,
+            lastActivity: "Just now",
+            daysLeft: 5,
+            tags: ["QA", "Testing", "Mobile"],
+            projectHealth: "on-track"
           }
         ].map((job, index) => (
           <div key={index} className="border border-gray-200 rounded-lg hover:border-primary hover:shadow-sm transition-all p-4">
             <div className="flex justify-between items-start mb-3">
               <div>
-                <h3 className="font-medium text-gray-900 font-montserrat">{job.title}</h3>
-                <p className="text-sm text-gray-600">Freelancer: {job.hired}</p>
+                <div className="flex items-center">
+                  <h3 className="font-medium text-gray-900 font-montserrat">{job.title}</h3>
+                  <div className={`ml-3 w-2 h-2 rounded-full ${
+                    job.projectHealth === 'on-track' ? 'bg-green-500' :
+                    job.projectHealth === 'needs-attention' ? 'bg-yellow-500' : 'bg-red-500'
+                  }`}></div>
+                </div>
+                <div className="flex items-center text-xs text-gray-500 mt-1">
+                  <span className="mr-2">Started: {job.posted}</span>
+                  <span>Due: {job.deadline}</span>
+                  {job.daysLeft <= 3 && (
+                    <span className="ml-2 text-red-500 font-medium">
+                      {job.daysLeft === 0 ? "Due today!" : `${job.daysLeft} days left!`}
+                    </span>
+                  )}
+                </div>
+                <div className="flex flex-wrap gap-1 mt-2">
+                  {job.tags.map((tag, tagIndex) => (
+                    <span key={tagIndex} className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
               </div>
               <div className="flex space-x-2">
                 <Link to={`/jobs/${index}/details`}>
@@ -288,33 +352,72 @@ const ActiveJobs = () => {
                 </Link>
               </div>
             </div>
-
-            <div className="space-y-3 mb-4">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Progress</span>
-                <span className="font-medium text-gray-900">{job.progress}%</span>
+            
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div className="bg-white border border-gray-100 rounded-md p-3">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm text-gray-600">Freelancer Progress</span>
+                  <span className="font-medium text-gray-900 text-sm">{job.progress}%</span>
+                </div>
+                <Progress value={job.progress} className="h-2 bg-gradient-to-r from-[#0052FF] to-[#2563EB]" />
               </div>
-              <Progress value={job.progress} className="h-2 bg-gradient-to-r from-[#0052FF] to-[#2563EB]" />
+              <div className="bg-white border border-gray-100 rounded-md p-3">
+                <div className="flex justify-between items-center mb-2">
+                  <div className="flex items-center">
+                    <GroqIcon className="w-4 h-4 text-accent mr-1" />
+                    <span className="text-sm text-gray-600">AI Analysis</span>
+                  </div>
+                  <span className="font-medium text-gray-900 text-sm">{job.groqProgress}%</span>
+                </div>
+                <Progress value={job.groqProgress} className="h-2 bg-accent" />
+              </div>
             </div>
 
-            <div className="flex justify-between items-center text-xs">
-              <div className="space-x-3">
-                <span className="inline-flex items-center text-gray-600">
-                  <DollarSign className="w-3.5 h-3.5 mr-1" /> {job.budget}
-                </span>
-                <span className="inline-flex items-center text-gray-600">
-                  <Calendar className="w-3.5 h-3.5 mr-1" /> Due: {job.deadline}
-                </span>
-                <span className="inline-flex items-center text-gray-600">
-                  <Users className="w-3.5 h-3.5 mr-1" /> {job.applications} applications
-                </span>
+            <div className="border-t border-gray-100 pt-3 mt-2">
+              <div className="flex justify-between items-center">
+                <div className="flex items-center">
+                  <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center text-primary mr-2">
+                    {job.hired.split(' ').map(n => n[0]).join('')}
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">{job.hired}</p>
+                    <p className="text-xs text-gray-500">Last active: {job.lastActivity}</p>
+                  </div>
+                </div>
+                
+                <div className="flex space-x-3 text-xs">
+                  <div className="flex items-center text-gray-600">
+                    <Calendar className="w-3.5 h-3.5 mr-1" />
+                    <span>Next: {job.nextMilestone}</span>
+                    {job.dueInDays <= 2 && (
+                      <span className="ml-1 text-red-500 font-medium">
+                        {job.dueInDays === 0 ? "(Today)" : `(${job.dueInDays}d)`}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center text-gray-600">
+                    <DollarSign className="w-3.5 h-3.5 mr-1" />
+                    <span>{job.budget}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="mt-3 pt-3 border-t border-gray-100 flex justify-between items-center">
+              <div className="flex space-x-2">
+                <Link to={`/projects/${index}/screenshots`} className="flex items-center text-success hover:text-success/80 text-xs">
+                  <ScreenpipeIcon className="w-4 h-4 mr-1" />
+                  <span>View Screenshots</span>
+                </Link>
+                <Link to={`/projects/${index}/groq-analysis`} className="flex items-center text-accent hover:text-accent/80 text-xs">
+                  <GroqIcon className="w-4 h-4 mr-1" />
+                  <span>AI Analysis</span>
+                </Link>
               </div>
               <div className="flex space-x-2">
-                <Link to={`/projects/${index}/screenshots`} className="text-success hover:text-success/80">
-                  <ScreenpipeIcon className="w-4 h-4" />
-                </Link>
-                <Link to={`/messages/${index}`} className="text-primary hover:text-primary/80">
-                  <MessageSquare className="w-4 h-4" />
+                <Link to={`/messages/${index}`} className="flex items-center text-primary hover:text-primary/80 text-xs">
+                  <MessageSquare className="w-4 h-4 mr-1" />
+                  <span>Message</span>
                 </Link>
               </div>
             </div>

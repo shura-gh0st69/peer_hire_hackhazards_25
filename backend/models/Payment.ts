@@ -16,7 +16,7 @@ const PaymentSchema = new Schema({
   },
   currency: {
     type: String,
-    enum: ['ETH', 'USDC', 'USDT'],
+    enum: ['USDC', 'USDT'], // Removed ETH, keeping only stablecoins
     required: true
   },
   clientId: {

@@ -4,7 +4,7 @@ import { mockFreelancerDashboard, mockClientDashboard } from '@/mockData';
 import Cookies from 'js-cookie';
 
 // Constants for cache keys and TTLs
-const CACHE_KEYS = {
+export const CACHE_KEYS = {
     USER: "user_data",
     AUTH_TOKEN: "auth_token",
     PREFERRED_ROLE: "preferred_role",
@@ -93,7 +93,6 @@ interface User {
     email: string;
     role: UserRole;
     avatar?: string;
-    walletAddress?: string;
     profile?: {
         headline: any;
         company: string;
@@ -133,7 +132,6 @@ interface AuthContextType {
     login: (email: string, password: string) => Promise<void>;
     signUp: (email: string, password: string, role: UserRole, name: string, profile?: any) => Promise<void>;
     logout: () => void;
-    connectWallet: (address: string) => void;
     updateUserRole: (role: UserRole) => void;
     updateProfile: (profileData: Partial<User>) => Promise<void>;
     fetchDashboardData: () => Promise<void>;
@@ -167,13 +165,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     });
 
     const [currentRole, setCurrentRole] = useState<UserRole>(() => {
+        // First try to get the user's actual role if they're logged in
+        const userData = cacheUtils.localStorage.get(CACHE_KEYS.USER, CACHE_TTL.USER_PROFILE);
+        if (userData?.role) {
+            return userData.role;
+        }
+
+        // Then try to get the saved preferred role
         const savedRole = cacheUtils.localStorage.get(CACHE_KEYS.PREFERRED_ROLE) as UserRole;
         if (savedRole && (savedRole === "client" || savedRole === "freelancer")) {
             return savedRole;
         }
-        if (user?.role) {
-            return user.role;
-        }
+
+        // Default to client if no role is found
         return "client";
     });
 
@@ -244,6 +248,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             cacheUtils.localStorage.set(CACHE_KEYS.USER, user);
         } else {
             cacheUtils.localStorage.remove(CACHE_KEYS.USER);
+        }
+    }, [user]);
+
+    useEffect(() => {
+        if (user?.role) {
+            setCurrentRole(user.role);
+            cacheUtils.localStorage.set(CACHE_KEYS.PREFERRED_ROLE, user.role);
         }
     }, [user]);
 
@@ -363,32 +374,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
     };
 
-    const connectWallet = async (address: string) => {
-        if (user) {
-            try {
-                const response = await api.post("/users/wallet", { walletAddress: address });
-                const updatedUser = response.data.user;
-                setUser(updatedUser);
-                cacheUtils.localStorage.set(CACHE_KEYS.USER, updatedUser);
-            } catch (error: any) {
-                throw new Error(error.response?.data?.message || "Failed to connect wallet");
-            }
-        }
-    };
-
     const updateUserRole = async (role: UserRole) => {
-        setCurrentRole(role);
-        cacheUtils.localStorage.set(CACHE_KEYS.PREFERRED_ROLE, role);
+        if (!user) return;
 
-        if (user) {
-            try {
-                const response = await api.patch("/users/role", { role });
-                const updatedUser = response.data.user;
-                setUser(updatedUser);
-                cacheUtils.localStorage.set(CACHE_KEYS.USER, updatedUser);
-            } catch (error: any) {
-                console.error("Failed to update user role:", error);
-            }
+        try {
+            const response = await api.patch("/auth/users/role", { role });
+            const updatedUser = response.data.user;
+            setUser(updatedUser);
+            setCurrentRole(role);
+            cacheUtils.localStorage.set(CACHE_KEYS.USER, updatedUser);
+            cacheUtils.localStorage.set(CACHE_KEYS.PREFERRED_ROLE, role);
+        } catch (error: any) {
+            console.error("Failed to update user role:", error);
+            // Revert to previous role on error
+            setCurrentRole(user.role);
         }
     };
 
@@ -450,7 +449,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 login,
                 signUp,
                 logout,
-                connectWallet,
                 updateUserRole,
                 updateProfile,
                 fetchDashboardData,

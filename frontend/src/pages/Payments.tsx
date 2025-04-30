@@ -58,7 +58,7 @@ const Payments = () => {
                     <BaseIcon className="w-5 h-5 text-primary" />
                     <div>
                       <div className="text-sm text-gray-600">Escrow Balance</div>
-                      <div className="font-bold text-primary text-xl">{escrowBalance.toFixed(1)} ETH</div>
+                      <div className="font-bold text-primary text-xl">{escrowBalance.toFixed(1)} USDC</div>
                     </div>
                   </div>
                 </div>
@@ -85,8 +85,8 @@ const Payments = () => {
             <div className="flex space-x-2 p-4">
               <button
                 className={`px-4 py-2 text-sm font-medium rounded-md transition ${activeTab === 'all'
-                    ? 'bg-primary text-white'
-                    : 'text-gray-700 hover:bg-gray-100'
+                  ? 'bg-primary text-white'
+                  : 'text-gray-700 hover:bg-gray-100'
                   }`}
                 onClick={() => setActiveTab('all')}
               >
@@ -94,8 +94,8 @@ const Payments = () => {
               </button>
               <button
                 className={`px-4 py-2 text-sm font-medium rounded-md transition ${activeTab === 'escrow'
-                    ? 'bg-primary text-white'
-                    : 'text-gray-700 hover:bg-gray-100'
+                  ? 'bg-primary text-white'
+                  : 'text-gray-700 hover:bg-gray-100'
                   }`}
                 onClick={() => setActiveTab('escrow')}
               >
@@ -103,8 +103,8 @@ const Payments = () => {
               </button>
               <button
                 className={`px-4 py-2 text-sm font-medium rounded-md transition ${activeTab === 'payments'
-                    ? 'bg-primary text-white'
-                    : 'text-gray-700 hover:bg-gray-100'
+                  ? 'bg-primary text-white'
+                  : 'text-gray-700 hover:bg-gray-100'
                   }`}
                 onClick={() => setActiveTab('payments')}
               >
@@ -132,8 +132,8 @@ const Payments = () => {
                     <div className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                       <div className="flex items-center gap-3">
                         <div className={`h-10 w-10 rounded-full flex items-center justify-center ${transaction.to.includes('Escrow')
-                            ? 'bg-primary/10 text-primary'
-                            : 'bg-green-100 text-green-800'
+                          ? 'bg-primary/10 text-primary'
+                          : 'bg-green-100 text-green-800'
                           }`}>
                           {transaction.to.includes('Escrow')
                             ? <ArrowUpCircle className="h-5 w-5" />
@@ -144,8 +144,8 @@ const Payments = () => {
                           <div className="flex items-center text-sm text-gray-600">
                             <span className="mr-3">{new Date(transaction.timestamp).toLocaleDateString()}</span>
                             <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${transaction.status === 'Completed'
-                                ? 'bg-green-100 text-green-800'
-                                : 'bg-yellow-100 text-yellow-800'
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-yellow-100 text-yellow-800'
                               }`}>
                               {transaction.status}
                             </span>
@@ -156,8 +156,8 @@ const Payments = () => {
                       <div className="flex items-center space-x-3">
                         <div className="text-right">
                           <div className={`font-bold ${transaction.to.includes('Escrow')
-                              ? 'text-primary'
-                              : 'text-green-600'
+                            ? 'text-primary'
+                            : 'text-green-600'
                             }`}>
                             {transaction.to.includes('Escrow') ? '-' : '+'} {transaction.amount} {transaction.currency}
                           </div>

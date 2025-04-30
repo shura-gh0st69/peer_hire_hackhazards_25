@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { CustomButton } from '@/components/ui/custom-button';
-import { GrokIcon } from '@/components/icons';
+import { GroqIcon } from '@/components/icons';
 import { CheckCircle, XCircle, AlertTriangle, ExternalLink, ArrowLeft, FileEdit, Shield } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -57,8 +57,8 @@ const WorkVerification = () => {
     amount: 1500
   };
 
-  // Mock Grok verification data
-  const grokVerification = {
+  // Mock Groq verification data
+  const groqVerification = {
     score: 95,
     issues: [],
     positives: [
@@ -96,7 +96,7 @@ const WorkVerification = () => {
   const verificationSteps = [
     { step: 'Submission', completed: true },
     { step: 'Base Verification', completed: milestone.baseVerified },
-    { step: 'Grok Analysis', completed: true },
+    { step: 'Groq Analysis', completed: true },
     { step: 'Client Review', completed: false },
   ];
 
@@ -241,35 +241,35 @@ const WorkVerification = () => {
             </div>
           </div>
 
-          {/* Grok Verification */}
+          {/* Groq Verification */}
           <div className="p-6 border-b border-gray-200">
             <div className="flex items-start">
-              <GrokIcon className="w-6 h-6 text-accent mr-3 mt-1" />
+              <GroqIcon className="w-6 h-6 text-accent mr-3 mt-1" />
               <div className="w-full">
                 <h3 className="font-medium text-gray-900 flex items-center justify-between flex-wrap gap-2">
-                  <span>Grok AI Verification Report</span>
+                  <span>Groq AI Verification Report</span>
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                    {grokVerification.score}% Match
+                    {groqVerification.score}% Match
                   </span>
                 </h3>
 
                 <div className="mt-3 space-y-2">
-                  {grokVerification.positives.length > 0 && (
+                  {groqVerification.positives.length > 0 && (
                     <div>
                       <h4 className="text-sm font-medium text-gray-900 mb-1">Positives:</h4>
                       <ul className="list-disc pl-5 text-sm text-gray-600 space-y-1">
-                        {grokVerification.positives.map((item, i) => (
+                        {groqVerification.positives.map((item, i) => (
                           <li key={i}>{item}</li>
                         ))}
                       </ul>
                     </div>
                   )}
 
-                  {grokVerification.issues.length > 0 && (
+                  {groqVerification.issues.length > 0 && (
                     <div>
                       <h4 className="text-sm font-medium text-gray-900 mb-1">Issues:</h4>
                       <ul className="list-disc pl-5 text-sm text-gray-600 space-y-1">
-                        {grokVerification.issues.map((item, i) => (
+                        {groqVerification.issues.map((item, i) => (
                           <li key={i}>{item}</li>
                         ))}
                       </ul>
@@ -278,7 +278,7 @@ const WorkVerification = () => {
                 </div>
 
                 <div className="mt-4 text-sm text-gray-500">
-                  Generated on {new Date(grokVerification.timestamp).toLocaleString()}
+                  Generated on {new Date(groqVerification.timestamp).toLocaleString()}
                 </div>
               </div>
             </div>

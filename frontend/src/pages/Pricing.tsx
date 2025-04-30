@@ -89,7 +89,7 @@ const Pricing = () => {
                 </li>
                 <li className="flex items-start">
                   <Check className="w-5 h-5 text-primary mr-2 flex-shrink-0" />
-                  <span className="text-gray-600">Grok AI proposal assistance</span>
+                  <span className="text-gray-600">Groq AI proposal assistance</span>
                 </li>
                 <li className="flex items-start">
                   <Check className="w-5 h-5 text-primary mr-2 flex-shrink-0" />
@@ -153,7 +153,7 @@ const Pricing = () => {
             <div>
               <h3 className="text-lg font-medium text-gray-900 mb-2">What payment methods do you accept?</h3>
               <p className="text-gray-600">
-                We accept payments through Coinbase Smart Wallet in ETH and other supported cryptocurrencies on the Base network.
+                We accept payments through Coinbase Smart Wallet in USDC and other supported stablecoins on the Base network.
               </p>
             </div>
             <div>

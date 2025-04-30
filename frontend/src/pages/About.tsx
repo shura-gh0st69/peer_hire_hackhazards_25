@@ -1,6 +1,6 @@
 import React from 'react';
 import { CustomButton } from '@/components/ui/custom-button';
-import { BaseIcon, GrokIcon, ScreenpipeIcon } from '@/components/icons';
+import { BaseIcon, GroqIcon, ScreenpipeIcon } from '@/components/icons';
 import { Link } from 'react-router-dom';
 import { Users, Shield, Code, Globe, Heart, Target } from 'lucide-react';
 
@@ -9,22 +9,22 @@ const About = () => {
     {
       name: 'Jaykumar Patel',
       role: 'Fullstack Dev | The Blockchain Guy | Groq Guy',
-      image: 'https://i.pravatar.cc/150?img=1'
+      image: 'https://cdn3d.iconscout.com/3d/premium/thumb/profile-3d-icon-download-in-png-blend-fbx-gltf-file-formats--user-avatar-account-interface-pack-icons-5220669.png?f=webp'
     },
     {
       name: 'V Meghashreee',
       role: 'Frontend Lead | Screenpipe Integration',
-      image: 'https://i.pravatar.cc/150?img=2'
+      image: 'https://cdn3d.iconscout.com/3d/premium/thumb/profile-3d-icon-download-in-png-blend-fbx-gltf-file-formats--user-avatar-account-interface-pack-icons-5220669.png?f=webp'
     },
     {
       name: 'Tejaswini S',
       role: 'Backend Dev',
-      image: 'https://i.pravatar.cc/150?img=3'
+      image: 'https://cdn3d.iconscout.com/3d/premium/thumb/profile-3d-icon-download-in-png-blend-fbx-gltf-file-formats--user-avatar-account-interface-pack-icons-5220669.png?f=webp'
     },
     {
       name: 'Priyanshi Bhardwaj',
       role: 'AI Specialist',
-      image: 'https://i.pravatar.cc/150?img=4'
+      image: 'https://cdn3d.iconscout.com/3d/premium/thumb/profile-3d-icon-download-in-png-blend-fbx-gltf-file-formats--user-avatar-account-interface-pack-icons-5220669.png?f=webp'
     }
   ];
 
@@ -131,7 +131,7 @@ const About = () => {
             </div>
 
             <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 flex items-center">
-              <GrokIcon className="w-12 h-12 text-accent mr-4" />
+              <GroqIcon className="w-12 h-12 text-accent mr-4" />
               <div>
                 <h3 className="text-lg font-medium text-gray-900 mb-1">Groq</h3>
                 <p className="text-sm text-gray-600">Advanced AI capabilities</p>

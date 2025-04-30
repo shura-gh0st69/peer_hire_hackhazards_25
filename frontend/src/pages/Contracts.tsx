@@ -166,7 +166,7 @@ const Contracts = () => {
                                   </span>
                                 </div>
                                 <div className="flex items-center">
-                                  <span className="font-medium">{milestone.amount} ETH</span>
+                                  <span className="font-medium">{milestone.amount} USDC</span>
                                   {(milestone.status === "Completed" || milestone.status === "Released") && (
                                     <CheckCircle className="ml-2 h-4 w-4 text-green-500" />
                                   )}
@@ -188,7 +188,7 @@ const Contracts = () => {
                         </div>
                         <div>
                           <span className="text-gray-600">Total amount:</span>
-                          <span className="ml-2 font-medium">{contract.amount} ETH</span>
+                          <span className="ml-2 font-medium">{contract.amount} USDC</span>
                         </div>
                       </div>
                     </div>

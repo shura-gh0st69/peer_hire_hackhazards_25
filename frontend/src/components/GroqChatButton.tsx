@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { GrokIcon } from './icons';
+import { GroqIcon } from './icons';
 import { X } from 'lucide-react';
 import { CustomButton } from './ui/custom-button';
 
@@ -11,12 +10,12 @@ type Message = {
   timestamp: Date;
 };
 
-const GrokChatButton: React.FC = () => {
+const GroqChatButton: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: "Hello! I'm Grok, your AI assistant. How can I help you today with your freelancing needs?",
+      text: "Hello! I'm Groq, your AI assistant. How can I help you today with your freelancing needs?",
       fromUser: false,
       timestamp: new Date()
     }
@@ -40,7 +39,7 @@ const GrokChatButton: React.FC = () => {
       setMessages(prev => [...prev, userMessage]);
       setInput('');
       
-      // Simulate Grok response (in a real app, this would call the Grok API)
+      // Simulate Groq response (in a real app, this would call the Groq API)
       setTimeout(() => {
         const responses = [
           "I can help you find relevant jobs based on your skills and experience.",
@@ -49,14 +48,14 @@ const GrokChatButton: React.FC = () => {
           "Need help setting a competitive rate for this project? I can analyze market trends."
         ];
         
-        const grokResponse: Message = {
+        const groqResponse: Message = {
           id: Date.now().toString(),
           text: responses[Math.floor(Math.random() * responses.length)],
           fromUser: false,
           timestamp: new Date()
         };
         
-        setMessages(prev => [...prev, grokResponse]);
+        setMessages(prev => [...prev, groqResponse]);
       }, 1000);
     }
   };
@@ -77,7 +76,7 @@ const GrokChatButton: React.FC = () => {
           isOpen ? 'bg-white text-accent scale-0' : 'bg-accent text-white scale-100'
         }`}
       >
-        <GrokIcon className="w-6 h-6" />
+        <GroqIcon className="w-6 h-6" />
       </button>
 
       {/* Chat window */}
@@ -90,8 +89,8 @@ const GrokChatButton: React.FC = () => {
         {/* Header */}
         <div className="bg-accent px-4 py-3 flex items-center justify-between rounded-t-lg">
           <h3 className="text-lg font-medium text-white flex items-center">
-            <GrokIcon className="w-5 h-5 mr-2" />
-            Grok AI Assistant
+            <GroqIcon className="w-5 h-5 mr-2" />
+            Groq AI Assistant
           </h3>
           <button onClick={toggleChat} className="text-white hover:text-gray-200">
             <X className="w-5 h-5" />
@@ -127,7 +126,7 @@ const GrokChatButton: React.FC = () => {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Ask Grok anything..."
+              placeholder="Ask Groq anything..."
               className="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
             />
             <CustomButton variant="accent" onClick={handleSend}>
@@ -140,4 +139,4 @@ const GrokChatButton: React.FC = () => {
   );
 };
 
-export default GrokChatButton;
+export default GroqChatButton;

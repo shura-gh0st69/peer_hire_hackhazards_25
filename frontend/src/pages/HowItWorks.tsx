@@ -1,6 +1,6 @@
 import React from 'react';
 import { CustomButton } from '@/components/ui/custom-button';
-import { BaseIcon, GrokIcon, ScreenpipeIcon } from '@/components/icons';
+import { BaseIcon, GroqIcon, ScreenpipeIcon } from '@/components/icons';
 import { Link } from 'react-router-dom';
 import { Shield, Briefcase, Users, Zap, CheckCircle, ArrowRight } from 'lucide-react';
 
@@ -23,7 +23,7 @@ const HowItWorks = () => {
             <Briefcase className="w-8 h-8 text-primary mr-3" />
             <h2 className="text-2xl font-bold text-gray-900">For Freelancers</h2>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
               <div className="h-12 w-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
@@ -48,7 +48,7 @@ const HowItWorks = () => {
                 <span className="text-primary font-bold">2</span>
               </div>
               <h3 className="text-lg font-medium mb-2">Find & Win Projects</h3>
-              <p className="text-gray-600 mb-4">Browse AI-matched projects and submit winning proposals with Grok's assistance.</p>
+              <p className="text-gray-600 mb-4">Browse AI-matched projects and submit winning proposals with Groq's assistance.</p>
               <ul className="space-y-2">
                 <li className="flex items-start">
                   <CheckCircle className="w-4 h-4 text-primary mr-2 mt-1 flex-shrink-0" />
@@ -87,7 +87,7 @@ const HowItWorks = () => {
             <Users className="w-8 h-8 text-primary mr-3" />
             <h2 className="text-2xl font-bold text-gray-900">For Clients</h2>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
               <div className="h-12 w-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
@@ -148,7 +148,7 @@ const HowItWorks = () => {
         {/* Technologies */}
         <div className="mb-16">
           <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">Powered By Leading Technologies</h2>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 flex items-start">
               <BaseIcon className="w-8 h-8 text-primary mr-4 flex-shrink-0" />
@@ -159,7 +159,7 @@ const HowItWorks = () => {
             </div>
 
             <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 flex items-start">
-              <GrokIcon className="w-8 h-8 text-accent mr-4 flex-shrink-0" />
+              <GroqIcon className="w-8 h-8 text-accent mr-4 flex-shrink-0" />
               <div>
                 <h3 className="text-lg font-medium mb-2">Groq AI</h3>
                 <p className="text-gray-600">Advanced AI assistance for job matching and skill verification.</p>

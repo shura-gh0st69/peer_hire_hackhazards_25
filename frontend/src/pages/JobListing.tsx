@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, Clock, DollarSign, Search, Filter, Star, MapPin, List, LayoutGrid, Bookmark, ChevronLeft, ChevronRight, Users } from 'lucide-react';
 import { CustomButton } from '@/components/ui/custom-button';
-import { GrokIcon } from '@/components/icons';
+import { GroqIcon } from '@/components/icons';
 import { cn } from '@/lib/utils';
 import { jobs as mockJobs } from '@/mockData';
 
@@ -22,14 +22,14 @@ const JobListing = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 font-poppins">
-      <div className="flex flex-col md:flex-row justify-between items-start pt-32 md:items-center mb-6">
+      <div className=" pt-28 flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Find Your Next Project</h1>
           <p className="text-gray-600">Browse job opportunities from verified clients</p>
         </div>
         <div className="mt-4 md:mt-0">
           <CustomButton
-            leftIcon={<GrokIcon className="w-4 h-4" />}
+            leftIcon={<GroqIcon className="w-4 h-4" />}
             variant="accent"
           >
             Get AI Recommendations
@@ -184,18 +184,18 @@ const JobListing = () => {
 
           <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden mb-6 p-4">
             <div className="flex items-start">
-              <GrokIcon className="w-5 h-5 text-accent mr-3 mt-0.5" />
+              <GroqIcon className="w-5 h-5 text-accent mr-3 mt-0.5" />
               <div>
                 <h3 className="font-medium text-gray-900">AI Job Assistant</h3>
                 <p className="mt-1 text-sm text-gray-600">
-                  Let Grok find the perfect jobs for your skills and experience.
+                  Let Groq find the perfect jobs for your skills and experience.
                 </p>
                 <CustomButton
                   variant="accent"
                   size="sm"
                   className="mt-3"
                 >
-                  Get Personalized Jobs
+                  Ask Groq AI
                 </CustomButton>
               </div>
             </div>

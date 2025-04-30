@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { 
-  BriefcaseIcon, 
-  UserIcon, 
-  HomeIcon, 
-  FileTextIcon, 
-  CreditCardIcon, 
-  Menu, 
-  X, 
-  PlusCircle, 
+import {
+  BriefcaseIcon,
+  UserIcon,
+  HomeIcon,
+  FileTextIcon,
+  CreditCardIcon,
+  Menu,
+  X,
+  PlusCircle,
   MessageSquare,
   UsersIcon,
   Wallet,
@@ -63,7 +63,7 @@ export default function FloatingNavbar({ userType }: FloatingNavbarProps) {
   const signupDropdownTimeout = useRef<NodeJS.Timeout>();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  
+
   const isLoggedIn = !!user;
   const currentRole = userType || user?.role || 'client';
 
@@ -120,9 +120,9 @@ export default function FloatingNavbar({ userType }: FloatingNavbarProps) {
   };
 
   // Select the appropriate navigation links based on authentication status and role
-  const navLinks = isLoggedIn 
-    ? currentRole === 'client' 
-      ? clientNavLinks 
+  const navLinks = isLoggedIn
+    ? currentRole === 'client'
+      ? clientNavLinks
       : freelancerNavLinks
     : publicNavLinks;
 
@@ -134,7 +134,7 @@ export default function FloatingNavbar({ userType }: FloatingNavbarProps) {
         setDropdown(false);
       }
     }
-    
+
     if (dropdown) document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, [dropdown]);
@@ -144,7 +144,7 @@ export default function FloatingNavbar({ userType }: FloatingNavbarProps) {
       style={{
         borderRadius: 16,
         minWidth: 320,
-        maxWidth: 800,
+        maxWidth: 835,
         animation: "fade-in 350ms",
       }}
     >
@@ -193,7 +193,7 @@ export default function FloatingNavbar({ userType }: FloatingNavbarProps) {
               Log in
             </Button>
           </Link>
-          <div 
+          <div
             className="relative"
             onMouseEnter={handleSignupMouseEnter}
             onMouseLeave={handleSignupMouseLeave}
@@ -204,8 +204,8 @@ export default function FloatingNavbar({ userType }: FloatingNavbarProps) {
             <div className={cn(
               "absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-2",
               "transition-all duration-300 ease-in-out transform",
-              signupDropdownOpen 
-                ? "opacity-100 visible translate-y-0" 
+              signupDropdownOpen
+                ? "opacity-100 visible translate-y-0"
                 : "opacity-0 invisible -translate-y-2 pointer-events-none"
             )}>
               <Link to="/auth/freelancer-signup" className="block px-4 py-2 text-sm text-gray-700 hover:bg-primary/10 hover:text-primary transition-colors duration-200">
@@ -220,7 +220,7 @@ export default function FloatingNavbar({ userType }: FloatingNavbarProps) {
       )}
 
       {/* Mobile menu button */}
-      <button 
+      <button
         className="md:hidden p-1 rounded-full hover:bg-primary/10 transition-transform duration-200 ease-in-out"
         onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
         style={{
@@ -252,7 +252,7 @@ export default function FloatingNavbar({ userType }: FloatingNavbarProps) {
                 {nav.label}
               </Link>
             ))}
-            
+
             {/* Mobile authentication links */}
             {!isLoggedIn ? (
               <div className="flex flex-col pt-2 gap-2 border-t border-gray-100 mt-2">
@@ -271,8 +271,8 @@ export default function FloatingNavbar({ userType }: FloatingNavbarProps) {
                     Profile
                   </Button>
                 </Link>
-                <Button 
-                  variant="default" 
+                <Button
+                  variant="default"
                   className="w-full justify-center"
                   onClick={() => {
                     handleLogout();

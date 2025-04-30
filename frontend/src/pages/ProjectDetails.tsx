@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { CustomButton } from '@/components/ui/custom-button';
-import { GrokIcon } from '@/components/icons';
+import { GroqIcon } from '@/components/icons';
 import { UserIcon, CheckCircle, Calendar, AlertTriangle, FileTextIcon, MessageSquare } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -177,9 +176,9 @@ const ProjectDetails = () => {
 
                 <div className="mt-4 bg-accent/5 p-4 rounded-lg border border-accent/10">
                   <div className="flex items-start">
-                    <GrokIcon className="w-5 h-5 text-accent mr-3 mt-0.5" />
+                    <GroqIcon className="w-5 h-5 text-accent mr-3 mt-0.5" />
                     <div>
-                      <h3 className="font-medium text-gray-900">Grok AI Insight</h3>
+                      <h3 className="font-medium text-gray-900">Groq AI Insight</h3>
                       <p className="mt-1 text-sm text-gray-600">
                         This project is on track. The freelancer has consistently delivered high-quality work ahead of deadlines.
                       </p>
@@ -200,8 +199,8 @@ const ProjectDetails = () => {
                   <div className="bg-gray-50 p-4 flex justify-between items-center">
                     <div className="flex items-center">
                       <span className={`h-6 w-6 rounded-full flex items-center justify-center text-xs mr-3 ${milestone.completed
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-gray-100 text-gray-600'
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-gray-100 text-gray-600'
                         }`}>
                         {index + 1}
                       </span>

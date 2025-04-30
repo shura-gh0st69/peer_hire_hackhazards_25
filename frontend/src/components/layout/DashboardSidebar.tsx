@@ -13,7 +13,8 @@ import {
     User,
     PlusCircle,
     FileText,
-    UploadCloud
+    UploadCloud,
+    Users
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
@@ -55,8 +56,9 @@ export function DashboardSidebar() {
 
     // Role-specific menu items
     const clientMenuItems = [
+        { icon: Users, label: "Find Freelancers", path: "/freelancers" },
         { icon: PlusCircle, label: "Post Job", path: "/post-job" },
-        { icon: FileText, label: "Posted Jobs", path: "/jobs?filter=posted" },
+        { icon: FileText, label: "Posted Jobs", path: "/jobs/posted" },
         { icon: Briefcase, label: "Pending Bids", path: "/jobs?filter=pending-bids" },
     ];
 
@@ -115,12 +117,12 @@ export function DashboardSidebar() {
             <aside className={cn(
                 "bg-white border-r border-gray-200 shadow-sm",
                 "fixed md:sticky top-[5rem] bottom-0 left-0",
-                "w-[280px] md:w-64 md:min-h-[calc(100vh-5rem)]",
+                "w-[250px] md:w-64 md:min-h-[calc(100vh-5rem)]",
                 "transition-transform duration-300 ease-in-out z-30",
                 "hidden md:block", // Hide on mobile, show on desktop
                 isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
             )}>
-                <div className="flex flex-col h-full">
+                <div className="flex flex-col mt-8 h-full">
                     {/* Sidebar header */}
                     <div className="p-4 border-b border-gray-200">
                         <h2 className="text-lg font-semibold text-gray-800">
