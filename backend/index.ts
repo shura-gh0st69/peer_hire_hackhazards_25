@@ -59,9 +59,10 @@ const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 // Get allowed origins from environment variables
 // Support both single URL and comma-separated URLs
 let frontendURL = process.env.FRONTEND_URL || 'https://hackhazards25-peer-hire.onrender.com';
+// Convert to array if comma-separated string
+const allowedOrigins = frontendURL.split(',').map(origin => origin.trim());
 
-
-console.log('Allowed Origins:', frontendURL);
+console.log('Allowed Origins:', allowedOrigins);
 
 const app = new Hono();
 
@@ -70,13 +71,16 @@ app.use('*', requestLogger);
 
 // Setup CORS middleware with support for multiple origins
 app.use('*', cors({
-  origin: (origin, c) => {
+  origin: (origin) => {
     // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return null;
+    if (!origin) return '*';
     
-
-    if (origin === frontendURL) return origin;
-    return '';
+    // Check if the origin is in our allowed list
+    if (allowedOrigins.includes(origin)) {
+      return origin;
+    }
+    // Return null for non-allowed origins
+    return null;
   },
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowHeaders: ['Authorization', 'Content-Type', 'Accept'],
