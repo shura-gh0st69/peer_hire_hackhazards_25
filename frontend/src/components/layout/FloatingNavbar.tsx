@@ -144,7 +144,7 @@ export default function FloatingNavbar({ userType }: FloatingNavbarProps) {
       style={{
         borderRadius: 16,
         minWidth: 320,
-        maxWidth: 1000,
+        maxWidth: 835,
         animation: "fade-in 350ms",
       }}
     >
