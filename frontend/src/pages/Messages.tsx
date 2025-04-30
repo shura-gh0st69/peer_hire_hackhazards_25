@@ -1,19 +1,60 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useAuth } from '@/context/AuthContext';
+import { dataService } from '@/services/DataService';
+import type { Conversation, Message } from '@/types';
 import { CustomButton } from '@/components/ui/custom-button';
 import { Send, Paperclip, UserIcon } from 'lucide-react';
 import { GroqIcon } from '@/components/icons';
-import { conversations as mockConversations, messages as mockMessages, getMessagesByConversationId } from '@/mockData';
+import { toast } from 'sonner';
 
-const Messages = () => {
-  const [selectedConversation, setSelectedConversation] = useState(mockConversations[0]);
+export const Messages = () => {
+  const { user } = useAuth();
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [currentConversation, setCurrentConversation] = useState<Conversation | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [showGroqSuggestions, setShowGroqSuggestions] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Get messages for the selected conversation
-  const conversationMessages = selectedConversation ?
-    getMessagesByConversationId(selectedConversation.id) : [];
+  useEffect(() => {
+    const fetchConversations = async () => {
+      if (!user?.id) return;
 
-  const userType = 'client'; // In a real app, from context/auth
+      try {
+        setIsLoading(true);
+        const conversationsData = await dataService.getConversations(user.id);
+        setConversations(conversationsData);
+
+        // Set first conversation as current if none selected
+        if (conversationsData.length > 0 && !currentConversation) {
+          setCurrentConversation(conversationsData[0]);
+        }
+      } catch (error) {
+        console.error('Error fetching conversations:', error);
+        toast.error('Failed to load conversations');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchConversations();
+  }, [user?.id]);
+
+  useEffect(() => {
+    const fetchMessages = async () => {
+      if (!currentConversation?.id) return;
+
+      try {
+        const messagesData = await dataService.getMessages(currentConversation.id);
+        setMessages(messagesData);
+      } catch (error) {
+        console.error('Error fetching messages:', error);
+        toast.error('Failed to load messages');
+      }
+    };
+
+    fetchMessages();
+  }, [currentConversation?.id]);
 
   const handleSendMessage = () => {
     if (newMessage.trim()) {
@@ -29,7 +70,6 @@ const Messages = () => {
 
   return (
     <div className="bg-gray-50 min-h-screen pt-16 pb-12">
-
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
         <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200 flex flex-col md:flex-row h-[calc(100vh-180px)]">
           {/* Conversation List */}
@@ -38,12 +78,12 @@ const Messages = () => {
               <h2 className="font-semibold text-lg">Messages</h2>
             </div>
             <div className="overflow-y-auto flex-grow">
-              {mockConversations.map(conversation => (
+              {conversations.map(conversation => (
                 <div
                   key={conversation.id}
-                  className={`p-4 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0 ${selectedConversation.id === conversation.id ? 'bg-primary/5' : ''
+                  className={`p-4 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0 ${currentConversation?.id === conversation.id ? 'bg-primary/5' : ''
                     }`}
-                  onClick={() => setSelectedConversation(conversation)}
+                  onClick={() => setCurrentConversation(conversation)}
                 >
                   <div className="flex items-start space-x-3">
                     <div className="h-10 w-10 rounded-full bg-primary text-white flex items-center justify-center flex-shrink-0">
@@ -81,10 +121,10 @@ const Messages = () => {
             <div className="p-4 border-b border-gray-200 flex justify-between items-center">
               <div className="flex items-center space-x-3">
                 <div className="h-10 w-10 rounded-full bg-primary text-white flex items-center justify-center">
-                  {selectedConversation.user && selectedConversation.user.avatar ? (
+                  {currentConversation?.user?.avatar ? (
                     <img
-                      src={selectedConversation.user.avatar}
-                      alt={selectedConversation.user.name}
+                      src={currentConversation.user.avatar}
+                      alt={currentConversation.user.name}
                       className="h-10 w-10 rounded-full"
                     />
                   ) : (
@@ -93,11 +133,11 @@ const Messages = () => {
                 </div>
                 <div>
                   <h3 className="font-medium text-gray-900">
-                    {selectedConversation.user ? selectedConversation.user.name : 'Unknown'}
+                    {currentConversation?.user?.name || 'Unknown'}
                   </h3>
                   <p className="text-xs text-gray-500">
-                    {userType === 'client' ? 'Freelancer' : 'Client'} •
-                    {selectedConversation.user?.online ? ' Online' : ' Last active recently'}
+                    {user?.role === 'client' ? 'Freelancer' : 'Client'} •
+                    {currentConversation?.user?.online ? ' Online' : ' Last active recently'}
                   </p>
                 </div>
               </div>
@@ -113,7 +153,7 @@ const Messages = () => {
 
             {/* Messages */}
             <div className="flex-grow overflow-y-auto p-4 space-y-4">
-              {conversationMessages.map(message => (
+              {messages.map(message => (
                 <div key={message.id} className={`flex ${message.sender === 'self' ? 'justify-end' : 'justify-start'}`}>
                   <div className={`max-w-[80%] ${message.sender === 'self'
                     ? 'bg-primary text-white rounded-tl-lg rounded-tr-sm rounded-br-lg rounded-bl-lg'

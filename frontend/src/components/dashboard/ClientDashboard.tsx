@@ -34,20 +34,18 @@ interface ClientDashboardProps {
 }
 
 const ClientDashboard: React.FC<ClientDashboardProps> = ({ dashboardData }) => {
-  const [activeTab, setActiveTab] = useState<'active' | 'completed' | 'drafts' | 'bids'>('active');
+  const [activeTab, setActiveTab] = useState<'active' | 'pending-approval' | 'completed'>('active');
 
   const renderTabContent = () => {
     switch (activeTab) {
       case 'active':
-        return <ActiveJobs />;
+        return <ActiveProjects />;
+      case 'pending-approval':
+        return <PendingApproval bids={dashboardData.pendingBids} />;
       case 'completed':
-        return <CompletedJobs />;
-      case 'drafts':
-        return <DraftJobs />;
-      case 'bids':
-        return <PendingBids bids={dashboardData.pendingBids} />;
+        return <CompletedProjects />;
       default:
-        return <ActiveJobs />;
+        return <ActiveProjects />;
     }
   };
 
@@ -88,16 +86,16 @@ const ClientDashboard: React.FC<ClientDashboardProps> = ({ dashboardData }) => {
                     }`}
                   onClick={() => setActiveTab('active')}
                 >
-                  Active Jobs
+                  Active Projects
                 </button>
                 <button
-                  className={`flex-1 py-3 px-4 text-sm font-medium text-center ${activeTab === 'bids'
+                  className={`flex-1 py-3 px-4 text-sm font-medium text-center ${activeTab === 'pending-approval'
                     ? 'text-primary border-b-2 border-primary'
                     : 'text-gray-500 hover:text-gray-700'
                     }`}
-                  onClick={() => setActiveTab('bids')}
+                  onClick={() => setActiveTab('pending-approval')}
                 >
-                  Pending Bids
+                  Proposals
                 </button>
                 <button
                   className={`flex-1 py-3 px-4 text-sm font-medium text-center ${activeTab === 'completed'
@@ -106,16 +104,7 @@ const ClientDashboard: React.FC<ClientDashboardProps> = ({ dashboardData }) => {
                     }`}
                   onClick={() => setActiveTab('completed')}
                 >
-                  Completed Jobs
-                </button>
-                <button
-                  className={`flex-1 py-3 px-4 text-sm font-medium text-center ${activeTab === 'drafts'
-                    ? 'text-primary border-b-2 border-primary'
-                    : 'text-gray-500 hover:text-gray-700'
-                    }`}
-                  onClick={() => setActiveTab('drafts')}
-                >
-                  Drafts
+                  Completed
                 </button>
               </div>
             </div>
@@ -237,7 +226,7 @@ const ClientDashboard: React.FC<ClientDashboardProps> = ({ dashboardData }) => {
           </div>
 
           <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
-            <div className="bg-success/10 p-4 text-white">
+            <div className="bg-success/10 p-4 text-success">
               <div className="flex items-center">
                 <ScreenpipeIcon className="w-6 h-6 mr-2" />
                 <h2 className="text-lg font-medium font-montserrat">Screenpipe</h2>
@@ -258,7 +247,7 @@ const ClientDashboard: React.FC<ClientDashboardProps> = ({ dashboardData }) => {
   );
 };
 
-const ActiveJobs = () => {
+const ActiveProjects = () => {
   return (
     <div>
       <div className="space-y-4">
@@ -317,17 +306,16 @@ const ActiveJobs = () => {
               <div>
                 <div className="flex items-center">
                   <h3 className="font-medium text-gray-900 font-montserrat">{job.title}</h3>
-                  <div className={`ml-3 w-2 h-2 rounded-full ${
-                    job.projectHealth === 'on-track' ? 'bg-green-500' :
-                    job.projectHealth === 'needs-attention' ? 'bg-yellow-500' : 'bg-red-500'
-                  }`}></div>
+                  <div className={`ml-3 w-2 h-2 rounded-full ${job.projectHealth === 'on-track' ? 'bg-green-500' :
+                      job.projectHealth === 'needs-attention' ? 'bg-yellow-500' : 'bg-red-500'
+                    }`}></div>
                 </div>
                 <div className="flex items-center text-xs text-gray-500 mt-1">
                   <span className="mr-2">Started: {job.posted}</span>
                   <span>Due: {job.deadline}</span>
                   {job.daysLeft <= 3 && (
-                    <span className="ml-2 text-red-500 font-medium">
-                      {job.daysLeft === 0 ? "Due today!" : `${job.daysLeft} days left!`}
+                    <span className="ml-2 text-blue-500 font-medium">
+                      {job.daysLeft === 0 ? "Will be delivered today!" : `Will be delivered in ${job.daysLeft} days`}
                     </span>
                   )}
                 </div>
@@ -352,7 +340,7 @@ const ActiveJobs = () => {
                 </Link>
               </div>
             </div>
-            
+
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div className="bg-white border border-gray-100 rounded-md p-3">
                 <div className="flex justify-between items-center mb-2">
@@ -384,14 +372,14 @@ const ActiveJobs = () => {
                     <p className="text-xs text-gray-500">Last active: {job.lastActivity}</p>
                   </div>
                 </div>
-                
+
                 <div className="flex space-x-3 text-xs">
                   <div className="flex items-center text-gray-600">
                     <Calendar className="w-3.5 h-3.5 mr-1" />
                     <span>Next: {job.nextMilestone}</span>
                     {job.dueInDays <= 2 && (
-                      <span className="ml-1 text-red-500 font-medium">
-                        {job.dueInDays === 0 ? "(Today)" : `(${job.dueInDays}d)`}
+                      <span className="ml-1 text-blue-500 font-medium">
+                        {job.dueInDays === 0 ? "(Delivery today)" : `(in ${job.dueInDays}d)`}
                       </span>
                     )}
                   </div>
@@ -402,7 +390,7 @@ const ActiveJobs = () => {
                 </div>
               </div>
             </div>
-            
+
             <div className="mt-3 pt-3 border-t border-gray-100 flex justify-between items-center">
               <div className="flex space-x-2">
                 <Link to={`/projects/${index}/screenshots`} className="flex items-center text-success hover:text-success/80 text-xs">
@@ -428,7 +416,7 @@ const ActiveJobs = () => {
   );
 };
 
-const PendingBids = ({ bids }: { bids: any[] }) => {
+const PendingApproval = ({ bids }: { bids: any[] }) => {
   return (
     <div>
       <div className="space-y-4">
@@ -476,7 +464,7 @@ const PendingBids = ({ bids }: { bids: any[] }) => {
   );
 };
 
-const CompletedJobs = () => {
+const CompletedProjects = () => {
   return (
     <div>
       <div className="space-y-4">
@@ -528,60 +516,6 @@ const CompletedJobs = () => {
               <Link to={`/jobs/${index}/details`} className="text-primary hover:text-primary/80 text-xs font-medium">
                 View Details
               </Link>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
-
-const DraftJobs = () => {
-  return (
-    <div>
-      <div className="space-y-4">
-        {[
-          {
-            title: "Social Media Manager",
-            created: "Sept 15, 2025",
-            budget: "$1,500-$2,500",
-            category: "Marketing"
-          },
-          {
-            title: "Mobile App UI Design",
-            created: "Sept 10, 2025",
-            budget: "$2,000-$3,000",
-            category: "Design"
-          }
-        ].map((job, index) => (
-          <div key={index} className="border border-gray-200 rounded-lg hover:border-primary hover:shadow-sm transition-all p-4">
-            <div className="flex justify-between items-start mb-3">
-              <div>
-                <h3 className="font-medium text-gray-900">{job.title}</h3>
-                <p className="text-sm text-gray-600">Category: {job.category}</p>
-              </div>
-              <div className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-full">
-                Draft
-              </div>
-            </div>
-
-            <div className="flex justify-between items-center text-xs">
-              <div className="space-x-3">
-                <span className="inline-flex items-center text-gray-600">
-                  <Calendar className="w-3.5 h-3.5 mr-1" /> Created: {job.created}
-                </span>
-                <span className="inline-flex items-center text-gray-600">
-                  <DollarSign className="w-3.5 h-3.5 mr-1" /> {job.budget}
-                </span>
-              </div>
-              <div className="flex space-x-2">
-                <Link to={`/edit-job/${index}`} className="text-primary hover:text-primary/80">
-                  <Edit className="w-4 h-4" />
-                </Link>
-                <Link to={`/publish-job/${index}`} className="text-accent hover:text-accent/80">
-                  <Upload className="w-4 h-4" />
-                </Link>
-              </div>
             </div>
           </div>
         ))}

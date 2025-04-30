@@ -1,18 +1,39 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useAuth } from '@/context/AuthContext';
+import { dataService } from '@/services/DataService';
+import type { Payment } from '@/types';
 import { CustomButton } from '@/components/ui/custom-button';
 import { BaseIcon } from '@/components/icons';
 import { CreditCard, DollarSign, ArrowDownCircle, ArrowUpCircle, FileTextIcon } from 'lucide-react';
 import { toast } from 'sonner';
-import { payments as mockPayments } from '@/mockData';
 
-const Payments = () => {
-  const [transactions, setTransactions] = useState(mockPayments);
+export const Payments = () => {
+  const { user } = useAuth();
+  const [payments, setPayments] = useState<Payment[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'all' | 'escrow' | 'payments'>('all');
+
+  useEffect(() => {
+    const fetchPayments = async () => {
+      if (!user?.id) return;
+      try {
+        setIsLoading(true);
+        const paymentsData = await dataService.getPaymentsByUserId(user.id);
+        setPayments(paymentsData);
+      } catch (error) {
+        console.error('Error fetching payments:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPayments();
+  }, [user?.id]);
 
   // Filter transactions based on the active tab
   const filteredTransactions = activeTab === 'all'
-    ? transactions
-    : transactions.filter(tx => {
+    ? payments
+    : payments.filter(tx => {
       if (activeTab === 'escrow') {
         return tx.from.includes('Ltd') || tx.from.includes('Inc') || tx.to.includes('Escrow');
       } else {
@@ -21,7 +42,7 @@ const Payments = () => {
     });
 
   // Calculate total escrow balance
-  const escrowBalance = transactions
+  const escrowBalance = payments
     .filter(tx => tx.to.includes('Escrow') && tx.status === 'Pending')
     .reduce((total, tx) => total + parseFloat(tx.amount), 0);
 

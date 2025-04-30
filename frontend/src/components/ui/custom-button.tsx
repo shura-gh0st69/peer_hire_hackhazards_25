@@ -1,9 +1,8 @@
-
 import { cn } from '@/lib/utils';
 import { ButtonHTMLAttributes, forwardRef } from 'react';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'accent' | 'success' | 'outline' | 'ghost';
+  variant?: 'primary' | 'secondary' | 'accent' | 'success' | 'outline' | 'ghost' | 'destructive';
   size?: 'sm' | 'md' | 'lg';
   fullWidth?: boolean;
   leftIcon?: React.ReactNode;
@@ -11,15 +10,15 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const CustomButton = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ 
-    className, 
-    variant = 'primary', 
-    size = 'md', 
-    fullWidth, 
-    leftIcon, 
-    rightIcon, 
-    children, 
-    ...props 
+  ({
+    className,
+    variant = 'primary',
+    size = 'md',
+    fullWidth,
+    leftIcon,
+    rightIcon,
+    children,
+    ...props
   }, ref) => {
     return (
       <button
@@ -32,6 +31,7 @@ const CustomButton = forwardRef<HTMLButtonElement, ButtonProps>(
             'bg-secondary text-secondary-foreground hover:bg-secondary/90': variant === 'secondary',
             'bg-accent text-accent-foreground hover:bg-accent/90': variant === 'accent',
             'bg-success text-accent-foreground hover:bg-success/90': variant === 'success',
+            'bg-red-600 text-white hover:bg-red-700': variant === 'destructive',
             'border border-input bg-transparent hover:bg-primary/10 hover:text-primary': variant === 'outline',
             'bg-transparent hover:bg-accent/10 hover:text-accent': variant === 'ghost',
             'text-sm px-3 py-1.5': size === 'sm',

@@ -1,36 +1,56 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { Calendar, Clock, DollarSign, Star, MapPin, ArrowLeft, Eye, MessageSquare, Shield } from 'lucide-react';
 import { CustomButton } from '@/components/ui/custom-button';
 import { BaseIcon, GroqIcon, ScreenpipeIcon } from '@/components/icons';
-import { getJobById, getBidsByJobId, jobs as allJobs, Client } from '@/mockData';
+import { useAuth } from '@/context/AuthContext';
+import { dataService } from '@/services/DataService';
+import type { Job, Bid } from '@/types';
 
 const JobDetails = () => {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
+  const { user } = useAuth();
   const navigate = useNavigate();
+  const [job, setJob] = useState<Job | null>(null);
+  const [bids, setBids] = useState<Bid[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [showBidForm, setShowBidForm] = useState(false);
 
-  // Get job details from centralized mock data
-  const job = id ? getJobById(id) : null;
-  const jobBids = id ? getBidsByJobId(id) : [];
+  useEffect(() => {
+    const fetchJobDetails = async () => {
+      if (!id) return;
+      try {
+        setIsLoading(true);
+        const [jobData, bidsData] = await Promise.all([
+          dataService.getJobById(id),
+          dataService.getBidsByJobId(id)
+        ]);
+        setJob(jobData);
+        setBids(bidsData);
+      } catch (error) {
+        console.error('Error fetching job details:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  // Navigate back to job listing if job not found
+    fetchJobDetails();
+  }, [id]);
+
   useEffect(() => {
     if (!job && id) {
       navigate('/jobs');
     }
   }, [job, id, navigate]);
 
-  // Get similar jobs (excluding current one)
-  const similarJobs = allJobs
-    .filter(j => j.id !== id && j.category === job?.category)
-    .slice(0, 2);
+  const similarJobs = job
+    ? job.similarJobs.slice(0, 2)
+    : [];
 
-  if (!job) {
+  if (!job || isLoading) {
     return null;
   }
 
-  // Calculate reviews count based on available data (projectsPosted)
   const clientReviewsCount = Math.floor(job.client.projectsPosted * 0.8);
 
   return (
