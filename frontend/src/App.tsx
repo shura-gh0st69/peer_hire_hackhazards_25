@@ -52,7 +52,7 @@ import PostedJobs from '@/pages/PostedJobs';
 const queryClient = new QueryClient();
 
 const App = () => {
-  let [isLoading, setIsLoading] = useState(true);
+  let [isLoading, setIsLoading] = useState(false);
   let [retryCount, setRetryCount] = useState(0);
   const MAX_RETRIES = 5;
 
@@ -68,7 +68,11 @@ const App = () => {
 
     const checkBackend = async () => {
       try {
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}/spinup`);
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/spinup`, {
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
         if (response.status >= 200 && response.status < 300) {
           setIsLoading(false);
           setRetryCount(0);
