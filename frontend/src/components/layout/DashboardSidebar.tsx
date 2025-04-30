@@ -64,7 +64,9 @@ export function DashboardSidebar() {
 
     const freelancerMenuItems = [
         { icon: Briefcase, label: "Browse Jobs", path: "/jobs" },
-        { icon: UploadCloud, label: "Submit Deliverables", path: "/job-submission" },
+        { icon: FileText, label: "My Proposals", path: "/proposals" },
+        { icon: Briefcase, label: "Active Jobs", path: "/jobs/active" },
+        { icon: User, label: "Portfolio", path: "/portfolio" },
     ];
 
     // Combine the appropriate menu items based on user role

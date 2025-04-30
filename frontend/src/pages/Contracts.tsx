@@ -1,25 +1,43 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useAuth } from '@/context/AuthContext';
+import { dataService } from '@/services/DataService';
 import { CustomButton } from '@/components/ui/custom-button';
 import { FileTextIcon, UserIcon, CheckCircle, AlertCircle, Clock } from 'lucide-react';
-import { contracts as mockContracts, Contract } from '@/mockData';
+import type { Contract } from '@/types';
 
-const Contracts = () => {
-  const [contracts, setContracts] = useState(mockContracts);
+export const Contracts = () => {
+  const { user } = useAuth();
+  const [contracts, setContracts] = useState<Contract[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'Active' | 'Pending' | 'Completed'>('Active');
 
-  // Filter contracts based on the active tab
-  const filteredContracts = contracts.filter(contract =>
-    contract.status === activeTab ||
-    // Handle the "Pending" case separately since our Contract type doesn't have a "Pending" status
-    (activeTab === 'Pending' && (contract.status === 'Disputed' || false))
-  );
+  useEffect(() => {
+    const fetchContracts = async () => {
+      if (!user?.id) return;
+      try {
+        setIsLoading(true);
+        const contractsData = await dataService.getContractsByUserId(user.id, user.role);
+        setContracts(contractsData);
+      } catch (error) {
+        console.error('Error fetching contracts:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  // In a real app, this would come from auth context
-  const userType = 'client';
+    fetchContracts();
+  }, [user?.id, user?.role]);
+
+  // Filter contracts based on the active tab
+  const filteredContracts = contracts.filter(contract => {
+    if (activeTab === 'Active') return contract.status === 'Active';
+    if (activeTab === 'Completed') return contract.status === 'Completed';
+    if (activeTab === 'Pending') return contract.status === 'Pending';
+    return false;
+  });
 
   return (
     <div className="bg-gray-50 min-h-screen pt-16 pb-12">
-
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
         <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
           {/* Header */}
@@ -28,7 +46,7 @@ const Contracts = () => {
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">Contracts</h1>
                 <p className="text-gray-600 mt-1">
-                  {userType === 'client'
+                  {user?.role === 'client'
                     ? 'Manage your contracts with freelancers'
                     : 'Manage your contracts with clients'}
                 </p>
@@ -71,7 +89,12 @@ const Contracts = () => {
 
           {/* Contract List */}
           <div className="p-6">
-            {filteredContracts.length === 0 ? (
+            {isLoading ? (
+              <div className="text-center py-8">
+                <FileTextIcon className="mx-auto h-12 w-12 text-gray-400" />
+                <h3 className="mt-2 text-sm font-medium text-gray-900">Loading contracts...</h3>
+              </div>
+            ) : filteredContracts.length === 0 ? (
               <div className="text-center py-8">
                 <FileTextIcon className="mx-auto h-12 w-12 text-gray-400" />
                 <h3 className="mt-2 text-sm font-medium text-gray-900">No contracts</h3>
@@ -93,7 +116,7 @@ const Contracts = () => {
                         <div>
                           <h2 className="text-lg font-medium text-gray-900">{contract.jobTitle}</h2>
                           <p className="text-sm text-gray-600">
-                            {userType === 'client' ? `Freelancer: ${contract.freelancerName}` : `Client: ${contract.clientName}`}
+                            {user?.role === 'client' ? `Freelancer: ${contract.freelancerName}` : `Client: ${contract.clientName}`}
                           </p>
                         </div>
                       </div>

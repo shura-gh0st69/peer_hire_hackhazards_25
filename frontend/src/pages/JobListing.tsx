@@ -1,16 +1,39 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, Clock, DollarSign, Search, Filter, Star, MapPin, List, LayoutGrid, Bookmark, ChevronLeft, ChevronRight, Users } from 'lucide-react';
 import { CustomButton } from '@/components/ui/custom-button';
 import { GroqIcon } from '@/components/icons';
 import { cn } from '@/lib/utils';
-import { jobs as mockJobs } from '@/mockData';
+import { useAuth } from '@/context/AuthContext';
+import { dataService } from '@/services/DataService';
+import type { Job } from '@/types';
+import { toast } from 'sonner';
 
-const JobListing = () => {
+export const JobListing = () => {
+  const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterOpen, setFilterOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
   const [savedJobs, setSavedJobs] = useState<string[]>([]);
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        setIsLoading(true);
+        const jobsData = await dataService.getJobs();
+        setJobs(jobsData);
+      } catch (error) {
+        console.error('Error fetching jobs:', error);
+        toast.error('Failed to load jobs');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchJobs();
+  }, []);
 
   const handleSaveJob = (jobId: string) => {
     setSavedJobs(prev =>
@@ -205,7 +228,7 @@ const JobListing = () => {
         <div className="lg:col-span-3">
           <div className="bg-white rounded-lg border border-gray-200 shadow-sm mb-6 p-4">
             <div className="flex flex-col sm:flex-row justify-between items-center">
-              <p className="text-gray-600 mb-2 sm:mb-0"><span className="font-medium text-gray-900">{mockJobs.length}</span> jobs found</p>
+              <p className="text-gray-600 mb-2 sm:mb-0"><span className="font-medium text-gray-900">{jobs.length}</span> jobs found</p>
               <div className="flex items-center space-x-4">
                 <div className="flex items-center border border-gray-300 rounded-md">
                   <button
@@ -245,7 +268,7 @@ const JobListing = () => {
           <div className={cn(
             viewMode === 'list' ? 'space-y-6' : 'grid grid-cols-1 md:grid-cols-2 gap-6'
           )}>
-            {mockJobs.map((job) => {
+            {jobs.map((job) => {
               const isSaved = savedJobs.includes(job.id);
               return (
                 <div

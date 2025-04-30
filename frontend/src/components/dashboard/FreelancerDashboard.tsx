@@ -12,7 +12,11 @@ import {
   MessageSquare,
   Check,
   Users,
-  FileText
+  FileText,
+  Send,
+  Edit,
+  Trash2,
+  Copy
 } from 'lucide-react';
 import { CustomButton } from '@/components/ui/custom-button';
 import { GroqIcon, ScreenpipeIcon, BaseIcon } from '@/components/icons';
@@ -31,16 +35,20 @@ interface FreelancerDashboardProps {
 }
 
 const FreelancerDashboard: React.FC<FreelancerDashboardProps> = ({ dashboardData }) => {
-  const [activeTab, setActiveTab] = useState<'recommended' | 'active' | 'completed'>('recommended');
+  const [activeTab, setActiveTab] = useState<'recommended' | 'active-projects' | 'proposals' | 'completed' | 'drafts'>('recommended');
 
   const renderTabContent = () => {
     switch (activeTab) {
       case 'recommended':
         return <RecommendedJobs jobs={dashboardData.recommendedJobs} />;
-      case 'active':
-        return <ActiveJobs />;
+      case 'active-projects':
+        return <ActiveProjects />;
+      case 'proposals':
+        return <Proposals />;
       case 'completed':
-        return <CompletedJobs />;
+        return <CompletedProjects />;
+      case 'drafts':
+        return <DraftProposals />;
       default:
         return <RecommendedJobs jobs={dashboardData.recommendedJobs} />;
     }
@@ -53,7 +61,7 @@ const FreelancerDashboard: React.FC<FreelancerDashboardProps> = ({ dashboardData
           <h1 className="text-2xl font-bold text-gray-900 mb-6">Welcome, {dashboardData.name || 'Freelancer'}</h1>
 
           {/* Summary Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6">
             <Card>
               <CardContent className="p-4 sm:p-6">
                 <div className="flex items-center justify-between">
@@ -74,7 +82,7 @@ const FreelancerDashboard: React.FC<FreelancerDashboardProps> = ({ dashboardData
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">
-                      Active Applications
+                      Pending Proposals
                     </p>
                     <h3 className="text-2xl font-bold mt-1">{dashboardData.activeApplications}</h3>
                   </div>
@@ -102,10 +110,25 @@ const FreelancerDashboard: React.FC<FreelancerDashboardProps> = ({ dashboardData
                 </div>
               </CardContent>
             </Card>
+            <Card>
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Verification Score
+                    </p>
+                    <h3 className="text-2xl font-bold mt-1">85%</h3>
+                  </div>
+                  <div className="h-10 w-10 sm:h-12 sm:w-12 bg-primary/10 rounded-full flex items-center justify-center">
+                    <BaseIcon className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Quick Actions */}
-          <div className="grid grid-cols-3 gap-4 mb-6">
+          <div className="grid grid-cols-4 gap-4 mb-6">
             <Link to="/jobs">
               <CustomButton
                 fullWidth
@@ -116,14 +139,24 @@ const FreelancerDashboard: React.FC<FreelancerDashboardProps> = ({ dashboardData
                 Browse Jobs
               </CustomButton>
             </Link>
-            <Link to="/jobs/new-bid">
+            <Link to="/proposals">
+              <CustomButton
+                fullWidth
+                variant="outline"
+                className="h-14 border-primary"
+                leftIcon={<Send className="w-4 h-4" />}
+              >
+                My Proposals
+              </CustomButton>
+            </Link>
+            <Link to="/projects">
               <CustomButton
                 fullWidth
                 variant="outline"
                 className="h-14 border-primary"
                 leftIcon={<Briefcase className="w-4 h-4" />}
               >
-                Submit Bid
+                Active Projects
               </CustomButton>
             </Link>
             <CustomButton
@@ -132,14 +165,14 @@ const FreelancerDashboard: React.FC<FreelancerDashboardProps> = ({ dashboardData
               className="h-14"
               leftIcon={<ScreenpipeIcon className="w-4 h-4" />}
             >
-              Share Screenshot
+              Share Work Session
             </CustomButton>
           </div>
 
           {/* Jobs Tabs */}
           <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden mb-6">
             <div className="border-b border-gray-200">
-              <div className="flex">
+              <div className="flex flex-wrap">
                 <button
                   className={`flex-1 py-3 px-4 text-sm font-medium text-center ${activeTab === 'recommended'
                     ? 'text-primary border-b-2 border-primary'
@@ -150,13 +183,22 @@ const FreelancerDashboard: React.FC<FreelancerDashboardProps> = ({ dashboardData
                   Recommended Jobs
                 </button>
                 <button
-                  className={`flex-1 py-3 px-4 text-sm font-medium text-center ${activeTab === 'active'
+                  className={`flex-1 py-3 px-4 text-sm font-medium text-center ${activeTab === 'active-projects'
                     ? 'text-primary border-b-2 border-primary'
                     : 'text-gray-500 hover:text-gray-700'
                     }`}
-                  onClick={() => setActiveTab('active')}
+                  onClick={() => setActiveTab('active-projects')}
                 >
-                  Active Bids
+                  Active Projects
+                </button>
+                <button
+                  className={`flex-1 py-3 px-4 text-sm font-medium text-center ${activeTab === 'proposals'
+                    ? 'text-primary border-b-2 border-primary'
+                    : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                  onClick={() => setActiveTab('proposals')}
+                >
+                  My Proposals
                 </button>
                 <button
                   className={`flex-1 py-3 px-4 text-sm font-medium text-center ${activeTab === 'completed'
@@ -165,7 +207,16 @@ const FreelancerDashboard: React.FC<FreelancerDashboardProps> = ({ dashboardData
                     }`}
                   onClick={() => setActiveTab('completed')}
                 >
-                  Completed Jobs
+                  Completed Projects
+                </button>
+                <button
+                  className={`flex-1 py-3 px-4 text-sm font-medium text-center ${activeTab === 'drafts'
+                    ? 'text-primary border-b-2 border-primary'
+                    : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                  onClick={() => setActiveTab('drafts')}
+                >
+                  Draft Proposals
                 </button>
               </div>
             </div>
@@ -274,7 +325,7 @@ const RecommendedJobs = ({ jobs }: { jobs: any[] }) => {
   );
 };
 
-const ActiveJobs = () => {
+const ActiveProjects = () => {
   return (
     <div>
       <div className="space-y-4">
@@ -285,6 +336,8 @@ const ActiveJobs = () => {
             deadline: "Oct 30, 2025",
             payment: "$3,500",
             progress: 65,
+            nextMilestone: "Product Listings Page",
+            dueInDays: 3,
             messages: 3,
             status: "In Progress"
           },
@@ -294,17 +347,21 @@ const ActiveJobs = () => {
             deadline: "Nov 15, 2025",
             payment: "$4,800",
             progress: 30,
+            nextMilestone: "User Authentication",
+            dueInDays: 5,
             messages: 0,
             status: "In Progress"
           },
           {
-            title: "Portfolio Website Design",
-            client: "John Smith",
-            deadline: "Oct 20, 2025",
-            payment: "$1,200",
-            progress: 0,
-            messages: 1,
-            status: "Bid Accepted"
+            title: "React Developer for Dashboard UI",
+            client: "Tech Innovations",
+            deadline: "April 30, 2025",
+            payment: "$2,800",
+            progress: 92,
+            nextMilestone: "Final UI Components",
+            dueInDays: 0,
+            messages: 2,
+            status: "In Progress"
           }
         ].map((job, index) => (
           <div key={index} className="border border-gray-200 rounded-lg hover:border-primary hover:shadow-sm transition-all p-4">
@@ -321,23 +378,43 @@ const ActiveJobs = () => {
               </div>
             </div>
 
-            {job.progress > 0 && (
-              <div className="space-y-3 mb-4">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Progress</span>
-                  <span className="font-medium text-gray-900">{job.progress}%</span>
+            <div className="space-y-3 mb-4">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">Progress</span>
+                <span className="font-medium text-gray-900">{job.progress}%</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div
+                  className="h-full rounded-full"
+                  style={{
+                    width: `${job.progress}%`,
+                    background: 'linear-gradient(90deg, #0052FF, #2563EB)'
+                  }}
+                ></div>
+              </div>
+            </div>
+            
+            <div className="bg-gray-50 p-3 rounded-md border border-gray-100 mb-4">
+              <div className="flex justify-between items-center">
+                <div className="flex items-center">
+                  <Calendar className="w-4 h-4 text-primary mr-2" />
+                  <div>
+                    <p className="text-xs text-gray-600">Next Milestone</p>
+                    <p className="text-sm font-medium">{job.nextMilestone}</p>
+                  </div>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div
-                    className="h-full rounded-full"
-                    style={{
-                      width: `${job.progress}%`,
-                      background: 'linear-gradient(90deg, #0052FF, #2563EB)'
-                    }}
-                  ></div>
+                <div className={`text-xs px-2 py-1 rounded-full ${
+                  job.dueInDays === 0 ? "bg-red-100 text-red-700 font-bold" : 
+                  job.dueInDays <= 2 ? "bg-red-100 text-red-700" : 
+                  job.dueInDays <= 5 ? "bg-yellow-100 text-yellow-700" : 
+                  "bg-green-100 text-green-700"
+                }`}>
+                  {job.dueInDays === 0 ? "Due TODAY!" : 
+                   job.dueInDays === 1 ? "Due Tomorrow!" : 
+                   `Due in ${job.dueInDays} Days`}
                 </div>
               </div>
-            )}
+            </div>
 
             <div className="flex justify-between items-center text-xs">
               <div className="space-x-3">
@@ -354,19 +431,22 @@ const ActiveJobs = () => {
                 )}
               </div>
               <div className="flex space-x-2">
-                {job.status === "In Progress" && (
-                  <button className="text-success hover:text-success/80">
-                    <ScreenpipeIcon className="w-4 h-4" />
-                  </button>
-                )}
+                <button className="text-success hover:text-success/80">
+                  <ScreenpipeIcon className="w-4 h-4" />
+                </button>
                 <button className="text-primary hover:text-primary/80">
                   <MessageSquare className="w-4 h-4" />
                 </button>
               </div>
             </div>
 
-            <div className="mt-4 flex justify-end">
-              <Link to={`/jobs/${index}/details`}>
+            <div className="mt-4 flex justify-end space-x-3">
+              <Link to={`/projects/${index}/submit-work`}>
+                <CustomButton variant="accent" size="sm">
+                  Submit Work
+                </CustomButton>
+              </Link>
+              <Link to={`/projects/${index}/details`}>
                 <CustomButton variant="outline" size="sm">
                   View Details
                 </CustomButton>
@@ -379,7 +459,82 @@ const ActiveJobs = () => {
   );
 };
 
-const CompletedJobs = () => {
+const Proposals = () => {
+  return (
+    <div>
+      <div className="space-y-4">
+        {[
+          {
+            title: "React Native Mobile App",
+            client: "Digital Innovations LLC",
+            bidAmount: "$3,200",
+            proposalDate: "April 25, 2025",
+            status: "Pending",
+            viewed: true
+          },
+          {
+            title: "Frontend Dashboard Development",
+            client: "Finance Tech Corp",
+            bidAmount: "$2,800",
+            proposalDate: "April 20, 2025",
+            status: "Pending",
+            viewed: false
+          },
+          {
+            title: "E-commerce Site Redesign",
+            client: "Retail Solutions Inc.",
+            bidAmount: "$4,500",
+            proposalDate: "April 15, 2025",
+            status: "Under Review",
+            viewed: true
+          }
+        ].map((proposal, index) => (
+          <div key={index} className="border border-gray-200 rounded-lg hover:border-primary hover:shadow-sm transition-all p-4">
+            <div className="flex justify-between items-start mb-3">
+              <div>
+                <h3 className="font-medium text-gray-900">{proposal.title}</h3>
+                <p className="text-sm text-gray-600">Client: {proposal.client}</p>
+              </div>
+              <div className={`text-xs px-2 py-1 rounded-full ${proposal.status === "Pending" && !proposal.viewed ? "bg-yellow-100 text-yellow-700" :
+                  proposal.status === "Pending" && proposal.viewed ? "bg-blue-100 text-blue-700" :
+                    proposal.status === "Under Review" ? "bg-green-100 text-green-700" :
+                      "bg-gray-100 text-gray-700"
+                }`}>
+                {proposal.status}
+                {proposal.status === "Pending" && proposal.viewed && " (Viewed)"}
+              </div>
+            </div>
+
+            <div className="flex justify-between items-center text-xs">
+              <div className="space-x-4">
+                <span className="inline-flex items-center text-gray-600">
+                  <DollarSign className="w-3.5 h-3.5 mr-1" /> Bid: {proposal.bidAmount}
+                </span>
+                <span className="inline-flex items-center text-gray-600">
+                  <Calendar className="w-3.5 h-3.5 mr-1" /> Submitted: {proposal.proposalDate}
+                </span>
+              </div>
+              <div className="flex space-x-2">
+                <Link to={`/proposals/${index}/edit`}>
+                  <CustomButton variant="outline" size="sm">
+                    Edit Proposal
+                  </CustomButton>
+                </Link>
+                <Link to={`/proposals/${index}/details`}>
+                  <CustomButton variant="primary" size="sm">
+                    View Details
+                  </CustomButton>
+                </Link>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const CompletedProjects = () => {
   return (
     <div>
       <div className="space-y-4">
@@ -428,9 +583,103 @@ const CompletedJobs = () => {
                   <DollarSign className="w-3.5 h-3.5 mr-1" /> {job.payment}
                 </span>
               </div>
-              <Link to={`/jobs/${index}/details`} className="text-primary hover:text-primary/80 text-xs font-medium">
+              <Link to={`/projects/${index}/details`} className="text-primary hover:text-primary/80 text-xs font-medium">
                 View Details
               </Link>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const DraftProposals = () => {
+  return (
+    <div>
+      <div className="flex justify-between items-center mb-4">
+        <div className="flex items-center">
+          <Edit className="w-5 h-5 text-primary mr-2" />
+          <p className="text-sm text-gray-600">Save your proposal drafts and edit them before submitting</p>
+        </div>
+        <div className="flex space-x-2">
+          <button className="p-1.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md">
+            <Search className="w-4 h-4" />
+          </button>
+          <button className="p-1.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md">
+            <Filter className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        {[
+          {
+            title: "WordPress E-commerce Store Development",
+            client: "BetterRetail Inc.",
+            bidAmount: "$3,800",
+            saved: "April 26, 2025",
+            coverLetter: "I have extensive experience building WordPress e-commerce stores...",
+            attachments: 2
+          },
+          {
+            title: "Mobile App UX/UI Redesign",
+            client: "HealthTech Solutions",
+            bidAmount: "$2,500",
+            saved: "April 24, 2025",
+            coverLetter: "I'm a UI/UX designer with 5+ years of experience in mobile app design...",
+            attachments: 1
+          },
+          {
+            title: "SEO Optimization Project",
+            client: "GrowthMarketing Ltd.",
+            bidAmount: "$1,800",
+            saved: "April 22, 2025",
+            coverLetter: "As an SEO specialist with a proven track record...",
+            attachments: 3
+          }
+        ].map((draft, index) => (
+          <div key={index} className="border border-gray-200 rounded-lg hover:border-primary hover:shadow-sm transition-all p-4">
+            <div className="flex justify-between items-start mb-3">
+              <div>
+                <h3 className="font-medium text-gray-900">{draft.title}</h3>
+                <p className="text-sm text-gray-600">Client: {draft.client}</p>
+              </div>
+              <div className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">
+                Draft
+              </div>
+            </div>
+
+            <div className="bg-gray-50 p-3 rounded border border-gray-100 mb-3">
+              <p className="text-xs text-gray-500 mb-1">Cover Letter Preview:</p>
+              <p className="text-sm text-gray-700 line-clamp-2">{draft.coverLetter}</p>
+            </div>
+
+            <div className="flex justify-between items-center text-xs">
+              <div className="space-x-4">
+                <span className="inline-flex items-center text-gray-600">
+                  <DollarSign className="w-3.5 h-3.5 mr-1" /> Bid Amount: {draft.bidAmount}
+                </span>
+                <span className="inline-flex items-center text-gray-600">
+                  <Calendar className="w-3.5 h-3.5 mr-1" /> Saved: {draft.saved}
+                </span>
+                <span className="inline-flex items-center text-gray-600">
+                  <FileText className="w-3.5 h-3.5 mr-1" /> {draft.attachments} {draft.attachments === 1 ? 'attachment' : 'attachments'}
+                </span>
+              </div>
+              <div className="flex space-x-2">
+                <button className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded">
+                  <Copy className="w-4 h-4" />
+                </button>
+                <button className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-gray-100 rounded">
+                  <Trash2 className="w-4 h-4" />
+                </button>
+                <Link to={`/proposals/drafts/${index}/edit`}>
+                  <CustomButton variant="primary" size="sm">
+                    Edit & Submit
+                  </CustomButton>
+                </Link>
+              </div>
             </div>
           </div>
         ))}

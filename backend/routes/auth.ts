@@ -951,4 +951,34 @@ authRoutes.delete('/users/wallet', auth, async (c) => {
   }
 });
 
+// Get contracts for a user (client or freelancer)
+authRoutes.get('/contracts/:userId', auth, async (c) => {
+  try {
+    const user = c.get('user');
+    if (!user) {
+      return c.json({ error: 'Unauthorized' }, 401);
+    }
+
+    const { userId } = c.req.param();
+    const { role } = c.req.query();
+
+    // Verify requesting user has permission
+    if (user._id !== userId) {
+      return c.json({ error: 'Forbidden' }, 403);
+    }
+
+    let contracts;
+    if (role === 'client') {
+      contracts = await Contract.find({ clientId: userId });
+    } else {
+      contracts = await Contract.find({ freelancerId: userId });
+    }
+
+    return c.json({ contracts });
+  } catch (error) {
+    console.error('Error fetching contracts:', error);
+    return c.json({ error: 'Failed to fetch contracts' }, 500);
+  }
+});
+
 export { authRoutes };

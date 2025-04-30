@@ -1,27 +1,6 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
-
-// Cache configuration
-const CACHE_CONFIG = {
-  // Endpoints that should be cached and their TTLs (in ms)
-  CACHEABLE_ENDPOINTS: {
-    '/jobs': 5 * 60 * 1000, // 5 min
-    '/jobs/categories': 60 * 60 * 1000, // 1 hour
-    '/jobs/skills': 60 * 60 * 1000, // 1 hour
-    '/auth/dashboard': 5 * 60 * 1000, // 5 min
-    '/auth/me': 30 * 60 * 1000, // 30 min
-    '/auth/profile': 30 * 60 * 1000 // 30 min
-  },
-  // Endpoints that should never be cached
-  UNCACHEABLE_ENDPOINTS: [
-    '/auth/login',
-    '/auth/signup',
-    '/auth/logout',
-    '/users/wallet',
-    '/proposals',
-    '/payments'
-  ]
-};
+import { CACHE_KEYS } from '@/context/AuthContext';
 
 // In-memory request cache
 const requestCache = new Map();
@@ -38,21 +17,46 @@ const cacheUtils = {
     if (method !== 'GET') return false;
     
     // Check if endpoint is explicitly uncacheable
-    if (CACHE_CONFIG.UNCACHEABLE_ENDPOINTS.some(endpoint => url.includes(endpoint))) {
+    const uncacheableEndpoints = [
+      '/auth/login',
+      '/auth/signup',
+      '/auth/logout',
+      '/users/wallet',
+      '/proposals',
+      '/payments'
+    ];
+
+    if (uncacheableEndpoints.some(endpoint => url.includes(endpoint))) {
       return false;
     }
     
     // Check if endpoint is explicitly cacheable
-    return Object.keys(CACHE_CONFIG.CACHEABLE_ENDPOINTS).some(endpoint => 
-      url.includes(endpoint)
-    );
+    const cacheableEndpoints = {
+      '/jobs': 5 * 60 * 1000, // 5 min
+      '/jobs/categories': 60 * 60 * 1000, // 1 hour
+      '/jobs/skills': 60 * 60 * 1000, // 1 hour
+      '/auth/dashboard': 5 * 60 * 1000, // 5 min
+      '/auth/me': 30 * 60 * 1000, // 30 min
+      '/auth/profile': 30 * 60 * 1000 // 30 min
+    };
+
+    return Object.keys(cacheableEndpoints).some(endpoint => url.includes(endpoint));
   },
 
   getCacheTTL: (url) => {
-    const matchingEndpoint = Object.keys(CACHE_CONFIG.CACHEABLE_ENDPOINTS).find(endpoint => 
+    const cacheableEndpoints = {
+      '/jobs': 5 * 60 * 1000,
+      '/jobs/categories': 60 * 60 * 1000,
+      '/jobs/skills': 60 * 60 * 1000,
+      '/auth/dashboard': 5 * 60 * 1000,
+      '/auth/me': 30 * 60 * 1000,
+      '/auth/profile': 30 * 60 * 1000
+    };
+
+    const matchingEndpoint = Object.keys(cacheableEndpoints).find(endpoint => 
       url.includes(endpoint)
     );
-    return matchingEndpoint ? CACHE_CONFIG.CACHEABLE_ENDPOINTS[matchingEndpoint] : 0;
+    return matchingEndpoint ? cacheableEndpoints[matchingEndpoint] : 0;
   },
 
   setCacheResponse: (key, response, ttl) => {
@@ -97,7 +101,8 @@ const api = axios.create({
 
 // Request interceptor
 api.interceptors.request.use(async (config) => {
-  const token = Cookies.get('auth_token');
+  // Add auth token if available
+  const token = Cookies.get(CACHE_KEYS.AUTH_TOKEN);
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }

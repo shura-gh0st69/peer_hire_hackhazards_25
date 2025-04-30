@@ -22,6 +22,8 @@ import ProjectDetails from "./pages/ProjectDetails";
 import WorkVerification from "./pages/WorkVerification";
 import ScreenRecording from "./pages/ScreenRecording";
 import Proposals from "./pages/Proposals";
+import ProposalEdit from "./pages/ProposalEdit";
+import ActiveJobs from "./pages/ActiveJobs";
 import Notifications from "./pages/Notifications";
 import HelpCenter from "./pages/HelpCenter";
 import About from "./pages/About";
@@ -50,9 +52,9 @@ import PostedJobs from '@/pages/PostedJobs';
 const queryClient = new QueryClient();
 
 const App = () => {
-  let [isLoading, setIsLoading] = useState(false);
+  let [isLoading, setIsLoading] = useState(true);
   let [retryCount, setRetryCount] = useState(0);
-  const MAX_RETRIES = 3;
+  const MAX_RETRIES = 5;
 
   useEffect(() => {
     // Log frontend environment variables
@@ -66,7 +68,7 @@ const App = () => {
 
     const checkBackend = async () => {
       try {
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}/healthz`);
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/spinup`);
         if (response.status >= 200 && response.status < 300) {
           setIsLoading(false);
           setRetryCount(0);
@@ -140,6 +142,8 @@ const App = () => {
                 <Route path="/jobs" element={<JobListing />} />
                 <Route path="/jobs/:id" element={<JobDetails />} />
                 <Route path="/proposals" element={<Proposals />} />
+                <Route path="/proposals/edit/:id" element={<ProposalEdit />} />
+                <Route path="/jobs/active" element={<ActiveJobs />} />
                 <Route path="/freelancers" element={<FreelancerListing />} />
 
                 {/* Projects & Contracts */}

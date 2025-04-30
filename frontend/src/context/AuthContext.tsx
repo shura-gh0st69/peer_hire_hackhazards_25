@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect, useRef } from "react";
 import api from "@/lib/api";
-import { mockFreelancerDashboard, mockClientDashboard } from '@/mockData';
+import { dataService } from "@/services/DataService";
 import Cookies from 'js-cookie';
 
 // Constants for cache keys and TTLs
@@ -409,32 +409,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const fetchDashboardData = async () => {
         if (!user) return;
 
-        // Check cache first
-        const cachedData = cacheUtils.localStorage.get(CACHE_KEYS.DASHBOARD_DATA, CACHE_TTL.DASHBOARD);
-        if (cachedData) {
-            setDashboardData(cachedData);
-            return cachedData;
-        }
-
         try {
-            const response = await deduplicateRequest('dashboard_data', () =>
-                api.get('/auth/dashboard')
-            );
-
-            const data = response.data;
+            const data = await dataService.getDashboardData(user.role);
             setDashboardData(data);
-            cacheUtils.localStorage.set(CACHE_KEYS.DASHBOARD_DATA, data, CACHE_TTL.DASHBOARD);
-            return data;
         } catch (error) {
             console.error('Failed to fetch dashboard data:', error);
-            // Create proper mock data structure
-            const mockData: DashboardData = user.role === 'freelancer'
-                ? { freelancer: mockFreelancerDashboard }
-                : { client: mockClientDashboard };
-
-            setDashboardData(mockData);
-            cacheUtils.localStorage.set(CACHE_KEYS.DASHBOARD_DATA, mockData, CACHE_TTL.FALLBACK_DASHBOARD);
-            return mockData;
+            throw error;
         }
     };
 
