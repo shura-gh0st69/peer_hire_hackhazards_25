@@ -72,22 +72,28 @@ app.use('*', requestLogger);
 // Setup CORS middleware with support for multiple origins
 app.use('*', cors({
   origin: (origin) => {
-    // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return '*';
-    
-    // Check if the origin is in our allowed list
     if (allowedOrigins.includes(origin)) {
       return origin;
     }
-    // Return null for non-allowed origins
     return null;
   },
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowHeaders: ['Authorization', 'Content-Type', 'Accept'],
+  allowHeaders: ['Authorization', 'Content-Type', 'Accept', 'X-Requested-With', 'Origin'],
   exposeHeaders: ['Content-Length', 'X-Powered-By'],
   maxAge: 86400,
   credentials: true,
 }));
+
+// Add cache control middleware
+app.use('*', async (c, next) => {
+  await next();
+  if (c.req.method === 'GET') {
+    c.header('Cache-Control', 'private, max-age=3600');
+  } else {
+    c.header('Cache-Control', 'no-store');
+  }
+});
 
 // Spinup check endpoint
 app.get('/spinup', (c) => c.json({ status: 'ok' }));
@@ -128,7 +134,6 @@ app.use('/api/*', auth);
 
 // Example protected routes
 
-
 // Client-only routes
 app.get('/api/client/*', requireClient, (c) => {
   return c.json({ message: 'Client  accessible' });
@@ -137,6 +142,15 @@ app.get('/api/client/*', requireClient, (c) => {
 // Freelancer-only routes
 app.get('/api/freelancer/*', requireFreelancer, (c) => {
   return c.json({ message: 'Freelancer  accessible' });
+});
+
+// Default 404 route - must be last
+app.notFound((c) => {
+  return c.json({ 
+    status: 'error',
+    message: 'Route not found',
+    path: c.req.path
+  }, 404);
 });
 
 // Start server
