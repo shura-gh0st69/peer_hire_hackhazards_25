@@ -98,6 +98,14 @@ app.use('*', async (c, next) => {
 // Spinup check endpoint
 app.get('/spinup', (c) => c.json({ status: 'ok' }));
 
+// Root route for server info
+app.get('/', (c) => c.json({
+  name: 'PeerHire API',
+  version: '1.0.0',
+  status: 'running',
+  timestamp: new Date().toISOString()
+}));
+
 // Health check endpoint with MongoDB connection status
 app.get('/healthz', async (c) => {
   try {
