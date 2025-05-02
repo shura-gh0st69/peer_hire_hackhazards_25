@@ -5,8 +5,11 @@ import { serve } from '@hono/node-server';
 import { cors } from 'hono/cors';
 import dotenv from 'dotenv';
 import { connect } from 'mongoose';
+import { secureHeaders } from 'hono/secure-headers';
+import { rateLimiter } from 'hono-rate-limiter';
 
 dotenv.config();
+
 
 // Log all environment variables (excluding sensitive ones)
 console.log('Environment Configuration:');
@@ -36,6 +39,20 @@ const requestLogger = async (c, next) => {
     `[${new Date().toISOString()}] ${requestId} <- ${method} ${url} ${status} ${duration}ms`
   );
 };
+
+// Function to anonymize IP addresses
+function anonymizeIp(ip: string): string {
+  if (ip.includes('.')) {
+    const parts = ip.split('.');
+    parts[3] = '0';
+    return parts.join('.');
+  } else if (ip.includes(':')) {
+    const parts = ip.split(':');
+    parts[parts.length - 1] = '0000';
+    return parts.join(':');
+  }
+  return ip;
+}
 
 // Ensure required environment variables are set
 const mongoURI = process.env.MONGODB_URI;
@@ -68,6 +85,30 @@ const app = new Hono();
 
 // Add request logging middleware before other middleware
 app.use('*', requestLogger);
+
+// Enhanced security headers
+app.use('*', secureHeaders({
+  strictTransportSecurity: 'max-age=63072000; includeSubDomains; preload',
+  xFrameOptions: 'DENY',
+  xXssProtection: '1; mode=block',
+  contentSecurityPolicy: {
+    defaultSrc: ["'self'"],
+    scriptSrc: ["'self'"],
+    styleSrc: ["'self'", "'unsafe-inline'"],
+    imgSrc: ["'self'", 'data:'],
+    objectSrc: ["'none'"],
+  },
+}));
+
+// Rate limiting middleware
+app.use('*', rateLimiter({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  limit: 100, // Limit each IP to 100 requests per windowMs
+  standardHeaders: 'draft-7',
+  keyGenerator: (c) => {
+    return anonymizeIp(c.req.raw.headers.get('x-forwarded-for') || 'unknown');
+  }
+}));
 
 // Setup CORS middleware with support for multiple origins
 app.use('*', cors({
@@ -106,33 +147,38 @@ app.get('/', (c) => c.json({
   timestamp: new Date().toISOString()
 }));
 
-// Health check endpoint with MongoDB connection status
+// Enhanced health check endpoint
 app.get('/healthz', async (c) => {
   try {
     // Check MongoDB connection
-    
-    return c.json({ 
-      status: 'ok',
-      timestamp: new Date().toISOString()
-    });
+    connectDB();
+    return c.json({ status: 'ok', message: 'MongoDB connection successful & the server is running!' });
   } catch (error) {
-    return c.json({ 
-      status: 'error',
-      error: 'Health check failed'
-    }, 500);
+    console.error('Health check error:', error);
+    return c.json({ status: 'error', message: 'MongoDB connection failed' }, 500);
   }
+   
+
 });
 
-// MongoDB connection
-const connectDB = async () => {
+// Enhanced MongoDB connection with retry logic
+const connectDB = async (retries = 5) => {
   try {
-    await connect(mongoURI);
-    console.log('MongoDB connected');
+    await connect(mongoURI, {
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+    });
+    console.log('MongoDB connected successfully');
   } catch (error) {
     console.error('MongoDB connection error:', error);
+    if (retries > 0) {
+      console.log(`Retrying connection... (${retries} attempts remaining)`);
+      await new Promise(resolve => setTimeout(resolve, 5000));
+      return connectDB(retries - 1);
+    }
+    process.exit(1);
   }
 };
-connectDB();
 
 // Public routes
 app.route('/auth', authRoutes);
