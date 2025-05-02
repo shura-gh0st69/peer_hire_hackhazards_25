@@ -231,7 +231,7 @@ app.notFound((c) => {
 });
 
 // Start server
-serve({
+export default({
   fetch: app.fetch,
   port,
 });
