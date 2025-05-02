@@ -132,12 +132,7 @@ app.use('*', rateLimiter({
 
 // Enhanced CORS configuration
 app.use('*', cors({
-  origin: (origin) => {
-    if (!origin) return allowedOrigins[0];
-    if (allowedOrigins.includes(origin)) return origin;
-    console.warn(`Blocked request from unauthorized origin: ${origin}`);
-    return null;
-  },
+  origin: '*',
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowHeaders: [
     'Authorization',
