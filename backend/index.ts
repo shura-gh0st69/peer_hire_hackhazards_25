@@ -132,7 +132,12 @@ app.use('*', rateLimiter({
 
 // Enhanced CORS configuration
 app.use('*', cors({
-  origin: '*',
+  origin: (origin) => {
+    if (!origin) return allowedOrigins[0];
+    if (allowedOrigins.includes(origin)) return origin;
+    console.warn(`Blocked request from unauthorized origin: ${origin}`);
+    return null;
+  },
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowHeaders: [
     'Authorization',
@@ -144,7 +149,6 @@ app.use('*', cors({
   ],
   exposeHeaders: ['Content-Length', 'X-Rate-Limit'],
   maxAge: 86400,
-  credentials: true,
 }));
 
 // Add cache control middleware
