@@ -10,7 +10,6 @@ import { rateLimiter } from 'hono-rate-limiter';
 
 dotenv.config();
 
-
 // Log all environment variables (excluding sensitive ones)
 console.log('Environment Configuration:');
 console.log('------------------------');
@@ -22,23 +21,6 @@ console.log('JWT_EXPIRATION:', process.env.JWT_EXPIRATION);
 console.log('FRONTEND_URL:', process.env.FRONTEND_URL);
 console.log('DEMO_MODE:', process.env.DEMO_MODE);
 console.log('------------------------');
-
-// Request logging middleware
-const requestLogger = async (c, next) => {
-  const start = Date.now();
-  const { method, url } = c.req;
-  const requestId = crypto.randomUUID();
-
-  console.log(`[${new Date().toISOString()}] ${requestId} -> ${method} ${url}`);
-
-  await next();
-
-  const duration = Date.now() - start;
-  const status = c.res.status;
-  console.log(
-    `[${new Date().toISOString()}] ${requestId} <- ${method} ${url} ${status} ${duration}ms`
-  );
-};
 
 // Function to anonymize IP addresses
 function anonymizeIp(ip: string): string {
@@ -73,55 +55,99 @@ if (!jwtExpiration) {
 const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
 // CORS Configuration
-// Get allowed origins from environment variables
-// Support both single URL and comma-separated URLs
-let frontendURL = process.env.FRONTEND_URL || 'https://hackhazards25-peer-hire.onrender.com';
-// Convert to array if comma-separated string
-const allowedOrigins = frontendURL.split(',').map(origin => origin.trim());
+const frontendURL = process.env.FRONTEND_URL || 'https://hackhazards25-peer-hire.onrender.com';
+const developmentOrigins = process.env.NODE_ENV === 'development' ? ['http://localhost:3000', 'http://localhost:5173'] : [];
+const allowedOrigins = [...new Set([...frontendURL.split(',').map(origin => origin.trim()), ...developmentOrigins])];
 
+console.log('CORS Configuration:');
 console.log('Allowed Origins:', allowedOrigins);
 
 const app = new Hono();
 
-// Add request logging middleware before other middleware
-app.use('*', requestLogger);
+// Global error handler
+app.onError((err, c) => {
+  console.error(`[${new Date().toISOString()}] Error:`, err);
+  return c.json({
+    status: 'error',
+    message: process.env.NODE_ENV === 'development' ? err.message : 'Internal Server Error'
+  }, 500);
+});
 
-// Enhanced security headers
+// Request logging middleware with more details
+app.use('*', async (c, next) => {
+  const requestId = crypto.randomUUID();
+  const start = Date.now();
+  console.log(`[${new Date().toISOString()}] ${requestId} -> ${c.req.method} ${c.req.url}`);
+  console.log('Headers:', Object.fromEntries(c.req.raw.headers.entries()));
+  
+  try {
+    await next();
+  } catch (err) {
+    console.error(`[${requestId}] Error:`, err);
+    throw err;
+  }
+
+  const duration = Date.now() - start;
+  console.log(`[${new Date().toISOString()}] ${requestId} <- ${c.res.status} (${duration}ms)`);
+});
+
+// Enhanced security headers with more restrictive CSP
 app.use('*', secureHeaders({
   strictTransportSecurity: 'max-age=63072000; includeSubDomains; preload',
   xFrameOptions: 'DENY',
   xXssProtection: '1; mode=block',
+  xContentTypeOptions: 'nosniff',
+  referrerPolicy: 'strict-origin-when-cross-origin',
   contentSecurityPolicy: {
     defaultSrc: ["'self'"],
-    scriptSrc: ["'self'"],
+    scriptSrc: ["'self'", "'wasm-unsafe-eval'"],
     styleSrc: ["'self'", "'unsafe-inline'"],
-    imgSrc: ["'self'", 'data:'],
+    imgSrc: ["'self'", 'data:', 'https:'],
+    connectSrc: ["'self'", ...allowedOrigins],
+    fontSrc: ["'self'", 'https:', 'data:'],
     objectSrc: ["'none'"],
+    mediaSrc: ["'self'"],
+    frameSrc: ["'none'"],
   },
 }));
 
-// Rate limiting middleware
+// Enhanced rate limiting with different limits for various endpoints
 app.use('*', rateLimiter({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  limit: 100, // Limit each IP to 100 requests per windowMs
+  windowMs: 15 * 60 * 1000,
+  limit: (c) => {
+    const path = new URL(c.req.url).pathname;
+    if (path.startsWith('/api/auth')) return 20;  // Stricter limits for auth
+    if (path.startsWith('/api')) return 100;      // API endpoints
+    return 200;                                   // Public endpoints
+  },
   standardHeaders: 'draft-7',
   keyGenerator: (c) => {
-    return anonymizeIp(c.req.raw.headers.get('x-forwarded-for') || 'unknown');
+    const ip = anonymizeIp(c.req.raw.headers.get('x-forwarded-for') || 
+                          c.req.raw.headers.get('x-real-ip') || 
+                          'unknown');
+    const path = new URL(c.req.url).pathname;
+    return `${ip}:${path}`;  // Rate limit per IP and path
   }
 }));
 
-// Setup CORS middleware with support for multiple origins
+// Enhanced CORS configuration
 app.use('*', cors({
   origin: (origin) => {
-    if (!origin) return '*';
-    if (allowedOrigins.includes(origin)) {
-      return origin;
-    }
+    if (!origin) return allowedOrigins[0];
+    if (allowedOrigins.includes(origin)) return origin;
+    console.warn(`Blocked request from unauthorized origin: ${origin}`);
     return null;
   },
-  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowHeaders: ['Authorization', 'Content-Type', 'Accept', 'X-Requested-With', 'Origin'],
-  exposeHeaders: ['Content-Length', 'X-Powered-By'],
+  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowHeaders: [
+    'Authorization',
+    'Content-Type',
+    'Accept',
+    'Origin',
+    'X-Requested-With',
+    'X-API-Key'
+  ],
+  exposeHeaders: ['Content-Length', 'X-Rate-Limit'],
   maxAge: 86400,
   credentials: true,
 }));
@@ -157,8 +183,6 @@ app.get('/healthz', async (c) => {
     console.error('Health check error:', error);
     return c.json({ status: 'error', message: 'MongoDB connection failed' }, 500);
   }
-   
-
 });
 
 // Enhanced MongoDB connection with retry logic
@@ -190,12 +214,12 @@ app.use('/api/*', auth);
 
 // Client-only routes
 app.get('/api/client/*', requireClient, (c) => {
-  return c.json({ message: 'Client  accessible' });
+  return c.json({ message: 'Client accessible' });
 });
 
 // Freelancer-only routes
 app.get('/api/freelancer/*', requireFreelancer, (c) => {
-  return c.json({ message: 'Freelancer  accessible' });
+  return c.json({ message: 'Freelancer accessible' });
 });
 
 // Default 404 route - must be last
