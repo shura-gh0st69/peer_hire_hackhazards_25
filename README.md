@@ -27,7 +27,7 @@ PeerHire solves the problem of trust and transparency in freelance marketplaces 
 ### Team Members
 
 - Jaykumar Patel (Fullstack Dev | The Blockchain Guy | Groq Guy)
-- V Meghashreee (Frontend Lead | Screenpipe Integration)
+- V Meghashreee (Frontend Lead | Screenpipe Integration | Blockchain Contributor | Backend Bug Hunter)
 - Tejaswini S (Backend Dev)
 - Priyanshi Bhardwaj (AI Specialist)
 
